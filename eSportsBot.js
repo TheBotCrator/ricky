@@ -51,32 +51,32 @@ client.on('message', message => {
                     if (message.member.roles.find("name", roleToAdd)) {
                         message.member.removeRole(addedRole)
                         .then(() => {
-                            message.delete(250).then(message.channel.send(`${message.member.user}, I have removed the role \`${roleToAdd}\`.`))
+                            message.delete(250).then(message.channel.send(`${message.member.user}, I have removed the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
                         })
                         .catch(() => {
-                            message.delete(250).then(message.channel.send(`${message.member.user}, I cannot remove the role \`${roleToAdd}\`.`))
+                            message.delete(250).then(message.channel.send(`${message.member.user}, I cannot remove the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
                         })
                     }
 
                     else {
                         message.member.addRole(addedRole)
                         .then(() => {
-                            message.delete(250).then(message.channel.send(`${message.member.user}, I have given you the role \`${roleToAdd}.\``))
+                            message.delete(250).then(message.channel.send(`${message.member.user}, I have given you the role \`${roleToAdd}.\``).then(msg => msg.delete(30000)))
                         })
                         .catch(error => {
-                            message.delete(250).then(message.channel.send(`${message.member.user}, I cannot give you the role \`${roleToAdd}\`.`));
+                            message.delete(250).then(message.channel.send(`${message.member.user}, I cannot give you the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)));
                         });
                     }
                     break;
                 }
 
                 else {
-                    message.delete(250).then(message.channel.send(`${message.member.user}, \`${argNoTag}\` is not a role.`).then(msg => msg.delete(5000)));
+                    message.delete(250).then(message.channel.send(`${message.member.user}, \`${argNoTag}\` is not a role.`).then(msg => msg.delete(30000)));
                 }
             }
 
             else {
-                message.delete(250).then(message.channel.send(`${message.member.user}, please put the role you wish to add (ex: \`$im @Thing\`)`).then(msg => msg.delete(5000)))
+                message.delete(250).then(message.channel.send(`${message.member.user}, please put the role you wish to add (ex: \`!role Thing\`)`).then(msg => msg.delete(30000)))
             }
             break;
 
