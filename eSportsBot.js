@@ -79,10 +79,6 @@ client.on('message', message => {
                 message.delete(250).then(message.channel.send(`${message.member.user}, please put the role you wish to add (ex: \`!role Thing\`)`).then(msg => msg.delete(30000)))
             }
             break;
-
-        default:
-            message.delete(250).then(message.channel.send(`${message.member.user}, \`\!${command}\` is not a command.`).then(msg => msg.delete(5000)));
-            break;
     }
 });
 
