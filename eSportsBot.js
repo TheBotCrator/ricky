@@ -81,7 +81,7 @@ client.on('message', message => {
             break;
 
         default:
-            message.delete(250).then(message.channel.send(`${message.member.user}, \`\$${command}\` is not a command.`).then(msg => msg.delete(5000)));
+            message.delete(250).then(message.channel.send(`${message.member.user}, \`\!${command}\` is not a command.`).then(msg => msg.delete(5000)));
             break;
     }
 });
