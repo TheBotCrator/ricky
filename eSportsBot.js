@@ -60,40 +60,22 @@ client.on('message', message => {
 
                     if (message.member.roles.find("name", roleToAdd)) {
                         message.member.removeRole(addedRole)
-<<<<<<< HEAD
-                            .then(() => {
-                                message.delete(250).then(message.channel.send(`${message.member.user}, I have removed the role \`${roleToAdd}\`.`))
-                            })
-                            .catch(() => {
-                                message.delete(250).then(message.channel.send(`${message.member.user}, I cannot remove the role \`${roleToAdd}\`.`))
-                            })
-=======
                         .then(() => {
                             message.delete(250).then(message.channel.send(`${message.member.user}, I have removed the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
                         })
                         .catch(() => {
                             message.delete(250).then(message.channel.send(`${message.member.user}, I cannot remove the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
                         })
->>>>>>> 9d5a8f17ca4734401c77e4fc30d37db3aab6aeac
                     }
 
                     else {
                         message.member.addRole(addedRole)
-<<<<<<< HEAD
-                            .then(() => {
-                                message.delete(250).then(message.channel.send(`${message.member.user}, I have given you the role \`${roleToAdd}.\``))
-                            })
-                            .catch(error => {
-                                message.delete(250).then(message.channel.send(`${message.member.user}, I cannot give you the role \`${roleToAdd}\`.`));
-                            });
-=======
                         .then(() => {
                             message.delete(250).then(message.channel.send(`${message.member.user}, I have given you the role \`${roleToAdd}.\``).then(msg => msg.delete(30000)))
                         })
                         .catch(error => {
                             message.delete(250).then(message.channel.send(`${message.member.user}, I cannot give you the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)));
                         });
->>>>>>> 9d5a8f17ca4734401c77e4fc30d37db3aab6aeac
                     }
                     break;
                 }
