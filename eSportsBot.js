@@ -36,7 +36,7 @@ client.on('message', message => {
             }
 
             else {
-                message.channel.send(`${message.member.user}, you need to actually ask me a question (ex: \`$conch Insert Question Here\`).`)
+                message.channel.send(`${message.member.user}, you need to actually ask me a question (ex: \`!conch Thing?\`).`)
             }
             break;
 
