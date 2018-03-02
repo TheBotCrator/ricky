@@ -1,38 +1,30 @@
+const config = require("./config.json");
+
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
-const config = require("./config.json");
-
-const fs = require('fs');
-
 client.on('ready', () => {
-    console.log("Roger Roger");
+    console.log("Let's get rightttttttttt into the news");
 })
 
 client.on('message', message => {
     if (message.author.bot || !(message.content.startsWith(config.prefix))) return;
 
+    //$something CALISE MACHINE <:triggered:336226202492600331>
     const command = message.content.slice(config.prefix.length).split(/ +/)[0].toLowerCase(); //something
 
-    //$10
-    if (/^\d+$/.test(command)) return;
-
-    const nickname = message.member.nickname || message.author.username;
+    //$10 or $$$
+    if (/^\d+$/.test(command) || /\$+/.test(command)) return;
 
     const arg = message.content.slice(config.prefix.length + command.length).replace(/\s+/g, ' ').trim(); //CALISE MACHINE <:triggered:336226202492600331>
+    const argNoTag = arg.replace(/<@?!?\D+\d+>/g, '').trim(); //CALISE MACHINE
 
-    const argNoTag = arg.replace(/<@?!?\D+\d+>/g, '').trim();
-    const argNoTagNoSpaces = argNoTag.replace(/\s/g, '').trim(); //CALISEMACHINE
-    const argNoTagLower = argNoTag.toLowerCase().trim() //calise machine
-
-    const argNoTagNoSpacesLower = argNoTagNoSpaces.toLowerCase().trim(); //calisemachine
-
-    const mentionedUser = message.mentions.members.first();
+    console.log("\t" + message.author.username + ": " + message); //used for debugging
 
     switch (command) {
         case "conch":
             if (arg) {
-                message.guild.fetchMember("78568515811934208").then(usr => message.channel.send(`${usr}: "We're working on it."`));
+                message.channel.send(`Evan: "We're working on it."`);
             }
 
             else {
@@ -46,8 +38,8 @@ client.on('message', message => {
                 let names = roleList.map(role => {
                     return role.name;
                 });
-                let roleToAdd;
 
+                let roleToAdd;
                 names.forEach(name => {
                     if (name.toLowerCase() === argNoTagLower) {
                         roleToAdd = name;
@@ -60,33 +52,32 @@ client.on('message', message => {
 
                     if (message.member.roles.find("name", roleToAdd)) {
                         message.member.removeRole(addedRole)
-                        .then(() => {
-                            message.delete(250).then(message.channel.send(`${message.member.user}, I have removed the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
-                        })
-                        .catch(() => {
-                            message.delete(250).then(message.channel.send(`${message.member.user}, I cannot remove the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
-                        })
+                            .then(
+                                message.delete().then(message.channel.send(`${message.member.user}, I have removed the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
+                            )
+                            .catch(
+                                message.delete().then(message.channel.send(`${message.member.user}, I cannot remove the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
+                            );
                     }
 
                     else {
                         message.member.addRole(addedRole)
-                        .then(() => {
-                            message.delete(250).then(message.channel.send(`${message.member.user}, I have given you the role \`${roleToAdd}.\``).then(msg => msg.delete(30000)))
-                        })
-                        .catch(error => {
-                            message.delete(250).then(message.channel.send(`${message.member.user}, I cannot give you the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)));
-                        });
+                            .then(
+                                message.delete().then(message.channel.send(`${message.member.user}, I have given you the role \`${roleToAdd}.\``).then(msg => msg.delete(30000)))
+                            )
+                            .catch(
+                                message.delete().then(message.channel.send(`${message.member.user}, I cannot give you the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
+                            );
                     }
-                    break;
                 }
 
                 else {
-                    message.delete(250).then(message.channel.send(`${message.member.user}, \`${argNoTag}\` is not a role.`).then(msg => msg.delete(30000)));
+                    message.delete().then(message.channel.send(`${message.member.user}, \`${argNoTag}\` is not a role.`).then(msg => msg.delete(30000)));
                 }
             }
 
             else {
-                message.delete(250).then(message.channel.send(`${message.member.user}, please put the role you wish to add (ex: \`!role Thing\`)`).then(msg => msg.delete(30000)))
+                message.delete().then(message.channel.send(`${message.member.user}, please put the role you wish to add (ex: \`!role Thing\`).`).then(msg => msg.delete(30000)))
             }
             break;
     }
