@@ -2,7 +2,7 @@
   "name": "ricky",
   "version": "1.0.0",
   "description": "",
-  "main": "eSportsBot.js",
+  "main": "ricky.js",
   "dependencies": {
     "discord.js": "^11.3.0"
   },
