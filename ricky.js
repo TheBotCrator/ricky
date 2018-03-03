@@ -54,22 +54,22 @@ client.on('message', message => {
 
                     if (message.member.roles.find("name", roleToAdd)) {
                         message.member.removeRole(addedRole)
-                            .then(
+                            .then(() => {
                                 message.delete().then(message.channel.send(`${message.member.user}, I have removed the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
-                            )
-                            .catch(
+                            })
+                            .catch(error => {
                                 message.delete().then(message.channel.send(`${message.member.user}, I cannot remove the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
-                            );
+                            });
                     }
 
                     else {
                         message.member.addRole(addedRole)
-                            .then(
+                            .then(() => {
                                 message.delete().then(message.channel.send(`${message.member.user}, I have given you the role \`${roleToAdd}.\``).then(msg => msg.delete(30000)))
-                            )
-                            .catch(
+                            })
+                            .catch(error => {
                                 message.delete().then(message.channel.send(`${message.member.user}, I cannot give you the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
-                            );
+                            });
                     }
                 }
 
