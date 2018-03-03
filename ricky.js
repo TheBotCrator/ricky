@@ -19,6 +19,8 @@ client.on('message', message => {
     const arg = message.content.slice(config.prefix.length + command.length).replace(/\s+/g, ' ').trim(); //CALISE MACHINE <:triggered:336226202492600331>
     const argNoTag = arg.replace(/<@?!?\D+\d+>/g, '').trim(); //CALISE MACHINE
 
+    const argNoTagLower = argNoTag.toLowerCase().trim(); //calise machine
+
     console.log("\t" + message.author.username + ": " + message); //used for debugging
 
     switch (command) {
