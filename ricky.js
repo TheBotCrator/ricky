@@ -3,14 +3,17 @@ const config = require("./config.json");
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
-const censor = ['fag', 'f@g', 'retard', 'r3tard', 'ret@rd', 'r3t@rd'];
-
 const fs = require('fs');
 
 if(!fs.existsSync("./offenders.json")){
     fs.writeFileSync("./offenders.json", '{}');
 }
 
+if(!fs.existsSync("./filter.txt")){
+    fs.writeFileSync("./filter.txt");
+}
+
+const filter = fs.readFileSync('filter.txt', 'utf8').split(" ");
 const offenders = require("./offenders.json");
 
 client.on('ready', () => {
