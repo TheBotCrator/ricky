@@ -7,10 +7,12 @@ const fs = require('fs');
 
 if(!fs.existsSync("./offenders.json")){
     fs.writeFileSync("./offenders.json", '{}');
+    console.log("offenders file was not found, one has been created.");
 }
 
 if(!fs.existsSync("./censor.txt")){
     fs.writeFileSync("./censor.txt");
+    console.log("censored words file not found, one has been created");
 }
 
 const censor = fs.readFileSync('./censor.txt', 'utf8').split('\n');
@@ -27,18 +29,24 @@ client.on('message', message => {
     const check = message.content.toLowerCase().replace(" ", '').trim();
     for(let i = 0; i < censor.length; i++){
         if(check.includes(censor[i])){
+            console.log(message.member.username + " message contained a censored word, word was " + censor[i]);
             message.delete(250).then(message.channel.send(`${message.member.user}, that kind of language is not tolerated here.`).then(msg => msg.delete(30000)));
             
             if(offenders.hasOwnProperty(message.member.id)){
+                console.log(message.member.user + " is a repeat offender.")
                 offenders[message.member.id]['offenses']++;
                 offenders[message.member.id]['messages'].push(message.content);
             }
             else {
+                console.log(message.member.user + ": first offense");
                 offenders[message.member.id] = {offenses: 1, messages : [message.content]};
             }
             
             fs.writeFile("./offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
                 if (err) return console.log(err);
+                else {
+                    console.log("Offender write success");
+                }
             }); 
             return;
         }
@@ -92,6 +100,7 @@ client.on('message', message => {
                         message.member.removeRole(addedRole)
                             .then(() => {
                                 message.delete(250).then(message.channel.send(`${message.member.user}, I have removed the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
+                                console.log(roleToAdd + " was removed from " + message.author.username);
                             })
                             .catch(error => {
                                 message.delete(250).then(message.channel.send(`${message.member.user}, I cannot remove the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
@@ -102,6 +111,7 @@ client.on('message', message => {
                         message.member.addRole(addedRole)
                             .then(() => {
                                 message.delete(250).then(message.channel.send(`${message.member.user}, I have given you the role \`${roleToAdd}.\``).then(msg => msg.delete(30000)))
+                                console.log(roleToAdd + " was added to " + message.author.username);
                             })
                             .catch(error => {
                                 message.delete(250).then(message.channel.send(`${message.member.user}, I cannot give you the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
