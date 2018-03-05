@@ -9,11 +9,11 @@ if(!fs.existsSync("./offenders.json")){
     fs.writeFileSync("./offenders.json", '{}');
 }
 
-if(!fs.existsSync("./filter.txt")){
-    fs.writeFileSync("./filter.txt");
+if(!fs.existsSync("./censor.txt")){
+    fs.writeFileSync("./censor.txt");
 }
 
-const filter = fs.readFileSync('filter.txt', 'utf8').split(" ");
+const censor = fs.readFileSync('./censor.txt', 'utf8').split('\n');
 const offenders = require("./offenders.json");
 
 client.on('ready', () => {
@@ -24,7 +24,7 @@ client.on('message', message => {
 
     if(message.author.bot) return;
 
-    const check = message.content.toLowerCase().replace(" ", '');
+    const check = message.content.toLowerCase().replace(" ", '').trim();
     for(let i = 0; i < censor.length; i++){
         if(check.includes(censor[i])){
             message.delete(250).then(message.channel.send(`${message.member.user}, that kind of language is not tolerated here.`).then(msg => msg.delete(30000)));
