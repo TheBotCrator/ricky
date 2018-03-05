@@ -12,9 +12,11 @@ describe('discord', function() {
       let config = require("../config.json");
       const Discord = require('discord.js');
       const client = new Discord.Client();
-      client.on('ready', () => {
-          assert.equal(true == true);
-      });
+      client.login(config.token);
+      let test_config = require("../test_config.json");
+      const test_client = new Discord.Client();
+      test_client.login(test_config.token);
+      test_client.channels.get(test_config.testboxId).send('!role league');
     });
   });
 });
