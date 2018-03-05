@@ -29,16 +29,16 @@ client.on('message', message => {
     const check = message.content.toLowerCase().replace(" ", '').trim();
     for(let i = 0; i < censor.length; i++){
         if(check.includes(censor[i])){
-            console.log(message.member.username + " message contained a censored word, word was " + censor[i]);
+            console.log(message.author.username + " message contained a censored word, word was " + censor[i]);
             message.delete(250).then(message.channel.send(`${message.member.user}, that kind of language is not tolerated here.`).then(msg => msg.delete(30000)));
             
             if(offenders.hasOwnProperty(message.member.id)){
-                console.log(message.member.user + " is a repeat offender")
+                console.log(message.member.user.username + " is a repeat offender")
                 offenders[message.member.id]['offenses']++;
                 offenders[message.member.id]['messages'].push(message.content);
             }
             else {
-                console.log(message.member.user + ": first offense");
+                console.log(message.author.username + ": first offense");
                 offenders[message.member.id] = {offenses: 1, messages : [message.content]};
             }
             
