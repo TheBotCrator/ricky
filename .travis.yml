@@ -1,15 +1,9 @@
 language: node_js
 
 before_script:
-    - 'echo '{
-    "prefix" : "!",
-    "token" : "$DISCORD_TOKEN"
-}' > config.json'
-    - 'echo '{
-    "token" : "$DISCORD_TESTUSER_TOKEN",
-    "testboxId" : "$TESTBOX_CHANNEL_ID"
-}' > test_config.json'
-# test on node_js 0.8
+    - echo '{"prefix" : "!","token" : "$DISCORD_TOKEN"}' > config.json
+    - echo '{"test_token" : "$DISCORD_TESTUSER_TOKEN", "testboxId":"$TESTBOX_CHANNEL_ID"}' > test_config.json
+
 node_js:
     - 9.6.1
 
