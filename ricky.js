@@ -7,7 +7,7 @@ const fs = require('fs');
 
 if(!fs.existsSync("./offenders.json")){
     fs.writeFileSync("./offenders.json", '{}');
-    console.log("offenders file was not found, one has been created.");
+    console.log("offenders file was not found, one has been created");
 }
 
 if(!fs.existsSync("./censor.txt")){
@@ -33,7 +33,7 @@ client.on('message', message => {
             message.delete(250).then(message.channel.send(`${message.member.user}, that kind of language is not tolerated here.`).then(msg => msg.delete(30000)));
             
             if(offenders.hasOwnProperty(message.member.id)){
-                console.log(message.member.user + " is a repeat offender.")
+                console.log(message.member.user + " is a repeat offender")
                 offenders[message.member.id]['offenses']++;
                 offenders[message.member.id]['messages'].push(message.content);
             }
@@ -45,7 +45,7 @@ client.on('message', message => {
             fs.writeFile("./offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
                 if (err) return console.log(err);
                 else {
-                    console.log("Offender write success");
+                    console.log("offender write success");
                 }
             }); 
             return;
