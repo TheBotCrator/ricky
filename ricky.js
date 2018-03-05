@@ -3,12 +3,25 @@ const config = require("./config.json");
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
+const censor = ['fag', 'f@g', 'faggot', 'f@ggot', 'fagg0t', 'f@gg0t', 'retard', 'r3tard', 'ret@rd', 'r3t@rd', 'retarded', 'r3tarded', 'ret@rded', 'retard3d', 'r3t@rded', 'ret@rd3d', 'r3t@rd3d'];
+
 client.on('ready', () => {
     console.log("Let's get rightttttttttt into the news");
 })
 
 client.on('message', message => {
-    if (message.author.bot || !(message.content.startsWith(config.prefix))) return;
+
+    if(message.author.bot) return;
+
+    const check = message.content.toLowerCase().replace(" ", '');
+    for(word in censor){
+        if(check.includes(word)){
+            message.delete(250).then(message.channel.send(`${message.member.user}, that kind of language is not tolerated here.`).then(msg => msg.delete(30000)));
+            return;
+        }
+    }
+
+    if (!(message.content.startsWith(config.prefix))) return;
 
     //$something CALISE MACHINE <:triggered:336226202492600331>
     const command = message.content.slice(config.prefix.length).split(/ +/)[0].toLowerCase(); //something
@@ -55,31 +68,31 @@ client.on('message', message => {
                     if (message.member.roles.find("name", roleToAdd)) {
                         message.member.removeRole(addedRole)
                             .then(() => {
-                                message.delete().then(message.channel.send(`${message.member.user}, I have removed the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
+                                message.delete(250).then(message.channel.send(`${message.member.user}, I have removed the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
                             })
                             .catch(error => {
-                                message.delete().then(message.channel.send(`${message.member.user}, I cannot remove the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
+                                message.delete(250).then(message.channel.send(`${message.member.user}, I cannot remove the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
                             });
                     }
 
                     else {
                         message.member.addRole(addedRole)
                             .then(() => {
-                                message.delete().then(message.channel.send(`${message.member.user}, I have given you the role \`${roleToAdd}.\``).then(msg => msg.delete(30000)))
+                                message.delete(250).then(message.channel.send(`${message.member.user}, I have given you the role \`${roleToAdd}.\``).then(msg => msg.delete(30000)))
                             })
                             .catch(error => {
-                                message.delete().then(message.channel.send(`${message.member.user}, I cannot give you the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
+                                message.delete(250).then(message.channel.send(`${message.member.user}, I cannot give you the role \`${roleToAdd}\`.`).then(msg => msg.delete(30000)))
                             });
                     }
                 }
 
                 else {
-                    message.delete().then(message.channel.send(`${message.member.user}, \`${argNoTag}\` is not a role.`).then(msg => msg.delete(30000)));
+                    message.delete(250).then(message.channel.send(`${message.member.user}, \`${argNoTag}\` is not a role.`).then(msg => msg.delete(30000)));
                 }
             }
 
             else {
-                message.delete().then(message.channel.send(`${message.member.user}, please put the role you wish to add (ex: \`!role Thing\`).`).then(msg => msg.delete(30000)))
+                message.delete(250).then(message.channel.send(`${message.member.user}, please put the role you wish to add (ex: \`!role Thing\`).`).then(msg => msg.delete(30000)))
             }
             break;
     }
