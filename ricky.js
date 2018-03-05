@@ -16,6 +16,7 @@ if(!fs.existsSync("./censor.txt")){
 }
 
 const censor = fs.readFileSync('./censor.txt', 'utf8').trim().split('\n');
+console.log(censor);
 const offenders = require("./offenders.json");
 
 client.on('ready', () => {
