@@ -15,7 +15,7 @@ if(!fs.existsSync("./censor.txt")){
     console.log("censored words file not found, one has been created");
 }
 
-const censor = fs.readFileSync('./censor.txt', 'utf8').split('\n');
+const censor = fs.readFileSync('./censor.txt', 'utf8').trim().split('\n');
 const offenders = require("./offenders.json");
 
 client.on('ready', () => {
