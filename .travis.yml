@@ -2,7 +2,7 @@ language: node_js
 
 # test on node_js 0.8
 node_js:
-    - 0.8
+    - 9.6.1
 
 # discord webhook configured from https://github.com/k3rn31p4nic/travis-ci-discord-webhook
 after_success:
