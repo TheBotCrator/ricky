@@ -19,7 +19,7 @@ const censor = fs.readFileSync('./censor.txt', 'utf8').split('\n');
 const offenders = require("./offenders.json");
 
 client.on('ready', () => {
-    console.log("Let's get rightttttttttt into the news");
+    console.log("Bot Online");
 })
 
 client.on('message', message => {
