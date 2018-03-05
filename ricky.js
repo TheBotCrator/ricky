@@ -5,6 +5,14 @@ const client = new Discord.Client();
 
 const censor = ['fag', 'f@g', 'faggot', 'f@ggot', 'fagg0t', 'f@gg0t', 'retard', 'r3tard', 'ret@rd', 'r3t@rd', 'retarded', 'r3tarded', 'ret@rded', 'retard3d', 'r3t@rded', 'ret@rd3d', 'r3t@rd3d'];
 
+const fs = require('fs');
+
+if(!fs.existsSync("./offenders.json")){
+    fs.mkdirSync("./offenders.json");
+}
+
+const offenders = require("./offenders.json");
+
 client.on('ready', () => {
     console.log("Let's get rightttttttttt into the news");
 })
@@ -17,7 +25,20 @@ client.on('message', message => {
     for(word in censor){
         if(check.includes(word)){
             message.delete(250).then(message.channel.send(`${message.member.user}, that kind of language is not tolerated here.`).then(msg => msg.delete(30000)));
-            return;
+            
+            if(offenders.hasOwnProperty(message.member.id)){
+                offenders[message.member.id]++;
+            }
+            else {
+                offenders[message.member.id] = 1;
+            }
+            fs.writeFile("./offenders.json", JSON.stringify(offenders), 'utf8', function (err) {
+                if (err) {
+                    return console.log(err);
+                }
+            
+                console.log("The file was saved!");
+            }); 
         }
     }
 
