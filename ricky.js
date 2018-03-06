@@ -145,3 +145,7 @@ process.on("unhandledRejection", err => {
 });
 
 client.login(config.token);
+
+function conch(arg){
+    return arg != false;
+}
