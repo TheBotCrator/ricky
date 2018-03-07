@@ -71,7 +71,7 @@ client.on('message', message => {
             try {
                 message.channel.send(conch(arg));
             } catch (error) {
-                message.channel.send(`${message.member.user}, ` + error);
+                message.delete(250).then(message.channel.send(`${message.member.user}, ` + error));
             }
             break;
 
