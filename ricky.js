@@ -78,12 +78,12 @@ client.on('message', message => {
         case "role":
             try {
                 addRole(message, argNoTag)
-                .then(completed => {
-                    message.delete(250).then(message.channel.send(`${message.member.user}, ` + completed).then(msg => msg.delete(300000)));
-                })
-                .catch((error) => {
-                    message.delete(250).then(message.channel.send(`${message.member.user}, ` + error).then(msg => msg.delete(30000)));
-                })
+                    .then(completed => {
+                        message.delete(250).then(message.channel.send(`${message.member.user}, ` + completed).then(msg => msg.delete(300000)));
+                    })
+                    .catch((error) => {
+                        message.delete(250).then(message.channel.send(`${message.member.user}, ` + error).then(msg => msg.delete(30000)));
+                    })
             } catch (error) {
                 message.delete(250).then(message.channel.send(`${message.member.user}, ` + error).then(msg => msg.delete(30000)));
             }
