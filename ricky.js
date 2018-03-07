@@ -72,17 +72,18 @@ client.on('message', message => {
                 let completed = conch(arg);
                 message.channel.send(completed);
             } catch (e) {
-                message.channel.send(e);
+                message.channel.send(`${message.member.user}, ` + e);
             }
             break;
 
         case "role":
-            try {
-                let completed = addRole(message, argNoTag);
-                message.delete(250).then(message.channel.send(completed).then(msg => msg.delete(30000)));
-            } catch (e) {
-                message.delete(250).then(message.channel.send(e).then(msg => msg.delete(30000)));
-            }
+            addRole(message, argNoTag)
+            .then((completed) => {
+                message.delete(250).then(message.channel.send(`${message.member.user}, ` + completed).then(msg => msg.delete(300000)));
+            })
+            .catch(error => {
+                message.delete(250).then(message.channel.send(`${message.member.user}, ` + error).then(msg => msg.delete(30000)));
+            })
             break;
     }
 });
@@ -103,10 +104,10 @@ client.login(config.token);
 
 function conch(arg) {
     if (arg) {
-        return `Evan: "We're working on it."`;
+        return "Evan: \"We're working on it.\"";
     }
     else {
-        throw `${message.member.user}, you need to actually ask me a question (ex: \`!conch Thing?\`).`;
+        throw "you need to actually ask me a question (ex: \`!conch Thing?\`).";
     }
 }
 
@@ -131,33 +132,33 @@ function addRole(message, argNoTag) {
             let addedRole = message.guild.roles.find("name", roleToAdd);
 
             if (message.member.roles.find("name", roleToAdd)) {
-                message.member.removeRole(addedRole)
+                return message.member.removeRole(addedRole)
                     .then(() => {
                         console.log(roleToAdd + " was removed from " + message.author.username);
-                        return `${message.member.user}, I have removed the role \`${roleToAdd}\`.`;
+                        return "role removed.";
                     })
                     .catch(error => {
-                        throw `${message.member.user}, I cannot remove the role \`${roleToAdd}\`.`;
+                        throw "I cannot remove that role.";
                     });
             }
 
             else {
-                message.member.addRole(addedRole)
+                return message.member.addRole(addedRole)
                     .then(() => {
                         console.log(roleToAdd + " was added to " + message.author.username);
-                        return `${message.member.user}, I have given you the role \`${roleToAdd}.\``;
+                        return "role added.";
                     })
                     .catch(error => {
-                        throw `${message.member.user}, I cannot give you the role \`${roleToAdd}\`.`;
+                        throw "I cannot give you that role.";
                     });
             }
         }
 
         else {
-            throw `${message.member.user}, \`${argNoTag}\` is not a role.`;
+            throw "that is not a role.";
         }
     }
     else {
-        throw `${message.member.user}, please put the role you wish to add (ex: \`!role Thing\`).`;
+        throw "please put the role you wish to add (ex: \`!role Thing\`).";
     }
 }
