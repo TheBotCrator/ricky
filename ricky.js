@@ -95,7 +95,7 @@ client.on('message', message => {
                 message.delete(250).then(message.author.send(completed));
             } catch (error) {
                 if(error == 1){
-                    message.delete(250).then(message.channel.send("There is " + error + " offender").then(msg => msg.delete(30000)));
+                    message.delete(250).then(message.channel.send("There is " + error + " offender.").then(msg => msg.delete(30000)));
                 }
                 else {
                     message.delete(250).then(message.channel.send("There are " + error + " offenders").then(msg => msg.delete(30000)));
