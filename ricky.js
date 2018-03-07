@@ -88,6 +88,20 @@ client.on('message', message => {
                 message.delete(250).then(message.channel.send(`${message.member.user}, ` + error).then(msg => msg.delete(30000)));
             }
             break;
+        
+        case "offenders":
+            try {
+                let completed = getOffender(message, offenders);
+                message.delete(250).then(message.author.send(completed));
+            } catch (error) {
+                if(error == 1){
+                    message.delete(250).then(message.channel.send("There is " + error + " offender").then(msg => msg.delete(30000)));
+                }
+                else {
+                    message.delete(250).then(message.channel.send("There are " + error + " offenders").then(msg => msg.delete(30000)));
+                }
+            }
+            break;
     }
 });
 
@@ -163,5 +177,33 @@ function addRole(message, argNoTag) {
     }
     else {
         throw "please put the role you wish to add (ex: \`!role Thing\`).";
+    }
+}
+
+function getOffender(message, offenders) {
+    const mentionedUser = message.mentions.members.first();
+    if (mentionedUser) {
+        if(offenders.hasOwnProperty(mentionedUser.id)){
+            var sentence = "";
+            sentence += ("**USER:** " + mentionedUser + '\n\n')
+            sentence += ("**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + '\n\n');
+            sentence += ("**MESSAGES:**\n")
+            for(let i = 0; i < offenders[mentionedUser.id]['messages'].length; i++){
+                sentence += (offenders[mentionedUser.id]['messages'][i] + '\n');
+            }
+            return sentence;
+        }
+        else {
+            return mentionedUser + " has 0 offenses";
+        }
+    }
+    else {
+        var count = 0;
+        for (var prop in offenders) {
+            if (offenders.hasOwnProperty(prop)) {
+                ++count;
+            }
+        }
+        throw count
     }
 }
