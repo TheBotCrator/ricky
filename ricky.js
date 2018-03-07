@@ -205,7 +205,7 @@ function getOffender(message, offenders) {
             if (count === 1) {
                 throw "there is " + count + " offender."
             }
-            else{
+            else {
                 throw "there are " + count + " offenders.";
             }
         }
