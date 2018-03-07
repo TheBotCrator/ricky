@@ -71,14 +71,14 @@ client.on('message', message => {
             try {
                 let completed = conch(arg);
                 message.channel.send(completed);
-            } catch (e) {
-                message.channel.send(`${message.member.user}, ` + e);
+            } catch (error) {
+                message.channel.send(`${message.member.user}, ` + error);
             }
             break;
 
         case "role":
             addRole(message, argNoTag)
-            .then((completed) => {
+            .then(completed => {
                 message.delete(250).then(message.channel.send(`${message.member.user}, ` + completed).then(msg => msg.delete(300000)));
             })
             .catch(error => {
