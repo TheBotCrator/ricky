@@ -147,7 +147,12 @@ process.on("unhandledRejection", err => {
 client.login(config.token);
 
 function conch(arg) {
-    return arg != false;
+    if (arg) {
+        return `Evan: "We're working on it."`;
+    }
+    else {
+        throw `${message.member.user}, you need to actually ask me a question (ex: \`!conch Thing?\`).`;
+    }
 }
 
 function addRole(message, role) {
