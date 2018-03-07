@@ -71,7 +71,7 @@ client.on('message', message => {
             try {
                 message.channel.send(conch(arg));
             } catch (error) {
-                message.delete(250).then(message.channel.send(`${message.member.user}, ` + error));
+                message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`));
             }
             break;
 
@@ -79,13 +79,13 @@ client.on('message', message => {
             try {
                 addRole(message, argNoTag)
                     .then(completed => {
-                        message.delete(250).then(message.channel.send(`${message.member.user}, ` + completed).then(msg => msg.delete(300000)));
+                        message.delete(250).then(message.channel.send(`${message.member.user}, ${completed}`).then(msg => msg.delete(300000)));
                     })
                     .catch((error) => {
-                        message.delete(250).then(message.channel.send(`${message.member.user}, ` + error).then(msg => msg.delete(30000)));
+                        message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
                     })
             } catch (error) {
-                message.delete(250).then(message.channel.send(`${message.member.user}, ` + error).then(msg => msg.delete(30000)));
+                message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
             }
             break;
 
@@ -94,12 +94,7 @@ client.on('message', message => {
                 let completed = getOffender(message, offenders);
                 message.delete(250).then(message.author.send(completed));
             } catch (error) {
-                if (error == 1) {
-                    message.delete(250).then(message.channel.send("There is " + error + " offender.").then(msg => msg.delete(30000)));
-                }
-                else {
-                    message.delete(250).then(message.channel.send("There are " + error + " offenders").then(msg => msg.delete(30000)));
-                }
+                message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
             }
             break;
     }
@@ -182,28 +177,39 @@ function addRole(message, argNoTag) {
 
 function getOffender(message, offenders) {
     const mentionedUser = message.mentions.members.first();
-    if (mentionedUser) {
-        if (offenders.hasOwnProperty(mentionedUser.id)) {
-            var sentence = "";
-            sentence += ("**USER:** " + mentionedUser + '\n\n')
-            sentence += ("**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + '\n\n');
-            sentence += ("**MESSAGES:**\n")
-            for (let i = 0; i < offenders[mentionedUser.id]['messages'].length; i++) {
-                sentence += (offenders[mentionedUser.id]['messages'][i] + '\n');
+    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Community Team")) {
+        if (mentionedUser) {
+            if (offenders.hasOwnProperty(mentionedUser.id)) {
+                var sentence = "";
+                sentence += ("**USER:** " + mentionedUser + '\n\n')
+                sentence += ("**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + '\n\n');
+                sentence += ("**MESSAGES:**\n")
+                for (let i = 0; i < offenders[mentionedUser.id]['messages'].length; i++) {
+                    sentence += (offenders[mentionedUser.id]['messages'][i] + '\n');
+                }
+                return sentence;
             }
-            return sentence;
+            else {
+                return mentionedUser + " has 0 offenses.";
+            }
         }
         else {
-            return mentionedUser + " has 0 offenses";
+            let count = 0;
+            for (var prop in offenders) {
+                if (offenders.hasOwnProperty(prop)) {
+                    count++;
+                }
+            }
+
+            if (count === 1) {
+                throw "there is " + count + " offender."
+            }
+            else{
+                throw "there are " + count + " offenders.";
+            }
         }
     }
     else {
-        var count = 0;
-        for (var prop in offenders) {
-            if (offenders.hasOwnProperty(prop)) {
-                ++count;
-            }
-        }
-        throw count
+        throw "you do not have permission to use that command."
     }
 }
