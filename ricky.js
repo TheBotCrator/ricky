@@ -69,7 +69,8 @@ client.on('message', message => {
     switch (command) {
         case "conch":
             try {
-                message.channel.send(conch(arg));
+                let completed = conch(arg);
+                message.channel.send(completed);
             } catch (error) {
                 message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`));
             }
