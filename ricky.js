@@ -64,8 +64,6 @@ client.on('message', message => {
     const arg = message.content.slice(config.prefix.length + command.length).replace(/\s+/g, ' ').trim(); //CALISE MACHINE <:triggered:336226202492600331>
     const argNoTag = arg.replace(/<@?!?\D+\d+>/g, '').trim(); //CALISE MACHINE
 
-    const argNoTagLower = argNoTag.toLowerCase().trim(); //calise machine
-
     console.log("\t" + message.author.username + ": " + message); //used for debugging
 
     switch (command) {
@@ -112,8 +110,10 @@ function conch(arg) {
     }
 }
 
-function addRole(message, role) {
-    if (role) {
+function addRole(message, argNoTag) {
+    if (argNoTag) {
+        let argNoTagLower = argNoTag.toLowerCase();
+
         let roleList = message.guild.roles.array();
         let names = roleList.map(role => {
             return role.name;
@@ -133,8 +133,8 @@ function addRole(message, role) {
             if (message.member.roles.find("name", roleToAdd)) {
                 message.member.removeRole(addedRole)
                     .then(() => {
-                        return `${message.member.user}, I have removed the role \`${roleToAdd}\`.`;
                         console.log(roleToAdd + " was removed from " + message.author.username);
+                        return `${message.member.user}, I have removed the role \`${roleToAdd}\`.`;
                     })
                     .catch(error => {
                         throw `${message.member.user}, I cannot remove the role \`${roleToAdd}\`.`;
@@ -144,8 +144,8 @@ function addRole(message, role) {
             else {
                 message.member.addRole(addedRole)
                     .then(() => {
-                        return `${message.member.user}, I have given you the role \`${roleToAdd}.\``;
                         console.log(roleToAdd + " was added to " + message.author.username);
+                        return `${message.member.user}, I have given you the role \`${roleToAdd}.\``;
                     })
                     .catch(error => {
                         throw `${message.member.user}, I cannot give you the role \`${roleToAdd}\`.`;
