@@ -27,30 +27,10 @@ client.on('message', message => {
 
     if (message.author.bot) return;
 
-    const check = message.content.toLowerCase().replace(" ", '').trim();
-    for (let i = 0; i < censor.length; i++) {
-        if (check.includes(censor[i])) {
-            console.log(message.author.username + " message contained a censored word, word was " + censor[i]);
-            message.delete(250).then(message.channel.send(`${message.member.user}, that kind of language is not tolerated here.`).then(msg => msg.delete(30000)));
-
-            if (offenders.hasOwnProperty(message.member.id)) {
-                console.log(message.member.user.username + " is a repeat offender")
-                offenders[message.member.id]['offenses']++;
-                offenders[message.member.id]['messages'].push(message.content);
-            }
-            else {
-                console.log(message.author.username + ": first offense");
-                offenders[message.member.id] = { offenses: 1, messages: [message.content] };
-            }
-
-            fs.writeFile("./offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
-                if (err) return console.log(err);
-                else {
-                    console.log("offender write success");
-                }
-            });
-            return;
-        }
+    try {
+        filter(message, offenders);
+    } catch (error) {
+        message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
     }
 
     if (!(message.content.startsWith(config.prefix))) return;
@@ -64,7 +44,7 @@ client.on('message', message => {
     const arg = message.content.slice(config.prefix.length + command.length).replace(/\s+/g, ' ').trim(); //CALISE MACHINE <:triggered:336226202492600331>
     const argNoTag = arg.replace(/<@?!?\D+\d+>/g, '').trim(); //CALISE MACHINE
 
-    console.log("\t" + message.author.username + ": " + message); //used for debugging
+    console.log('\t' + message.author.username + ": " + message); //used for debugging
 
     switch (command) {
         case "conch":
@@ -114,6 +94,36 @@ process.on("unhandledRejection", err => {
 });
 
 client.login(config.token);
+
+function filter(message, offenders) {
+    const check = message.content.toLowerCase().replace(" ", '').trim();
+    for (let i = 0; i < censor.length; i++) {
+        if (check.includes(censor[i])) {
+            console.log(message.author.username + " message contained a censored word, word was: " + censor[i]);
+
+            if (offenders.hasOwnProperty(message.member.id)) {
+                console.log(message.member.user.username + " is a repeat offender")
+                offenders[message.member.id]['offenses']++;
+                offenders[message.member.id]['messages'].push(message.content);
+            }
+            else {
+                console.log(message.author.username + ": first offense");
+                offenders[message.member.id] = { offenses: 1, messages: [message.content] };
+            }
+
+            fs.writeFile("./offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
+                if (err) {
+                    console.log(err);
+                }
+                else {
+                    console.log("offender write success");
+                }
+            });
+
+            throw "that kind of language is not tolerated here.";
+        }
+    }
+}
 
 function conch(arg) {
     if (arg) {
