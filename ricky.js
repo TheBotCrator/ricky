@@ -88,13 +88,13 @@ client.on('message', message => {
                 message.delete(250).then(message.channel.send(`${message.member.user}, ` + error).then(msg => msg.delete(30000)));
             }
             break;
-        
+
         case "offenders":
             try {
                 let completed = getOffender(message, offenders);
                 message.delete(250).then(message.author.send(completed));
             } catch (error) {
-                if(error == 1){
+                if (error == 1) {
                     message.delete(250).then(message.channel.send("There is " + error + " offender.").then(msg => msg.delete(30000)));
                 }
                 else {
@@ -183,12 +183,12 @@ function addRole(message, argNoTag) {
 function getOffender(message, offenders) {
     const mentionedUser = message.mentions.members.first();
     if (mentionedUser) {
-        if(offenders.hasOwnProperty(mentionedUser.id)){
+        if (offenders.hasOwnProperty(mentionedUser.id)) {
             var sentence = "";
             sentence += ("**USER:** " + mentionedUser + '\n\n')
             sentence += ("**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + '\n\n');
             sentence += ("**MESSAGES:**\n")
-            for(let i = 0; i < offenders[mentionedUser.id]['messages'].length; i++){
+            for (let i = 0; i < offenders[mentionedUser.id]['messages'].length; i++) {
                 sentence += (offenders[mentionedUser.id]['messages'][i] + '\n');
             }
             return sentence;
