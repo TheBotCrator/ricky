@@ -5,12 +5,12 @@ const client = new Discord.Client();
 
 const fs = require('fs');
 
-if(!fs.existsSync("./offenders.json")){
+if (!fs.existsSync("./offenders.json")) {
     fs.writeFileSync("./offenders.json", '{}');
     console.log("offenders file was not found, one has been created");
 }
 
-if(!fs.existsSync("./censor.txt")){
+if (!fs.existsSync("./censor.txt")) {
     fs.writeFileSync("./censor.txt");
     console.log("censored words file not found, one has been created");
 }
@@ -25,30 +25,30 @@ client.on('ready', () => {
 
 client.on('message', message => {
 
-    if(message.author.bot) return;
+    if (message.author.bot) return;
 
     const check = message.content.toLowerCase().replace(" ", '').trim();
-    for(let i = 0; i < censor.length; i++){
-        if(check.includes(censor[i])){
+    for (let i = 0; i < censor.length; i++) {
+        if (check.includes(censor[i])) {
             console.log(message.author.username + " message contained a censored word, word was " + censor[i]);
             message.delete(250).then(message.channel.send(`${message.member.user}, that kind of language is not tolerated here.`).then(msg => msg.delete(30000)));
-            
-            if(offenders.hasOwnProperty(message.member.id)){
+
+            if (offenders.hasOwnProperty(message.member.id)) {
                 console.log(message.member.user.username + " is a repeat offender")
                 offenders[message.member.id]['offenses']++;
                 offenders[message.member.id]['messages'].push(message.content);
             }
             else {
                 console.log(message.author.username + ": first offense");
-                offenders[message.member.id] = {offenses: 1, messages : [message.content]};
+                offenders[message.member.id] = { offenses: 1, messages: [message.content] };
             }
-            
+
             fs.writeFile("./offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
                 if (err) return console.log(err);
                 else {
                     console.log("offender write success");
                 }
-            }); 
+            });
             return;
         }
     }
@@ -146,6 +146,56 @@ process.on("unhandledRejection", err => {
 
 client.login(config.token);
 
-function conch(arg){
+function conch(arg) {
     return arg != false;
+}
+
+function addRole(message, role) {
+    if (role) {
+        let roleList = message.guild.roles.array();
+        let names = roleList.map(role => {
+            return role.name;
+        });
+
+        let roleToAdd;
+        names.forEach(name => {
+            if (name.toLowerCase() === argNoTagLower) {
+                roleToAdd = name;
+                return;
+            }
+        });
+
+        if (roleToAdd) {
+            let addedRole = message.guild.roles.find("name", roleToAdd);
+
+            if (message.member.roles.find("name", roleToAdd)) {
+                message.member.removeRole(addedRole)
+                    .then(() => {
+                        return `${message.member.user}, I have removed the role \`${roleToAdd}\`.`;
+                        console.log(roleToAdd + " was removed from " + message.author.username);
+                    })
+                    .catch(error => {
+                        throw `${message.member.user}, I cannot remove the role \`${roleToAdd}\`.`;
+                    });
+            }
+
+            else {
+                message.member.addRole(addedRole)
+                    .then(() => {
+                        return `${message.member.user}, I have given you the role \`${roleToAdd}.\``;
+                        console.log(roleToAdd + " was added to " + message.author.username);
+                    })
+                    .catch(error => {
+                        throw `${message.member.user}, I cannot give you the role \`${roleToAdd}\`.`;
+                    });
+            }
+        }
+
+        else {
+            throw `${message.member.user}, \`${argNoTag}\` is not a role.`;
+        }
+    }
+    else {
+        throw `${message.member.user}, please put the role you wish to add (ex: \`!role Thing\`).`;
+    }
 }
