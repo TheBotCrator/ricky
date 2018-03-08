@@ -1,3 +1,6 @@
+//-----------------------------------------------
+// GLOBAL
+//-----------------------------------------------
 const config = require("./config.json");
 
 const Discord = require('discord.js');
@@ -5,11 +8,17 @@ const client = new Discord.Client();
 
 const fs = require('fs');
 
+//
+// Start up functions
+//
+
+// Create offenders JSON, if one does not already exist 
 if (!fs.existsSync("./offenders.json")) {
     fs.writeFileSync("./offenders.json", '{}');
     console.log("offenders file was not found, one has been created");
 }
 
+// Create censor list, if one does not already exist
 if (!fs.existsSync("./censor.txt")) {
     fs.writeFileSync("./censor.txt");
     console.log("censored words file not found, one has been created");
@@ -17,22 +26,36 @@ if (!fs.existsSync("./censor.txt")) {
 
 const censor = fs.readFileSync('./censor.txt', 'utf8').trim().split('\n');
 console.log(censor);
+
 const offenders = require("./offenders.json");
 
+
+/**
+ * On ready function
+ */
 client.on('ready', () => {
     console.log("Bot Online");
 })
 
+
+/**
+ * On message function. Handles incoming user input, parsing for valid commands
+ * Also handles message censorship by checking content against censor list
+ * @param {object} message user input command
+ */
 client.on('message', message => {
 
+    // ignore messages sent by this bot
     if (message.author.bot) return;
 
+    // Handle censorship
     try {
         filter(message, offenders);
     } catch (error) {
         message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
     }
 
+    // Look for bot command prefix
     if (!(message.content.startsWith(config.prefix))) return;
 
     //$something CALISE MACHINE <:triggered:336226202492600331>
@@ -46,7 +69,9 @@ client.on('message', message => {
 
     console.log('\t' + message.author.username + ": " + message); //used for debugging
 
+    // Main bot command handling
     switch (command) {
+        // The magic conch
         case "conch":
             try {
                 let completed = conch(arg);
@@ -56,6 +81,7 @@ client.on('message', message => {
             }
             break;
 
+        // Automated role assignment
         case "role":
             try {
                 addRole(message, argNoTag)
@@ -81,19 +107,36 @@ client.on('message', message => {
     }
 });
 
+
+/**
+ * On reconnect function. Logs console message.
+ */
 client.on("reconnecting", () => {
     console.log("Reconnecting...");
 });
 
+
+/**
+ * On resume function. Logs console message.
+ * @param {int} replayed count of events replayed
+ */
 client.on("resume", replayed => {
     console.log(`Reconnectd. ${replayed} events replayed.`);
 });
 
+
+/**
+ * On unhandled rejection function. Logs console message w/ error stack
+ * @param {error} err error object
+ */
 process.on("unhandledRejection", err => {
     console.error("Uncaught Promise Error: \n" + err.stack);
 });
 
+
+// Discord API login
 client.login(config.token);
+
 
 function filter(message, offenders) {
     const check = message.content.toLowerCase().replace(" ", '').trim();
@@ -124,7 +167,17 @@ function filter(message, offenders) {
         }
     }
 }
+  
+//-----------------------------------------------
+// UTILITY FUNCTIONS
+//-----------------------------------------------
 
+/**
+ * All hail the magic conch
+ * a-loo-loo-loo-loo
+ * @param {String} arg user input string
+ * @returns {String} 
+ */
 function conch(arg) {
     if (arg) {
         return "Evan: \"We're working on it.\"";
@@ -134,6 +187,12 @@ function conch(arg) {
     }
 }
 
+
+/**
+ * If user of origin has appropriate permissions, update role of mentioned user with passed role
+ * @param {Object} message discord message object
+ * @param {String} argNoTag potential role value stripped of emotes to prevent potential errors
+ */
 function addRole(message, argNoTag) {
     if (argNoTag) {
         let argNoTagLower = argNoTag.toLowerCase();
@@ -186,6 +245,13 @@ function addRole(message, argNoTag) {
     }
 }
 
+
+/**
+ * List censor offenses of user including count, and offending messages. Only available to those with 
+ * the "Admin" or "Community Team" roles
+ * @param {Object} message discord message object
+ * @param {String} offenders user input offender string
+ */
 function getOffender(message, offenders) {
     const mentionedUser = message.mentions.members.first();
     if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Community Team")) {
