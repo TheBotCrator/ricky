@@ -45,12 +45,12 @@ client.on('ready', () => {
  */
 client.on('message', message => {
 
-    // ignore messages sent by this bot
+    // ignore messages sent by bots
     if (message.author.bot) return;
 
     // Handle censorship
     try {
-        filter(message, offenders);
+        filter(message, censor, offenders);
     } catch (error) {
         message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
     }
@@ -137,8 +137,18 @@ process.on("unhandledRejection", err => {
 // Discord API login
 client.login(config.token);
 
+//-----------------------------------------------
+// UTILITY FUNCTIONS
+//-----------------------------------------------
 
-function filter(message, offenders) {
+/**
+ * Compares user message with list of banned words. If message contains said words, message is deleted
+ * and user is added to a JSON including count, and offending messages.
+ * @param {String} message discord message object
+ * @param {Array} censor array containing list of banned words
+ * @param {Object} offenders JSON containing all offenders
+ */
+function filter(message, censor, offenders) {
     const check = message.content.toLowerCase().replace(" ", '').trim();
     for (let i = 0; i < censor.length; i++) {
         if (check.includes(censor[i])) {
@@ -167,10 +177,6 @@ function filter(message, offenders) {
         }
     }
 }
-  
-//-----------------------------------------------
-// UTILITY FUNCTIONS
-//-----------------------------------------------
 
 /**
  * All hail the magic conch
