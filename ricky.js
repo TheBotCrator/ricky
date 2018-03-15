@@ -53,6 +53,7 @@ client.on('message', message => {
         filter(message, censor, offenders);
     } catch (error) {
         message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
+        return;
     }
 
     // Look for bot command prefix
@@ -73,27 +74,24 @@ client.on('message', message => {
     switch (command) {
         // The magic conch
         case "conch":
-            try {
-                let completed = conch(arg);
-                message.channel.send(completed);
-            } catch (error) {
-                message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`));
-            }
+            conch(arg)
+                .then(completed => {
+                    message.channel.send(completed)
+                })
+                .catch(error => {
+                    message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`));
+                });
             break;
 
         // Automated role assignment
         case "role":
-            try {
-                addRole(message, argNoTag)
-                    .then(completed => {
-                        message.delete(250).then(message.channel.send(`${message.member.user}, ${completed}`).then(msg => msg.delete(300000)));
-                    })
-                    .catch((error) => {
-                        message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
-                    })
-            } catch (error) {
-                message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
-            }
+            addRole(message, argNoTag)
+                .then(completed => {
+                    message.delete(250).then(message.channel.send(`${message.member.user}, ${completed}`).then(msg => msg.delete(300000)));
+                })
+                .catch(error => {
+                    message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
+                });
             break;
 
         case "offenders":
@@ -184,7 +182,7 @@ function filter(message, censor, offenders) {
  * @param {String} arg user input string
  * @returns {String} 
  */
-function conch(arg) {
+async function conch(arg) {
     if (arg) {
         return "Evan: \"We're working on it.\"";
     }
@@ -199,7 +197,7 @@ function conch(arg) {
  * @param {Object} message discord message object
  * @param {String} argNoTag potential role value stripped of emotes to prevent potential errors
  */
-function addRole(message, argNoTag) {
+async function addRole(message, argNoTag) {
     if (argNoTag) {
         let argNoTagLower = argNoTag.toLowerCase();
 
