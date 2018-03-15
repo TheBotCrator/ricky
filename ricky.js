@@ -94,6 +94,8 @@ client.on('message', message => {
                 });
             break;
 
+        // Offender retrieval
+        case "offender":
         case "offenders":
             getOffender(message, offenders)
                 .then(completed => {
