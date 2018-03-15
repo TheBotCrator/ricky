@@ -95,12 +95,13 @@ client.on('message', message => {
             break;
 
         case "offenders":
-            try {
-                let completed = getOffender(message, offenders);
-                message.delete(250).then(message.author.send(completed));
-            } catch (error) {
-                message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
-            }
+            getOffender(message, offenders)
+                .then(completed => {
+                    message.delete(250).then(message.author.send(completed));
+                })
+                .catch(error => {
+                    message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
+                });
             break;
     }
 });
@@ -128,7 +129,7 @@ client.on("resume", replayed => {
  * @param {error} err error object
  */
 process.on("unhandledRejection", err => {
-    console.error("Uncaught Promise Error: \n" + err.stack);
+    console.error(err.stack);
 });
 
 
@@ -180,7 +181,6 @@ function filter(message, censor, offenders) {
  * All hail the magic conch
  * a-loo-loo-loo-loo
  * @param {String} arg user input string
- * @returns {String} 
  */
 async function conch(arg) {
     if (arg) {
@@ -227,7 +227,6 @@ async function addRole(message, argNoTag) {
                         throw "I cannot remove that role.";
                     });
             }
-
             else {
                 return message.member.addRole(addedRole)
                     .then(() => {
@@ -256,15 +255,16 @@ async function addRole(message, argNoTag) {
  * @param {Object} message discord message object
  * @param {String} offenders user input offender string
  */
-function getOffender(message, offenders) {
+async function getOffender(message, offenders) {
     const mentionedUser = message.mentions.members.first();
     if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Community Team")) {
         if (mentionedUser) {
             if (offenders.hasOwnProperty(mentionedUser.id)) {
-                var sentence = "";
+                let sentence = "";
                 sentence += ("**USER:** " + mentionedUser + '\n\n')
                 sentence += ("**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + '\n\n');
                 sentence += ("**MESSAGES:**\n")
+
                 for (let i = 0; i < offenders[mentionedUser.id]['messages'].length; i++) {
                     sentence += (offenders[mentionedUser.id]['messages'][i] + '\n');
                 }
@@ -276,18 +276,24 @@ function getOffender(message, offenders) {
         }
         else {
             let count = 0;
-            for (var prop in offenders) {
-                if (offenders.hasOwnProperty(prop)) {
+            let users = "";
+
+            for (let key in offenders) {
+                if (offenders.hasOwnProperty(key)) {
                     count++;
+                    await message.guild.fetchMember(key).then(gMem => (users += gMem.user + '\n'));
                 }
             }
 
-            if (count === 1) {
-                throw "there is " + count + " offender."
+            let sentence = "";
+
+            sentence += "**NUMBER OF OFFENDERS: **" + count + '\n\n';
+            if (count !== 0) {
+                sentence += "**OFFENDERS:**\n";
+                sentence += users;
             }
-            else {
-                throw "there are " + count + " offenders.";
-            }
+
+            return sentence;
         }
     }
     else {
