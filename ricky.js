@@ -238,7 +238,6 @@ async function addRole(message, argNoTag) {
                     });
             }
         }
-
         else {
             throw "that is not a role.";
         }
