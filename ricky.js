@@ -1,6 +1,7 @@
 //-----------------------------------------------
 // GLOBAL/REQUIREMENTS
 //-----------------------------------------------
+
 const config = require("./config.json");
 
 const Discord = require('discord.js');
@@ -49,6 +50,7 @@ client.on('message', message => {
     // Ignore messages sent by bots
     if (message.author.bot) return;
 
+
     // Censorship
     try {
         filter(message, censor, offenders);
@@ -57,6 +59,7 @@ client.on('message', message => {
         return;
     }
 
+    
     //-----------------------------------------------
     // MESSAGE PARSING
     //-----------------------------------------------
@@ -84,7 +87,11 @@ client.on('message', message => {
     // Logs the user's name and entire message
     console.log(`\t${message.author.username}: ${message.content}`);
 
-    // Main bot command handling
+
+    //-----------------------------------------------
+    // COMMAND HANDLING
+    //-----------------------------------------------
+    
     switch (command) {
         // The magic conch
         case "conch":
