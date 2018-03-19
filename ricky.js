@@ -12,7 +12,7 @@ const fs = require('fs');
 // Start up functions
 //
 
-// Create offenders JSON, if one does not already exist 
+// Create offenders JSON, if one does not already exist
 if (!fs.existsSync("./offenders.json")) {
     fs.writeFileSync("./offenders.json", '{}');
     console.log("offenders file was not found, one has been created");
@@ -177,6 +177,14 @@ function filter(message, censor, offenders) {
             throw "that kind of language is not tolerated here.";
         }
     }
+}
+
+function sendChannel(message, content){
+    message.delete(250).then(message.channel.send(`${message.member.user}, ${content}`).then(msg => msg.delete(30000)));
+}
+
+function sendUser(message, content){
+    message.delete(250).then(message.author.send(content));
 }
 
 /**
