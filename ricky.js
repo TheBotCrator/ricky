@@ -183,7 +183,7 @@ function sendChannel(message, content){
     message.delete(250).then(message.channel.send(`${message.member.user}, ${content}`).then(msg => msg.delete(30000)));
 }
 
-function sendUser(message, content){
+function sendAuthor(message, content){
     message.delete(250).then(message.author.send(content));
 }
 
