@@ -20,8 +20,9 @@ if (!fs.existsSync("./offenders.json")) {
 
 // Create censor list, if one does not already exist
 if (!fs.existsSync("./censor.txt")) {
-    fs.writeFileSync("./censor.txt");
-    console.log("censored words file not found, one has been created");
+    fs.writeFileSync("./censor.txt", '\uFFFF');
+    console.log("\n***A CENSORED WORD FILE WAS NOT FOUND; ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE BY PLACING EACH WORD ON A NEW LINE***\n");
+    process.exit();
 }
 
 const censor = fs.readFileSync('./censor.txt', 'utf8').trim().split('\n');
