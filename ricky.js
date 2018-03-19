@@ -79,7 +79,7 @@ client.on('message', message => {
                     message.channel.send(completed)
                 })
                 .catch(error => {
-                    message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`));
+                    sendChannel(error);
                 });
             break;
 
@@ -87,10 +87,10 @@ client.on('message', message => {
         case "role":
             addRole(message, argNoTag)
                 .then(completed => {
-                    message.delete(250).then(message.channel.send(`${message.member.user}, ${completed}`).then(msg => msg.delete(300000)));
+                    sendChannel(message, completed);
                 })
                 .catch(error => {
-                    message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
+                    sendChannel(message, error)
                 });
             break;
 
@@ -99,10 +99,10 @@ client.on('message', message => {
         case "offenders":
             getOffender(message, offenders)
                 .then(completed => {
-                    message.delete(250).then(message.author.send(completed));
+                    sendAuthor(message, completed);
                 })
                 .catch(error => {
-                    message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
+                    sendChannel(message, error);
                 });
             break;
     }
@@ -179,11 +179,11 @@ function filter(message, censor, offenders) {
     }
 }
 
-function sendChannel(message, content){
+function sendChannel(message, content) {
     message.delete(250).then(message.channel.send(`${message.member.user}, ${content}`).then(msg => msg.delete(30000)));
 }
 
-function sendAuthor(message, content){
+function sendAuthor(message, content) {
     message.delete(250).then(message.author.send(content));
 }
 
