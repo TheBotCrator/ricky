@@ -53,6 +53,7 @@ client.on('message', message => {
         filter(message, censor, offenders);
     } catch (error) {
         message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
+        return;
     }
 
     // Look for bot command prefix
@@ -73,36 +74,36 @@ client.on('message', message => {
     switch (command) {
         // The magic conch
         case "conch":
-            try {
-                let completed = conch(arg);
-                message.channel.send(completed);
-            } catch (error) {
-                message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`));
-            }
+            conch(arg)
+                .then(completed => {
+                    message.channel.send(completed)
+                })
+                .catch(error => {
+                    message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`));
+                });
             break;
 
         // Automated role assignment
         case "role":
-            try {
-                addRole(message, argNoTag)
-                    .then(completed => {
-                        message.delete(250).then(message.channel.send(`${message.member.user}, ${completed}`).then(msg => msg.delete(300000)));
-                    })
-                    .catch((error) => {
-                        message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
-                    })
-            } catch (error) {
-                message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
-            }
+            addRole(message, argNoTag)
+                .then(completed => {
+                    message.delete(250).then(message.channel.send(`${message.member.user}, ${completed}`).then(msg => msg.delete(300000)));
+                })
+                .catch(error => {
+                    message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
+                });
             break;
 
+        // Offender retrieval
+        case "offender":
         case "offenders":
-            try {
-                let completed = getOffender(message, offenders);
-                message.delete(250).then(message.author.send(completed));
-            } catch (error) {
-                message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
-            }
+            getOffender(message, offenders)
+                .then(completed => {
+                    message.delete(250).then(message.author.send(completed));
+                })
+                .catch(error => {
+                    message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
+                });
             break;
     }
 });
@@ -130,7 +131,7 @@ client.on("resume", replayed => {
  * @param {error} err error object
  */
 process.on("unhandledRejection", err => {
-    console.error("Uncaught Promise Error: \n" + err.stack);
+    console.error(err.stack);
 });
 
 
@@ -182,9 +183,8 @@ function filter(message, censor, offenders) {
  * All hail the magic conch
  * a-loo-loo-loo-loo
  * @param {String} arg user input string
- * @returns {String} 
  */
-function conch(arg) {
+async function conch(arg) {
     if (arg) {
         return "Evan: \"We're working on it.\"";
     }
@@ -199,7 +199,7 @@ function conch(arg) {
  * @param {Object} message discord message object
  * @param {String} argNoTag potential role value stripped of emotes to prevent potential errors
  */
-function addRole(message, argNoTag) {
+async function addRole(message, argNoTag) {
     if (argNoTag) {
         let argNoTagLower = argNoTag.toLowerCase();
 
@@ -229,7 +229,6 @@ function addRole(message, argNoTag) {
                         throw "I cannot remove that role.";
                     });
             }
-
             else {
                 return message.member.addRole(addedRole)
                     .then(() => {
@@ -241,7 +240,6 @@ function addRole(message, argNoTag) {
                     });
             }
         }
-
         else {
             throw "that is not a role.";
         }
@@ -258,15 +256,16 @@ function addRole(message, argNoTag) {
  * @param {Object} message discord message object
  * @param {String} offenders user input offender string
  */
-function getOffender(message, offenders) {
+async function getOffender(message, offenders) {
     const mentionedUser = message.mentions.members.first();
     if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Community Team")) {
         if (mentionedUser) {
             if (offenders.hasOwnProperty(mentionedUser.id)) {
-                var sentence = "";
+                let sentence = "";
                 sentence += ("**USER:** " + mentionedUser + '\n\n')
                 sentence += ("**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + '\n\n');
                 sentence += ("**MESSAGES:**\n")
+
                 for (let i = 0; i < offenders[mentionedUser.id]['messages'].length; i++) {
                     sentence += (offenders[mentionedUser.id]['messages'][i] + '\n');
                 }
@@ -278,18 +277,24 @@ function getOffender(message, offenders) {
         }
         else {
             let count = 0;
-            for (var prop in offenders) {
-                if (offenders.hasOwnProperty(prop)) {
+            let users = "";
+
+            for (let key in offenders) {
+                if (offenders.hasOwnProperty(key)) {
                     count++;
+                    await message.guild.fetchMember(key).then(gMem => (users += gMem.user + '\n'));
                 }
             }
 
-            if (count === 1) {
-                throw "there is " + count + " offender."
+            let sentence = "";
+
+            sentence += "**NUMBER OF OFFENDERS: **" + count + '\n\n';
+            if (count !== 0) {
+                sentence += "**OFFENDERS:**\n";
+                sentence += users;
             }
-            else {
-                throw "there are " + count + " offenders.";
-            }
+
+            return sentence;
         }
     }
     else {
