@@ -217,7 +217,7 @@ async function conch(arg) {
 
 
 /**
- * If user of origin has appropriate permissions, update role of mentioned user with passed role
+ * If user has appropriate permissions, update role of mentioned user with passed role
  * @param {Object} message discord message object
  * @param {String} argNoTag potential role value stripped of emotes to prevent potential errors
  */
