@@ -33,7 +33,7 @@ const client = new Discord.Client();
 
 
 /**
- * On ready function. Logs console message.
+ * On ready event. Logs console message.
  */
 client.on('ready', () => {
     console.log("\nBot Online\n");
@@ -41,7 +41,7 @@ client.on('ready', () => {
 
 
 /**
- * On message function. Handles incoming user input, message censorship, and parsing for valid commands
+ * On message event. Handles incoming user input, message censorship, and parsing for valid commands
  * @param {object} message discord message object
  */
 client.on('message', message => {
@@ -111,7 +111,7 @@ client.on('message', message => {
 
 
 /**
- * On reconnect function. Logs console message.
+ * On reconnect event. Logs console message.
  */
 client.on("reconnecting", () => {
     console.log("Reconnecting...");
@@ -119,7 +119,7 @@ client.on("reconnecting", () => {
 
 
 /**
- * On resume function. Logs console message.
+ * On resume event. Logs console message.
  * @param {int} replayed count of events replayed
  */
 client.on("resume", replayed => {
@@ -128,7 +128,7 @@ client.on("resume", replayed => {
 
 
 /**
- * On unhandled rejection function. Logs console message w/ error stack
+ * On unhandled rejection event. Logs console message w/ error stack
  * @param {error} err error object
  */
 process.on("unhandledRejection", err => {
