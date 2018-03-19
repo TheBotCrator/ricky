@@ -46,10 +46,10 @@ client.on('ready', () => {
  */
 client.on('message', message => {
 
-    // ignore messages sent by bots
+    // Ignore messages sent by bots
     if (message.author.bot) return;
 
-    // Handle censorship
+    // Censorship
     try {
         filter(message, censor, offenders);
     } catch (error) {
@@ -57,19 +57,32 @@ client.on('message', message => {
         return;
     }
 
-    // Look for bot command prefix
+    //-----------------------------------------------
+    // MESSAGE PARSING
+    //-----------------------------------------------
+
+    // Ignore message if it doesn't start with correct prefix
+    // "hello world" => ignored
     if (!(message.content.startsWith(config.prefix))) return;
 
-    //$something CALISE MACHINE <:triggered:336226202492600331>
+    // Splits user message on spacing, getting the first "word", which is the "command"
+    // "$insertCommandHere CALISE MACHINE <:triggered:336226202492600331>" => "insertCommandHere"
     const command = message.content.slice(config.prefix.length).split(/ +/)[0].toLowerCase(); //something
 
-    //$10 or $$$
+    // Ignores message if they are talking about money
+    // "$10" or "$$$" => ignored
     if (/^\d+$/.test(command) || /\$+/.test(command)) return;
 
+    // Extracts the argument, everything else in the message other than the prefix and command
+    // "$insertCommandHere CALISE MACHINE <:triggered:336226202492600331>" => "CALISE MACHINE <:triggered:336226202492600331>"
     const arg = message.content.slice(config.prefix.length + command.length).replace(/\s+/g, ' ').trim(); //CALISE MACHINE <:triggered:336226202492600331>
-    const argNoTag = arg.replace(/<@?!?\D+\d+>/g, '').trim(); //CALISE MACHINE
+    
+    // Removes any tagged users or custom emotes from an arg
+    // "CALISE MACHINE <:triggered:336226202492600331>" => "CALISE MACHINE"
+    const argNoTag = arg.replace(/<@?!?\D+\d+>/g, '').trim();
 
-    console.log('\t' + message.author.username + ": " + message); //used for debugging
+    // Logs the user's name and entire message
+    console.log(`\t${message.author.username}: ${message.content}`);
 
     // Main bot command handling
     switch (command) {
