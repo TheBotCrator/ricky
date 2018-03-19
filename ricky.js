@@ -69,19 +69,19 @@ client.on('message', message => {
     if (!(message.content.startsWith(config.prefix))) return;
 
     // Splits user message on spacing, getting the first "word", which is the "command"
-    // "$insertCommandHere <:thOnk:337235802733936650> is a great emote" => "insertCommandHere"
+    // "$insertCommandHere <@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "insertCommandHere"
     const command = message.content.slice(config.prefix.length).split(/ +/)[0].toLowerCase(); //something
 
     // Ignores message if they are talking about money
     // "$10" or "$$$" => ignored
     if (/^\d+$/.test(command) || /\$+/.test(command)) return;
 
-    // Extracts the argument, everything else in the message other than the prefix and command
-    // "$insertCommandHere <:thOnk:337235802733936650> is a great emote" => "<:thOnk:337235802733936650> is a great emote"
+    // Extracts the argument, everything else in the message minus the prefix and command
+    // "$insertCommandHere <@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "<@!100022489140195328> <:thOnk:337235802733936650> is a great emote"
     const arg = message.content.slice(config.prefix.length + command.length).replace(/\s+/g, ' ').trim(); //CALISE MACHINE <:triggered:336226202492600331>
     
     // Removes any tagged users or custom emotes from an arg
-    // "<:thOnk:337235802733936650> is a great emote" => "is a great emote"
+    // "<@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "is a great emote"
     const argNoTag = arg.replace(/<@?!?\D+\d+>/g, '').trim();
 
     // Logs the user's name and entire message
