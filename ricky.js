@@ -179,8 +179,9 @@ function filter(message, censor, offenders) {
     }
 }
 
+
 /**
- * Function to send messages in the channel they were recieved in.
+ * Function to send messages in the channel they were recieved in
  * @param {Object} message discord message object
  * @param {String} content message to send
  */
@@ -188,14 +189,16 @@ function sendChannel(message, content) {
     message.delete(250).then(message.channel.send(`${message.member.user}, ${content}`).then(msg => msg.delete(30000)));
 }
 
+
 /**
- * Function to send message to author of original message.
+ * Function to send message to author of original message
  * @param {Object} message discord message object
  * @param {String} content message to send
  */
 function sendAuthor(message, content) {
     message.delete(250).then(message.author.send(content));
 }
+
 
 /**
  * All hail the magic conch
