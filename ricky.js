@@ -17,6 +17,7 @@ if (!fs.existsSync("./offenders.json")) {
 }
 const offenders = require("./offenders.json");
 
+
 // Create censor list, if one does not already exist
 if (!fs.existsSync("./censor.txt")) {
     fs.writeFileSync("./censor.txt", '\uFFFF');
@@ -26,8 +27,10 @@ const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split('\n');
 //Logs list of censored words
 console.log(`\nList of censored words:\n\t${censor}\n`)
 
+
 // Creates a new Dicord "Client"
 const client = new Discord.Client();
+
 
 /**
  * On ready function. Logs console message.
