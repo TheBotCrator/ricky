@@ -23,23 +23,23 @@ if (!fs.existsSync("./censor.txt")) {
     console.log("\n***A CENSORED WORD FILE WAS NOT FOUND; ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE BY PLACING EACH WORD ON A NEW LINE***\n");
 }
 const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split('\n');
+//Logs list of censored words
 console.log(`\nList of censored words:\n\t${censor}\n`)
 
-// Creates a new Dicord "client"
+// Creates a new Dicord "Client"
 const client = new Discord.Client();
 
 /**
- * On ready function
+ * On ready function. Logs console message.
  */
 client.on('ready', () => {
-    console.log("Bot Online");
+    console.log("\nBot Online\n");
 })
 
 
 /**
- * On message function. Handles incoming user input, parsing for valid commands
- * Also handles message censorship by checking content against censor list
- * @param {object} message user input command
+ * On message function. Handles incoming user input, message censorship, and parsing for valid commands
+ * @param {object} message discord message object
  */
 client.on('message', message => {
 
