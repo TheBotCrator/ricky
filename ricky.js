@@ -1,11 +1,9 @@
 //-----------------------------------------------
-// GLOBAL
+// GLOBAL/REQUIREMENTS
 //-----------------------------------------------
 const config = require("./config.json");
 
 const Discord = require('discord.js');
-const client = new Discord.Client();
-
 const fs = require('fs');
 
 //
@@ -17,18 +15,18 @@ if (!fs.existsSync("./offenders.json")) {
     fs.writeFileSync("./offenders.json", '{}');
     console.log("Offenders file was not found, one has been created\n");
 }
+const offenders = require("./offenders.json");
 
 // Create censor list, if one does not already exist
 if (!fs.existsSync("./censor.txt")) {
     fs.writeFileSync("./censor.txt", '\uFFFF');
     console.log("\n***A CENSORED WORD FILE WAS NOT FOUND; ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE BY PLACING EACH WORD ON A NEW LINE***\n");
 }
-
 const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split('\n');
 console.log(`\nList of censored words:\n\t${censor}\n`)
 
-const offenders = require("./offenders.json");
-
+// Creates a new Dicord "client"
+const client = new Discord.Client();
 
 /**
  * On ready function
