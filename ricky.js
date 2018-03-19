@@ -15,7 +15,7 @@ const fs = require('fs');
 // Create offenders JSON, if one does not already exist 
 if (!fs.existsSync("./offenders.json")) {
     fs.writeFileSync("./offenders.json", '{}');
-    console.log("offenders file was not found, one has been created");
+    console.log("Offenders file was not found, one has been created\n");
 }
 
 // Create censor list, if one does not already exist
@@ -24,8 +24,8 @@ if (!fs.existsSync("./censor.txt")) {
     console.log("\n***A CENSORED WORD FILE WAS NOT FOUND; ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE BY PLACING EACH WORD ON A NEW LINE***\n");
 }
 
-const censor = fs.readFileSync('./censor.txt', 'utf8').trim().split('\n');
-console.log(censor);
+const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split('\n');
+console.log(`\nList of censored words:\n\t${censor}\n`)
 
 const offenders = require("./offenders.json");
 
