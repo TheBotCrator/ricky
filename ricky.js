@@ -11,7 +11,7 @@ const fs = require('fs');
 // Start up functions
 //
 
-// Create offenders JSON, if one does not already exist 
+// Create offenders JSON if one does not already exist 
 if (!fs.existsSync("./offenders.json")) {
     fs.writeFileSync("./offenders.json", '{}');
     console.log("Offenders file was not found, one has been created\n");
@@ -19,7 +19,7 @@ if (!fs.existsSync("./offenders.json")) {
 const offenders = require("./offenders.json");
 
 
-// Create censor list, if one does not already exist
+// Create censor list if one does not already exist
 if (!fs.existsSync("./censor.txt")) {
     fs.writeFileSync("./censor.txt", '\uFFFF');
     console.log("\n***A CENSORED WORD FILE WAS NOT FOUND; ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE BY PLACING EACH WORD ON A NEW LINE***\n");
@@ -91,7 +91,7 @@ client.on('message', message => {
     //-----------------------------------------------
     // COMMAND HANDLING
     //-----------------------------------------------
-    
+
     switch (command) {
         // The magic conch
         case "conch":
@@ -147,17 +147,18 @@ client.on("resume", replayed => {
 });
 
 
+// Discord API login
+client.login(config.token);
+
+
 /**
- * On unhandled rejection event. Logs console message w/ error stack
+ * On unhandled rejection event. Logs console message w/ error stack.
  * @param {error} err error object
  */
 process.on("unhandledRejection", err => {
     console.error(err.stack);
 });
 
-
-// Discord API login
-client.login(config.token);
 
 //-----------------------------------------------
 // UTILITY FUNCTIONS
@@ -273,9 +274,9 @@ async function addRole(message, argNoTag) {
 
 /**
  * List censor offenses of user including count, and offending messages. Only available to those with 
- * the "Admin" or "Community Team" roles
+ * the "Admin" or "Community Team" roles.
  * @param {Object} message discord message object
- * @param {String} offenders user input offender string
+ * @param {Object} offenders offenders JSON
  */
 async function getOffender(message, offenders) {
     const mentionedUser = message.mentions.members.first();
