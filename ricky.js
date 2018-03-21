@@ -1,5 +1,5 @@
 //-----------------------------------------------
-// GLOBAL/REQUIREMENTS
+// GLOBAL && REQUIREMENTS
 //-----------------------------------------------
 
 const config = require("./config.json");
@@ -7,17 +7,12 @@ const config = require("./config.json");
 const Discord = require('discord.js');
 const fs = require('fs');
 
-//
-// Start up functions
-//
-
 // Create offenders JSON if one does not already exist 
 if (!fs.existsSync("./offenders.json")) {
     fs.writeFileSync("./offenders.json", '{}');
-    console.log("Offenders file was not found, one has been created\n");
+    console.log("Offenders file was not found, one has been created");
 }
 const offenders = require("./offenders.json");
-
 
 // Create censor list if one does not already exist
 if (!fs.existsSync("./censor.txt")) {
@@ -26,7 +21,7 @@ if (!fs.existsSync("./censor.txt")) {
 }
 const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split('\n');
 //Logs list of censored words
-console.log(`\nList of censored words:\n\t${censor}\n`)
+console.log(`List of censored words:\n\t${censor}\n`)
 
 
 // Creates a new Dicord "Client"
@@ -37,7 +32,7 @@ const client = new Discord.Client();
  * On ready event. Logs console message.
  */
 client.on('ready', () => {
-    console.log("\nBot Online\n");
+    console.log("Bot Online\n");
 })
 
 
@@ -49,7 +44,6 @@ client.on('message', message => {
 
     // Ignore messages sent by bots
     if (message.author.bot) return;
-
 
     // Censorship
     try {
@@ -66,11 +60,11 @@ client.on('message', message => {
 
     // Ignore message if it doesn't start with correct prefix
     // "hello world" => ignored
-    if (!(message.content.startsWith(config.prefix))) return;
+    if (!message.content.startsWith(config.prefix)) return;
 
     // Splits user message on spacing, getting the first "word", which is the "command"
     // "$insertCommandHere <@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "insertCommandHere"
-    const command = message.content.slice(config.prefix.length).split(/ +/)[0].toLowerCase(); //something
+    const command = message.content.slice(config.prefix.length).split(/ +/g)[0].toLowerCase(); //something
 
     // Ignores message if they are talking about money
     // "$10" or "$$$" => ignored
@@ -78,7 +72,7 @@ client.on('message', message => {
 
     // Extracts the argument, everything else in the message minus the prefix and command
     // "$insertCommandHere <@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "<@!100022489140195328> <:thOnk:337235802733936650> is a great emote"
-    const arg = message.content.slice(config.prefix.length + command.length).replace(/\s+/g, ' ').trim(); //CALISE MACHINE <:triggered:336226202492600331>
+    const arg = message.content.slice(config.prefix.length + command.length).trim(); //CALISE MACHINE <:triggered:336226202492600331>
     
     // Removes any tagged users or custom emotes from an arg
     // "<@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "is a great emote"
@@ -166,14 +160,17 @@ process.on("unhandledRejection", err => {
 
 /**
  * Compares user message with list of banned words. If message contains said words, message is deleted
- * and user is added to a JSON contating number of offending messages and offending messages.
+ * and user is added to a JSON contating number of offending messages with the offending messages.
  * @param {Object} message discord message object
  * @param {Array} censor array containing list of banned words
  * @param {Object} offenders JSON containing all offenders
  */
 function filter(message, censor, offenders) {
-    const check = message.content.toLowerCase().replace(" ", '').trim();
+    // User message, all lowercase, no spaces.
+    const check = message.content.toLowerCase().replace(/\s/g, '').trim();
+
     for (let i = 0; i < censor.length; i++) {
+        // If user message contains a censored word, the word is deleted and their info is added/updated to the offenders JSON
         if (check.includes(censor[i])) {
             console.log(message.author.username + " message contained a censored word, word was: " + censor[i]);
 
@@ -219,17 +216,19 @@ async function conch(arg) {
 /**
  * If user has appropriate permissions, update role of mentioned user with passed role
  * @param {Object} message discord message object
- * @param {String} argNoTag potential role value stripped of emotes to prevent potential errors
+ * @param {String} argNoTag potential role value stripped of tags and emotes to prevent potential errors
  */
 async function addRole(message, argNoTag) {
     if (argNoTag) {
         let argNoTagLower = argNoTag.toLowerCase();
 
+        // Creates array of all role names in server
         let roleList = message.guild.roles.array();
         let names = roleList.map(role => {
             return role.name;
         });
 
+        // Checks if the role requested matches a role in the sever
         let roleToAdd;
         names.forEach(name => {
             if (name.toLowerCase() === argNoTagLower) {
@@ -238,9 +237,12 @@ async function addRole(message, argNoTag) {
             }
         });
 
+        // If role was found
         if (roleToAdd) {
+            // Get the role object matching the name of the role
             let addedRole = message.guild.roles.find("name", roleToAdd);
 
+            // If user already has role, remove it, else add it
             if (message.member.roles.find("name", roleToAdd)) {
                 return message.member.removeRole(addedRole)
                     .then(() => {
@@ -279,8 +281,13 @@ async function addRole(message, argNoTag) {
  * @param {Object} offenders JSON containing all offenders
  */
 async function getOffender(message, offenders) {
+    // Gets GuildMember object of first mentioned user
     const mentionedUser = message.mentions.members.first();
+
+    // Checks if user has correct permissions to use this command
     if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Community Team")) {
+        // If there is a mentioned user it will pull up their info from the JSON and send the user a PM
+        // else, will PM the user the number of offenders and all of their @'s
         if (mentionedUser) {
             if (offenders.hasOwnProperty(mentionedUser.id)) {
                 let sentence = "";
