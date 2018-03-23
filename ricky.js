@@ -182,12 +182,7 @@ function filter(message, censor, offenders) {
             }
 
             fs.writeFile("./offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
-                if (err) {
-                    console.log(err);
-                }
-                else {
-                    console.log("Offender JSON write success");
-                }
+                if (err ? console.log(err) : console.log("Offender JSON write success"));
             });
 
             throw "that kind of language is not tolerated here.";
