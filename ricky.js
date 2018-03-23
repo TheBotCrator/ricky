@@ -20,6 +20,7 @@ if (!fs.existsSync("./censor.txt")) {
     console.log("***A CENSORED WORD FILE WAS NOT FOUND, ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE BY PLACING EACH WORD ON A NEW LINE***\n");
 }
 const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split('\n');
+
 //Logs list of censored words
 console.log(`List of censored words:\n\t${censor}\n`)
 
