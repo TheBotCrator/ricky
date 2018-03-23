@@ -29,7 +29,8 @@ const client = new Discord.Client();
 
 
 /**
- * On ready event. Logs console message.
+ * On ready event. Emitted when the client becomes ready to start working.
+ * Logs console message.
  */
 client.on('ready', () => {
     console.log("Bot Online\n");
@@ -37,8 +38,9 @@ client.on('ready', () => {
 
 
 /**
- * On message event. Handles incoming user input, message censorship, and parsing for valid commands
- * @param {object} message discord message object
+ * On message event. Emitted whenever a message is created.
+ * Handles incoming user input, message censorship, and parsing for valid commands.
+ * @param {object} message created discord message object
  */
 client.on('message', message => {
 
@@ -52,7 +54,6 @@ client.on('message', message => {
         message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
         return;
     }
-
     
     //-----------------------------------------------
     // MESSAGE PARSING
@@ -63,24 +64,23 @@ client.on('message', message => {
     if (!message.content.startsWith(config.prefix)) return;
 
     // Splits user message on spacing, getting the first "word", which is the "command"
-    // "$insertCommandHere <@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "insertCommandHere"
-    const command = message.content.slice(config.prefix.length).split(/ +/g)[0].toLowerCase(); //something
+    // "$insertCommandHere <@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "insertcommandhere"
+    const command = message.content.slice(config.prefix.length).split(/ +/g)[0].toLowerCase();
 
     // Ignores message if they are talking about money
     // "$10" or "$$$" => ignored
     if (/^\d+$/.test(command) || /\$+/.test(command)) return;
 
-    // Extracts the argument, everything else in the message minus the prefix and command
+    // Extracts the "argument", everything else in the message except the prefix and command
     // "$insertCommandHere <@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "<@!100022489140195328> <:thOnk:337235802733936650> is a great emote"
-    const arg = message.content.slice(config.prefix.length + command.length).trim(); //CALISE MACHINE <:triggered:336226202492600331>
+    const arg = message.content.slice(config.prefix.length + command.length).replace(/\s+/g, " ").trim();
     
-    // Removes any tagged users or custom emotes from an arg
+    // Removes any tagged users or custom emotes and extra spaces from an arg
     // "<@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "is a great emote"
     const argNoTag = arg.replace(/<@?!?\D+\d+>/g, '').trim();
 
     // Logs the user's name and entire message
     console.log(`\t${message.author.username}: ${message.content}`);
-
 
     //-----------------------------------------------
     // COMMAND HANDLING
@@ -125,7 +125,8 @@ client.on('message', message => {
 
 
 /**
- * On reconnect event. Logs console message.
+ * On reconnect event. Emitted when the client tries to reconnect to the WebSocked. 
+ * Logs console message.
  */
 client.on("reconnecting", () => {
     console.log("Reconnecting...");
@@ -133,8 +134,9 @@ client.on("reconnecting", () => {
 
 
 /**
- * On resume event. Logs console message.
- * @param {int} replayed count of events replayed
+ * On resume event. Emitted whenever a WebSocket resumes. 
+ * Logs console message.
+ * @param {int} replayed number of events that were replayed
  */
 client.on("resume", replayed => {
     console.log(`Reconnectd. ${replayed} events replayed.`);
@@ -146,11 +148,13 @@ client.login(config.token);
 
 
 /**
- * On unhandled rejection event. Logs console message w/ error stack.
- * @param {error} err error object
+ * On unhandled Promise rejection.
+ * Logs console message on where and why the error happened.
+ * @param {Error} reason error object
+ * @param {Promise} p promise that was rejected
  */
-process.on("unhandledRejection", err => {
-    console.error(err.stack);
+process.on("unhandledRejection", (reason, p) => {
+    console.log(`Unhandled Rejection at: ${p}\nReason: ${reason}`);
 });
 
 
@@ -167,7 +171,7 @@ process.on("unhandledRejection", err => {
  */
 function filter(message, censor, offenders) {
     // User message, all lowercase, no spaces.
-    const check = message.content.toLowerCase().replace(/\s/g, '').trim();
+    const check = message.content.toLowerCase().replace(/\s+/g, '').trim();
 
     for (let i = 0; i < censor.length; i++) {
         // If user message contains a censored word, the word is deleted and their info is added/updated to the offenders JSON
@@ -189,7 +193,7 @@ function filter(message, censor, offenders) {
                     console.log(err);
                 }
                 else {
-                    console.log("offender write success");
+                    console.log("Offender write success");
                 }
             });
 
@@ -214,9 +218,9 @@ async function conch(arg) {
 
 
 /**
- * If user has appropriate permissions, update role of mentioned user with passed role
+ * If this bot has appropriate permissions, update role of user with requested role
  * @param {Object} message discord message object
- * @param {String} argNoTag potential role value stripped of tags and emotes to prevent potential errors
+ * @param {String} argNoTag potential role value stripped of tags and emotes to prevent errors
  */
 async function addRole(message, argNoTag) {
     if (argNoTag) {
@@ -237,12 +241,13 @@ async function addRole(message, argNoTag) {
             }
         });
 
-        // If role was found
+        // If role requested matches a role in the server
         if (roleToAdd) {
             // Get the role object matching the name of the role
             let addedRole = message.guild.roles.find("name", roleToAdd);
 
-            // If user already has role, remove it, else add it
+            // If user already has role, remove it
+            // else, add it
             if (message.member.roles.find("name", roleToAdd)) {
                 return message.member.removeRole(addedRole)
                     .then(() => {
@@ -281,13 +286,13 @@ async function addRole(message, argNoTag) {
  * @param {Object} offenders JSON containing all offenders
  */
 async function getOffender(message, offenders) {
-    // Gets GuildMember object of first mentioned user
+    // GuildMember object of first mentioned user
     const mentionedUser = message.mentions.members.first();
 
     // Checks if user has correct permissions to use this command
     if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Community Team")) {
-        // If there is a mentioned user it will pull up their info from the JSON and send the user a PM
-        // else, will PM the user the number of offenders and all of their @'s
+        // If there is a mentioned user it will pull up their info from the JSON and return
+        // else, will return the number of offenders and all of their @'s
         if (mentionedUser) {
             if (offenders.hasOwnProperty(mentionedUser.id)) {
                 let sentence = "";
