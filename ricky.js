@@ -10,14 +10,14 @@ const config = require("./config.json");
 // Create offenders JSON if one does not already exist 
 if (!fs.existsSync("./offenders.json")) {
     fs.writeFileSync("./offenders.json", '{}');
-    console.log("Offenders file was not found, one has been created");
+    console.log("Offenders file was not found, one has been created\n");
 }
 const offenders = require("./offenders.json");
 
 // Create censor list if one does not already exist
 if (!fs.existsSync("./censor.txt")) {
     fs.writeFileSync("./censor.txt", '\uFFFF');
-    console.log("\n***A CENSORED WORD FILE WAS NOT FOUND; ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE BY PLACING EACH WORD ON A NEW LINE***\n");
+    console.log("***A CENSORED WORD FILE WAS NOT FOUND, ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE BY PLACING EACH WORD ON A NEW LINE***\n");
 }
 const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split('\n');
 //Logs list of censored words
@@ -81,7 +81,7 @@ client.on('message', message => {
     const argNoTag = arg.replace(/<@?!?\D+\d+>/g, '').trim();
 
     // Logs the user's name and entire message
-    console.log(`\t${message.author.username}: ${message.content}`);
+    console.log(`\t${message.author.tag}: ${message.content}`);
 
     //-----------------------------------------------
     // COMMAND HANDLING
@@ -167,18 +167,18 @@ function filter(message, censor, offenders) {
     const check = message.content.toLowerCase().replace(/\s+/g, '').trim();
 
     for (let i = 0; i < censor.length; i++) {
-        // If user message contains a censored word, the word is deleted and their info is added/updated to the offenders JSON
+        // Check if user message contains a censored word
         if (check.includes(censor[i])) {
-            console.log(message.author.username + " message contained a censored word, word was: " + censor[i]);
-
+            // If uer is in offenders JSON their info is updated
+            // else, their info is added to offenders JSON
             if (offenders.hasOwnProperty(message.member.id)) {
-                console.log(message.member.user.username + " is a repeat offender")
                 offenders[message.member.id]['offenses']++;
                 offenders[message.member.id]['messages'].push(message.content);
+                console.log(`\t${message.author.tag} message contained : ${censor[i]}, ${offenders[message.member.id]['offenses']} offences`);
             }
             else {
-                console.log(message.author.username + ": first offense");
                 offenders[message.member.id] = { offenses: 1, messages: [message.content] };
+                console.log(`\t${message.author.tag} message contained : ${censor[i]}, first offence`);
             }
 
             fs.writeFile("./offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
@@ -186,7 +186,7 @@ function filter(message, censor, offenders) {
                     console.log(err);
                 }
                 else {
-                    console.log("Offender write success");
+                    console.log("Offender JSON write success");
                 }
             });
 
@@ -202,6 +202,7 @@ function filter(message, censor, offenders) {
  */
 async function conch(arg) {
     if (arg) {
+        console.log(`The conch has responded`)
         return "Evan: \"We're working on it.\"";
     }
     else {
@@ -243,7 +244,7 @@ async function addRole(message, argNoTag) {
             if (message.member.roles.find("name", roleToAdd)) {
                 return message.member.removeRole(addedRole)
                     .then(() => {
-                        console.log(`${roleToAdd} was removed from ${message.author.username}`);
+                        console.log(`${roleToAdd} was removed from ${message.author.tag}`);
                         return "role removed.";
                     })
                     .catch(error => {
@@ -253,7 +254,7 @@ async function addRole(message, argNoTag) {
             else {
                 return message.member.addRole(addedRole)
                     .then(() => {
-                        console.log(`${roleToAdd} was added to ${message.author.username}`);
+                        console.log(`${roleToAdd} was added to ${message.author.tag}`);
                         return "role added.";
                     })
                     .catch(error => {
@@ -277,14 +278,15 @@ async function addRole(message, argNoTag) {
  * @param {Object} offenders JSON containing all offenders
  */
 async function getOffender(message, offenders) {
-    // GuildMember object of first mentioned user
-    const mentionedUser = message.mentions.members.first();
+    // User object of first mentioned user
+    const mentionedUser = message.mentions.users.first();
 
     // Checks if user has correct permissions to use this command
     if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Community Team")) {
         // If there is a mentioned user it will pull up their info from the JSON and return
         // else, will return the number of offenders and all of their @'s
         if (mentionedUser) {
+            console.log(`Sent ${message.author.tag} an offender summary of ${mentionedUser.tag}`);
             if (offenders.hasOwnProperty(mentionedUser.id)) {
                 let sentence = "";
                 sentence += ("**USER:** " + mentionedUser + '\n\n')
@@ -301,6 +303,7 @@ async function getOffender(message, offenders) {
             }
         }
         else {
+            console.log(`Sent ${message.author.tag} a list of offending users`);
             let count = 0;
             let users = "";
 
