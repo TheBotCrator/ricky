@@ -23,10 +23,12 @@ const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split('\n');
 //Logs list of censored words
 console.log(`List of censored words:\n\t${censor}\n`)
 
-
 // Creates a new Dicord "Client"
 const client = new Discord.Client();
 
+//-----------------------------------------------
+// EVENT HANDLERS
+//-----------------------------------------------
 
 /**
  * On ready event. Emitted when the client becomes ready to start working.
@@ -36,11 +38,10 @@ client.on('ready', () => {
     console.log("Bot Online\n");
 })
 
-
 /**
  * On message event. Emitted whenever a message is created.
  * Handles incoming user input, message censorship, and parsing for valid commands.
- * @param {object} message created discord message object
+ * @param {object} message created discord message
  */
 client.on('message', message => {
 
@@ -123,7 +124,6 @@ client.on('message', message => {
     }
 });
 
-
 /**
  * On reconnect event. Emitted when the client tries to reconnect to the WebSocked. 
  * Logs console message.
@@ -131,7 +131,6 @@ client.on('message', message => {
 client.on("reconnecting", () => {
     console.log("Reconnecting...");
 });
-
 
 /**
  * On resume event. Emitted whenever a WebSocket resumes. 
@@ -142,11 +141,6 @@ client.on("resume", replayed => {
     console.log(`Reconnectd. ${replayed} events replayed.`);
 });
 
-
-// Discord API login
-client.login(config.token);
-
-
 /**
  * On unhandled Promise rejection.
  * Logs console message on where and why the error happened.
@@ -156,7 +150,6 @@ client.login(config.token);
 process.on("unhandledRejection", (reason, p) => {
     console.log(`Unhandled Rejection at: ${p}\nReason: ${reason}`);
 });
-
 
 //-----------------------------------------------
 // UTILITY FUNCTIONS
@@ -215,7 +208,6 @@ async function conch(arg) {
         throw "you need to actually ask me a question (ex: \`!conch Thing?\`).";
     }
 }
-
 
 /**
  * If this bot has appropriate permissions, update role of user with requested role
@@ -278,7 +270,6 @@ async function addRole(message, argNoTag) {
     }
 }
 
-
 /**
  * List censor offenses of user including count, and offending messages. Only available to those with 
  * the "Admin" or "Community Team" roles.
@@ -335,3 +326,9 @@ async function getOffender(message, offenders) {
         throw "you do not have permission to use that command."
     }
 }
+
+//-----------------------------------------------
+// DISCORD API LOGIN
+//-----------------------------------------------
+
+client.login(config.token);
