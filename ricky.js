@@ -2,10 +2,10 @@
 // GLOBAL && REQUIREMENTS
 //-----------------------------------------------
 
-const config = require("./config.json");
-
 const Discord = require('discord.js');
 const fs = require('fs');
+
+const config = require("./config.json");
 
 // Create offenders JSON if one does not already exist 
 if (!fs.existsSync("./offenders.json")) {
@@ -243,7 +243,7 @@ async function addRole(message, argNoTag) {
             if (message.member.roles.find("name", roleToAdd)) {
                 return message.member.removeRole(addedRole)
                     .then(() => {
-                        console.log(roleToAdd + " was removed from " + message.author.username);
+                        console.log(`${roleToAdd} was removed from ${message.author.username}`);
                         return "role removed.";
                     })
                     .catch(error => {
@@ -253,7 +253,7 @@ async function addRole(message, argNoTag) {
             else {
                 return message.member.addRole(addedRole)
                     .then(() => {
-                        console.log(roleToAdd + " was added to " + message.author.username);
+                        console.log(`${roleToAdd} was added to ${message.author.username}`);
                         return "role added.";
                     })
                     .catch(error => {
