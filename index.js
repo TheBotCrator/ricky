@@ -192,7 +192,7 @@ function filter(message, censor, offenders) {
 }
 
 /**
- * Send messages in the channel they were recieved in
+ * Send message in the channel they were recieved in
  * @param {Object} message discord message object
  * @param {String} content message to send
  */
