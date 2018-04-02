@@ -32,19 +32,29 @@ const client = new Discord.Client();
 //-----------------------------------------------
 
 /**
- * On ready event. Emitted when the client becomes ready to start working.
+ * On disconnect event. Emitted when the client's WebSocket disconnects and will no longer attempt to reconnect.
  * Logs console message.
+ * @param {CloseEvent} event WebSocket close event
  */
-client.on('ready', () => {
-    console.log("Bot Online\n");
+client.on("disconnect", event => {
+    console.log(`\n***SERVER HAS BEEN DISCONNECTED***\nCLEAN DISCONNECT: ${event.wasClean}\nCLOSE CODE: ${event.code}\n`)
 })
+
+/**
+ * On error event. Emitted whenever the client's WebSocket encounters a connection error.
+ * Logs console message.
+ * @param {Error} error encountered error
+ */
+client.on("error", error => {
+    console.log(`\n${error}\n`);
+});
 
 /**
  * On message event. Emitted whenever a message is created.
  * Handles incoming user input, message censorship, and parsing for valid commands.
- * @param {object} message created discord message
+ * @param {Object} message created discord message
  */
-client.on('message', message => {
+client.on("message", message => {
 
     // Ignore messages sent by bots
     if (message.author.bot) return;
@@ -126,11 +136,19 @@ client.on('message', message => {
 });
 
 /**
+ * On ready event. Emitted when the client becomes ready to start working.
+ * Logs console message.
+ */
+client.on("ready", () => {
+    console.log("Bot Online\n");
+})
+
+/**
  * On reconnect event. Emitted when the client tries to reconnect to the WebSocked. 
  * Logs console message.
  */
 client.on("reconnecting", () => {
-    console.log("Reconnecting...");
+    console.log("\nReconnecting...");
 });
 
 /**
@@ -139,7 +157,16 @@ client.on("reconnecting", () => {
  * @param {int} replayed number of events that were replayed
  */
 client.on("resume", replayed => {
-    console.log(`Reconnectd. ${replayed} events replayed.`);
+    console.log(`Reconnectd. ${replayed} events replayed.\n`);
+});
+
+/**
+ * On warn event. Emitted for general warnings.
+ * Logs console message.
+ * @param {String} info warning
+ */
+client.on("warn", info => {
+    console.log(`\n${info}\n`);
 });
 
 /**
@@ -149,7 +176,7 @@ client.on("resume", replayed => {
  * @param {Promise} p promise that was rejected
  */
 process.on("unhandledRejection", (reason, p) => {
-    console.log(`Unhandled Rejection at: ${p}\nReason: ${reason}`);
+    console.log(`\nUnhandled Rejection at: ${p}\nReason: ${reason}\n`);
 });
 
 //-----------------------------------------------
