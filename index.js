@@ -32,9 +32,18 @@ const client = new Discord.Client();
 //-----------------------------------------------
 
 /**
+ * On disconnect event. Emitted when the client's WebSocket disconnects and will no longer attempt to reconnect.
+ * Logs console message.
+ * @param {CloseEvent} event WebSocket close event
+ */
+client.on("disconnect", event => {
+    console.log(`\nSERVER HAS BEEN DISCONNECTED, CHECK CODE FOR REASON: ${event.code}`)
+})
+
+/**
  * On error event. Emitted whenever the client's WebSocket encounters a connection error.
  * Logs console message.
- * @param {Error} error the encountered error
+ * @param {Error} error encountered error
  */
 client.on("error", error => {
     console.log(error);
@@ -139,7 +148,7 @@ client.on("ready", () => {
  * Logs console message.
  */
 client.on("reconnecting", () => {
-    console.log("Reconnecting...");
+    console.log("\nReconnecting...");
 });
 
 /**
@@ -148,13 +157,13 @@ client.on("reconnecting", () => {
  * @param {int} replayed number of events that were replayed
  */
 client.on("resume", replayed => {
-    console.log(`Reconnectd. ${replayed} events replayed.`);
+    console.log(`Reconnectd. ${replayed} events replayed.\n`);
 });
 
 /**
  * On warn event. Emitted for general warnings.
  * Logs console message.
- * @param {String} info the warning
+ * @param {String} info warning
  */
 client.on("warn", info => {
     console.log(info);
