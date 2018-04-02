@@ -45,7 +45,7 @@ client.on("error", error => {
  * Handles incoming user input, message censorship, and parsing for valid commands.
  * @param {Object} message created discord message
  */
-client.on('message', message => {
+client.on("message", message => {
 
     // Ignore messages sent by bots
     if (message.author.bot) return;
@@ -130,7 +130,7 @@ client.on('message', message => {
  * On ready event. Emitted when the client becomes ready to start working.
  * Logs console message.
  */
-client.on('ready', () => {
+client.on("ready", () => {
     console.log("Bot Online\n");
 })
 
