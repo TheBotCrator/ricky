@@ -37,7 +37,7 @@ const client = new Discord.Client();
  * @param {CloseEvent} event WebSocket close event
  */
 client.on("disconnect", event => {
-    console.log(`\nSERVER HAS BEEN DISCONNECTED, CHECK CODE FOR REASON: ${event.code}`)
+    console.log(`\n***SERVER HAS BEEN DISCONNECTED***\nCLEAN DISCONNECT: ${event.wasClean}\nCLOSE CODE: ${event.code}\n`)
 })
 
 /**
@@ -46,7 +46,7 @@ client.on("disconnect", event => {
  * @param {Error} error encountered error
  */
 client.on("error", error => {
-    console.log(error);
+    console.log(`\n${error}\n`);
 });
 
 /**
@@ -166,7 +166,7 @@ client.on("resume", replayed => {
  * @param {String} info warning
  */
 client.on("warn", info => {
-    console.log(info);
+    console.log(`\n${info}\n`);
 });
 
 /**
@@ -176,7 +176,7 @@ client.on("warn", info => {
  * @param {Promise} p promise that was rejected
  */
 process.on("unhandledRejection", (reason, p) => {
-    console.log(`Unhandled Rejection at: ${p}\nReason: ${reason}`);
+    console.log(`\nUnhandled Rejection at: ${p}\nReason: ${reason}\n`);
 });
 
 //-----------------------------------------------
