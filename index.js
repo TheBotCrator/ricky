@@ -32,17 +32,18 @@ const client = new Discord.Client();
 //-----------------------------------------------
 
 /**
- * On ready event. Emitted when the client becomes ready to start working.
+ * On error event. Emitted whenever the client's WebSocket encounters a connection error.
  * Logs console message.
+ * @param {Error} error the encountered error
  */
-client.on('ready', () => {
-    console.log("Bot Online\n");
-})
+client.on("error", error => {
+    console.log(error);
+});
 
 /**
  * On message event. Emitted whenever a message is created.
  * Handles incoming user input, message censorship, and parsing for valid commands.
- * @param {object} message created discord message
+ * @param {Object} message created discord message
  */
 client.on('message', message => {
 
@@ -126,6 +127,14 @@ client.on('message', message => {
 });
 
 /**
+ * On ready event. Emitted when the client becomes ready to start working.
+ * Logs console message.
+ */
+client.on('ready', () => {
+    console.log("Bot Online\n");
+})
+
+/**
  * On reconnect event. Emitted when the client tries to reconnect to the WebSocked. 
  * Logs console message.
  */
@@ -140,6 +149,15 @@ client.on("reconnecting", () => {
  */
 client.on("resume", replayed => {
     console.log(`Reconnectd. ${replayed} events replayed.`);
+});
+
+/**
+ * On warn event. Emitted for general warnings.
+ * Logs console message.
+ * @param {String} info the warning
+ */
+client.on("warn", info => {
+    console.log(info);
 });
 
 /**
