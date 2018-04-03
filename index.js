@@ -201,7 +201,7 @@ function CheckNecessaryFiles() {
     // Create config JSON if one does not already exist
     if (!fs.existsSync("./config.json")) {
         fs.writeFileSync("./config.json", '{\n\t"prefix" : "PREFIX_HERE",\n\t"token" : "DISCORD_TOKEN_HERE"\n}');
-        console.log("***CONFIG JSON NOT DETECTED, ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE TO INCLUDE PREFIX AND DISCORD TOKEN***");
+        console.log("***CONFIG JSON NOT DETECTED, ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE TO INCLUDE PREFIX AND DISCORD TOKEN***\n");
         process.exit(0);
     }
 }
