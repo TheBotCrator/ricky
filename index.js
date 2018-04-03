@@ -54,7 +54,7 @@ client.on("message", message => {
     if (message.author.bot) return;
 
     // Ignore message if it is not in a channel
-    if (message.channel.type != "text") return;
+    if (message.channel.type !== "text") return;
 
     // Censorship
     try {
