@@ -5,19 +5,18 @@
 const Discord = require('discord.js');
 const fs = require('fs');
 
-checkCreateFiles();
+CheckNecessaryFiles();
 
 // Offenders json
 const offenders = require("./offenders.json");
 
 // List of censored words
 const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split('\n');
+//Logs list of censored words
+console.log(`List of censored words:\n\t${censor}\n`)
 
 // Login credentials and prefix for the bot
 const config = require("./config.json");
-
-//Logs list of censored words
-console.log(`List of censored words:\n\t${censor}\n`)
 
 // Creates a new Dicord "Client"
 const client = new Discord.Client();
@@ -183,7 +182,7 @@ process.on("unhandledRejection", (reason, p) => {
  * If these files are not there, they are created synchronously and a console message is logged.
  * If the most important file, config.json, is not there then the process exits.
  */
-function checkCreateFiles() {
+function CheckNecessaryFiles() {
     // Create offenders JSON if one does not already exist 
     if (!fs.existsSync("./offenders.json")) {
         fs.writeFileSync("./offenders.json", '{}');
