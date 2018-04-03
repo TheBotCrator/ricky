@@ -5,21 +5,16 @@
 const Discord = require('discord.js');
 const fs = require('fs');
 
-const config = require("./config.json");
+checkCreateFiles();
 
-// Create offenders JSON if one does not already exist 
-if (!fs.existsSync("./offenders.json")) {
-    fs.writeFileSync("./offenders.json", '{}');
-    console.log("Offenders file was not found, one has been created\n");
-}
+// Offenders json
 const offenders = require("./offenders.json");
 
-// Create censor list if one does not already exist
-if (!fs.existsSync("./censor.txt")) {
-    fs.writeFileSync("./censor.txt", '\uFFFF');
-    console.log("***A CENSORED WORD FILE WAS NOT FOUND, ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE BY PLACING EACH WORD ON A NEW LINE***\n");
-}
+// List of censored words
 const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split('\n');
+
+// Login credentials and prefix for the bot
+const config = require("./config.json");
 
 //Logs list of censored words
 console.log(`List of censored words:\n\t${censor}\n`)
@@ -37,7 +32,7 @@ const client = new Discord.Client();
  * @param {CloseEvent} event WebSocket close event
  */
 client.on("disconnect", event => {
-    console.log(`\n***SERVER HAS BEEN DISCONNECTED***\nCLEAN DISCONNECT: ${event.wasClean}\nCLOSE CODE: ${event.code}\n`)
+    console.log(`\n***SERVER HAS BEEN DISCONNECTED***\nCLEAN DISCONNECT: ${event.wasClean}\nCLOSE CODE: ${event.code}`)
 })
 
 /**
@@ -66,7 +61,7 @@ client.on("message", message => {
         message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
         return;
     }
-    
+
     //-----------------------------------------------
     // MESSAGE PARSING
     //-----------------------------------------------
@@ -86,7 +81,7 @@ client.on("message", message => {
     // Extracts the "argument", everything else in the message except the prefix and command
     // "$insertCommandHere <@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "<@!100022489140195328> <:thOnk:337235802733936650> is a great emote"
     const arg = message.content.slice(config.prefix.length + command.length).replace(/\s+/g, " ").trim();
-    
+
     // Removes any tagged users or custom emotes and extra spaces from an arg
     // "<@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "is a great emote"
     const argNoTag = arg.replace(/<@?!?\D+\d+>/g, '').trim();
@@ -182,6 +177,32 @@ process.on("unhandledRejection", (reason, p) => {
 //-----------------------------------------------
 // UTILITY FUNCTIONS
 //-----------------------------------------------
+
+/**
+ * Checks if all necessary files are in the directory.
+ * If these files are not there, they are created synchronously and a console message is logged.
+ * If the most important file, config.json, is not there then the process exits.
+ */
+function checkCreateFiles() {
+    // Create offenders JSON if one does not already exist 
+    if (!fs.existsSync("./offenders.json")) {
+        fs.writeFileSync("./offenders.json", '{}');
+        console.log("Offenders file was not found, one has been created\n");
+    }
+
+    // Create censor list if one does not already exist
+    if (!fs.existsSync("./censor.txt")) {
+        fs.writeFileSync("./censor.txt", '\uFFFF');
+        console.log("A CENSORED WORD FILE WAS NOT FOUND, ONE HAS BEEN CREATED\nPLEASE EDIT THIS FILE BY PLACING EACH WORD ON A NEW LINE\n");
+    }
+
+    // Create config JSON if one does not already exist
+    if (!fs.existsSync("./config.json")) {
+        fs.writeFileSync("./config.json", '{\n\t"prefix" : "PREFIX_HERE",\n\t"token" : "DISCORD_TOKEN_HERE"\n}');
+        console.log("***CONFIG JSON NOT DETECTED, ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE TO INCLUDE PREFIX AND DISCORD TOKEN***");
+        process.exit(0);
+    }
+}
 
 /**
  * Compares user message with list of banned words. If message contains said words, message is deleted
