@@ -53,6 +53,9 @@ client.on("message", message => {
     // Ignore messages sent by bots
     if (message.author.bot) return;
 
+    // Ignore message if it is not in a channel
+    if (message.channel.type != "text") return;
+
     // Censorship
     try {
         filter(message, censor, offenders);
