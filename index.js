@@ -5,6 +5,7 @@
 const Discord = require('discord.js');
 const fs = require('fs');
 
+// Checks for necessary files in the directory
 CheckNecessaryFiles();
 
 // Offenders json
