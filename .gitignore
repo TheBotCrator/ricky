@@ -1,5 +1,5 @@
 .DS_Store
-config.json
 node_modules
 offenders.json
 censor.txt
+config.json
