@@ -15,6 +15,7 @@ const offenders = require("./offenders.json");
 const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split('\n');
 //Logs list of censored words
 console.log(`List of censored words:\n\t${censor}\n`)
+convertFilterToRegex(censor);
 
 // Login credentials and prefix for the bot
 const config = require("./config.json");
@@ -205,6 +206,19 @@ function CheckNecessaryFiles() {
         console.log("***CONFIG JSON NOT DETECTED, ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE TO INCLUDE PREFIX AND DISCORD TOKEN***\n");
         process.exit(0);
     }
+}
+
+function convertFilterToRegex(censor) {
+    let regex = [];
+    for (let i = 0; i < censor.length; i++) {
+        let start = "\b" + censor[i][0];
+        for (let j = 1; j < censor[i].length; j++) {
+            start += "\s*" + censor[i][j];
+        }
+        start += "\b"
+        regex.push(start);
+    }
+    console.log(regex);
 }
 
 /**
