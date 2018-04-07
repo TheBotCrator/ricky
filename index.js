@@ -12,7 +12,7 @@ CheckNecessaryFiles();
 const offenders = require("./offenders.json");
 
 // List of censored words
-const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split('\n');
+const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split((/[\r\n]+/));
 //Logs list of censored words
 console.log(`List of censored words:\n\t${censor}\n`)
 convertFilterToRegex(censor);
@@ -211,12 +211,14 @@ function CheckNecessaryFiles() {
 function convertFilterToRegex(censor) {
     let regex = [];
     for (let i = 0; i < censor.length; i++) {
-        let start = "\b" + censor[i][0];
-        for (let j = 1; j < censor[i].length; j++) {
-            start += "\s*" + censor[i][j];
+
+        let sen = "\\b" + censor[i][0];     
+        for(let j = 1; j < censor[i].length; j++) {
+            sen += "\\s*" + censor[i][j];   
         }
-        start += "\b"
-        regex.push(start);
+        sen += "\\b"
+        sen = new RegExp(sen);
+        regex.push(sen)
     }
     console.log(regex);
 }
