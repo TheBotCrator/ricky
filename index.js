@@ -230,9 +230,6 @@ function convertFilterToRegex() {
  * Compares user message with list of banned words. If message contains said words, message is deleted
  * and user is added to a JSON contating number of offending messages with the offending messages.
  * @param {Object} message discord message object
- * @param {Array} censor array containing list of banned words
- * @param {array} regCensor array containing list of regex banned words
- * @param {Object} offenders JSON containing all offenders
  */
 function filter(message) {
     // User message, all lowercase, no spaces.
@@ -361,7 +358,6 @@ async function addRole(message, argNoTag) {
  * List censor offenses of user including count, and offending messages. Only available to those with 
  * the "Admin" or "Community Team" roles.
  * @param {Object} message discord message object
- * @param {Object} offenders JSON containing all offenders
  */
 async function getOffender(message) {
     // User object of first mentioned user
