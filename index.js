@@ -62,7 +62,7 @@ client.on("message", message => {
     try {
         filter(message);
     } catch (error) {
-        message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
+        sendAtAuthor(message, error);
         return;
     }
 
@@ -102,10 +102,10 @@ client.on("message", message => {
         case "conch":
             conch(arg)
                 .then(completed => {
-                    message.channel.send(completed)
+                    send(message, completed);
                 })
                 .catch(error => {
-                    sendChannel(error);
+                    sendAtAuthor(message, error);
                 });
             break;
 
@@ -113,10 +113,10 @@ client.on("message", message => {
         case "role":
             addRole(message, argNoTag)
                 .then(completed => {
-                    sendChannel(message, completed);
+                    sendAtAuthor(message, completed);
                 })
                 .catch(error => {
-                    sendChannel(message, error)
+                    sendAtAuthor(message, completed);
                 });
             break;
 
@@ -125,10 +125,10 @@ client.on("message", message => {
         case "offenders":
             getOffender(message)
                 .then(completed => {
-                    sendAuthor(message, completed);
+                    sendPrivateAuthor(message, completed);
                 })
                 .catch(error => {
-                    sendChannel(message, error);
+                    sendAtAuthor(message, error);
                 });
             break;
     }
@@ -271,11 +271,11 @@ function send(message, content) {
 
 /**
  * Send a reply message to author of original message.
- * Deletes user's original message and after a delay, the reply message.
+ * Deletes user's original message. After a delay the reply message is deleted.
  * @param {object} message discord message object
  * @param {string} content message to send
  */
-function sendChannel(message, content) {
+function sendAtAuthor(message, content) {
     message.delete(250).then(message.channel.send(`${message.member.user}, ${content}`).then(msg => msg.delete(30000)));
 }
 
@@ -284,7 +284,7 @@ function sendChannel(message, content) {
  * @param {object} message discord message object
  * @param {string} content message to send
  */
-function sendAuthor(message, content) {
+function sendPrivateAuthor(message, content) {
     message.delete(250).then(message.author.send(content));
 }
 
