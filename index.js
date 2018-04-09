@@ -13,9 +13,9 @@ const offenders = require("./offenders.json");
 
 // List of censored words
 const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split((/[\r\n]+/));
+const regCensor = convertFilterToRegex(censor);
 //Logs list of censored words
 console.log(`List of censored words:\n\t${censor}\n`)
-convertFilterToRegex(censor);
 
 // Login credentials and prefix for the bot
 const config = require("./config.json");
@@ -60,7 +60,7 @@ client.on("message", message => {
 
     // Censorship
     try {
-        filter(message, censor, offenders);
+        filter(message, censor, regCensor, offenders);
     } catch (error) {
         message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
         return;
@@ -208,19 +208,22 @@ function CheckNecessaryFiles() {
     }
 }
 
+/**
+ * Takes each word in the censor list and creates a new array with a corresponding regex expression for testing in the word filter
+ * @param {array} censor array containing list of banned words
+ */
 function convertFilterToRegex(censor) {
     let regex = [];
     for (let i = 0; i < censor.length; i++) {
-
-        let sen = "\\b" + censor[i][0];     
+        let sen = "\\b" + censor[i][0] + "+";     
         for(let j = 1; j < censor[i].length; j++) {
-            sen += "\\s*" + censor[i][j];   
+            sen += "\\s*" + censor[i][j] + "+";   
         }
         sen += "\\b"
         sen = new RegExp(sen);
         regex.push(sen)
     }
-    console.log(regex);
+    return regex;
 }
 
 /**
@@ -228,15 +231,17 @@ function convertFilterToRegex(censor) {
  * and user is added to a JSON contating number of offending messages with the offending messages.
  * @param {Object} message discord message object
  * @param {Array} censor array containing list of banned words
+ * @param {array} regCensor array containing list of regex banned words
  * @param {Object} offenders JSON containing all offenders
  */
-function filter(message, censor, offenders) {
+function filter(message, censor, regCensor, offenders) {
     // User message, all lowercase, no spaces.
-    const check = message.content.toLowerCase().replace(/\s+/g, '').trim();
+    const check = message.content.toLowerCase().trim();
 
     for (let i = 0; i < censor.length; i++) {
         // Check if user message contains a censored word
-        if (check.includes(censor[i])) {
+        console.log(regCensor)
+        if (regCensor[i].test(check)) {
             // If uer is in offenders JSON their info is updated
             // else, their info is added to offenders JSON
             if (offenders.hasOwnProperty(message.member.id)) {
