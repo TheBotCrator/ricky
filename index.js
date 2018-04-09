@@ -60,7 +60,7 @@ client.on("message", message => {
 
     // Censorship
     try {
-        filter(message, censor, regCensor, offenders);
+        filter(message);
     } catch (error) {
         message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
         return;
@@ -123,7 +123,7 @@ client.on("message", message => {
         // Offender retrieval
         case "offender":
         case "offenders":
-            getOffender(message, offenders)
+            getOffender(message)
                 .then(completed => {
                     sendAuthor(message, completed);
                 })
@@ -212,7 +212,7 @@ function CheckNecessaryFiles() {
  * Takes each word in the censor list and creates a new array with a corresponding regex expression for testing in the word filter
  * @param {array} censor array containing list of banned words
  */
-function convertFilterToRegex(censor) {
+function convertFilterToRegex() {
     let regex = [];
     for (let i = 0; i < censor.length; i++) {
         let sen = "\\b" + censor[i][0] + "+";     
@@ -234,7 +234,7 @@ function convertFilterToRegex(censor) {
  * @param {array} regCensor array containing list of regex banned words
  * @param {Object} offenders JSON containing all offenders
  */
-function filter(message, censor, regCensor, offenders) {
+function filter(message) {
     // User message, all lowercase, no spaces.
     const check = message.content.toLowerCase().trim();
 
@@ -363,7 +363,7 @@ async function addRole(message, argNoTag) {
  * @param {Object} message discord message object
  * @param {Object} offenders JSON containing all offenders
  */
-async function getOffender(message, offenders) {
+async function getOffender(message) {
     // User object of first mentioned user
     const mentionedUser = message.mentions.users.first();
 
