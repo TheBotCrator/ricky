@@ -12,7 +12,7 @@ CheckNecessaryFiles();
 const offenders = require("./offenders.json");
 
 // List of censored words
-const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split((/[\r\n]+/));
+const censor = fs.readFileSync("./censor.txt", 'utf8').toLowerCase().trim().split((/[\r\n]+/));
 const regCensor = convertFilterToRegex(censor);
 //Logs list of censored words
 console.log(`List of censored words:\n\t${censor}\n`)
@@ -214,37 +214,26 @@ function CheckNecessaryFiles() {
  * @param {array} censor array containing list of banned words
  */
 function convertFilterToRegex() {
+    function getAlt(i, j) {
+        if (replace.hasOwnProperty(censor[i][j])) {
+            let or = "[" + censor[i][j];
+            for (let k = 0; k < replace[censor[i][j]].length; k++) {
+                or += "|" + replace[censor[i][j]][k];
+            }
+            or += "]";
+            return or + "+";
+        }
+        return censor[i][j] + "+";
+    }
     // /\bf+\s*a+\s*g+\b/
-    let replace = {"a": ["4", "@"], "b": ["8"], "c": ["<"], "e": ["3"], "f": ["ph"], "g": ["6", "9"], "i": ["1"], "l": ["1"], "o": ["0"], "s": ["5", "$"], "t": ["7", "+"], "w": ["vv"]}
+    let replace = { "a": ["4", "@"], "b": ["8"], "c": ["<"], "e": ["3"], "f": ["ph"], "g": ["6", "9"], "i": ["1"], "l": ["1"], "o": ["0"], "s": ["5", "$"], "t": ["7", "+"], "w": ["vv"] }
     let regex = [];
 
     for (let i = 0; i < censor.length; i++) {
-        let sen = "";
-        if(replace.hasOwnProperty(censor[i][0])){
-            let or = "[" + censor[i][0];
-            for (let k = 0; k < replace[censor[i][0]].length; k++) {
-                or += ("|" + replace[censor[i][0]][k]);
-            }
-            or += "]";
-            sen += "\\b" + or + "+";
-        }
-        else {
-            sen = "\\b" + censor[i][0] + "+"; 
-        }
-
+        let sen = "\\b" + getAlt(i, 0);
 
         for (let j = 1; j < censor[i].length; j++) {
-            if (replace.hasOwnProperty(censor[i][j])) {
-                let or = "[" + censor[i][j]
-                for (let k = 0; k < replace[censor[i][j]].length; k++) {
-                    or += ("|" + replace[censor[i][j]][k]);
-                }
-                or += "]"
-                sen += "\\s*" + or + "+";
-            }
-            else {
-                sen += "\\s*" + censor[i][j] + "+";
-            }
+            sen += "\\s*" + getAlt(i, j);
         }
 
         sen += "\\b"
