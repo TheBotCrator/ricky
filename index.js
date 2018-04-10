@@ -16,6 +16,7 @@ const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split((/[\r\n]+/))
 const regCensor = convertFilterToRegex(censor);
 //Logs list of censored words
 console.log(`List of censored words:\n\t${censor}\n`)
+console.log(`List of regex words:\n\t${regCensor}\n`)
 
 // Login credentials and prefix for the bot
 const config = require("./config.json");
@@ -213,12 +214,51 @@ function CheckNecessaryFiles() {
  * @param {array} censor array containing list of banned words
  */
 function convertFilterToRegex() {
+    // /\bf+\s*a+\s*g+\b/
+    let replace = {
+        "a": ["4", "@"],
+        "b": ["8"],
+        "c": ["<"],
+        "e": ["3"],
+        "f": ["ph"],
+        "g": ["6", "9"],
+        "i": ["1"],
+        "l": ["1"],
+        "o": ["0"],
+        "s": ["5", "$"],
+        "t": ["7", "+"],
+        "w": ["vv"]
+    }
     let regex = [];
     for (let i = 0; i < censor.length; i++) {
-        let sen = "\\b" + censor[i][0] + "+";     
-        for(let j = 1; j < censor[i].length; j++) {
-            sen += "\\s*" + censor[i][j] + "+";   
+        let sen = "";
+        if(replace.hasOwnProperty(censor[i][0])){
+            let or = "[" + censor[i][0];
+            for (let k = 0; k < replace[censor[i][0]].length; k++) {
+                or += ("|" + replace[censor[i][0]][k]);
+            }
+            or += "]";
+            sen += "\\b" + or + "+";
         }
+        else {
+            sen = "\\b" + censor[i][0] + "+"; 
+        }
+
+
+        for (let j = 1; j < censor[i].length; j++) {
+            if (replace.hasOwnProperty(censor[i][j])) {
+                let or = "[" + censor[i][j]
+                for (let k = 0; k < replace[censor[i][j]].length; k++) {
+                    or += ("|" + replace[censor[i][j]][k]);
+                }
+                or += "]"
+                sen += "\\s*" + or + "+";
+            }
+            else {
+                sen += "\\s*" + censor[i][j] + "+";
+            }
+        }
+
         sen += "\\b"
         sen = new RegExp(sen);
         regex.push(sen)
@@ -237,7 +277,6 @@ function filter(message) {
 
     for (let i = 0; i < censor.length; i++) {
         // Check if user message contains a censored word
-        console.log(regCensor)
         if (regCensor[i].test(check)) {
             // If uer is in offenders JSON their info is updated
             // else, their info is added to offenders JSON
