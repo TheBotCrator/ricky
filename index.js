@@ -4,6 +4,7 @@
 
 const Discord = require('discord.js');
 const fs = require('fs');
+const pluralize = require('pluralize');
 
 // Checks for necessary files in the directory
 CheckNecessaryFiles();
@@ -12,7 +13,14 @@ CheckNecessaryFiles();
 const offenders = require("./offenders.json");
 
 // List of censored words
-const censor = fs.readFileSync("./censor.txt", 'utf8').toLowerCase().trim().split((/[\r\n]+/));
+const censor = fs.readFileSync("./censor.txt", 'utf8')
+    .toLowerCase()
+    .trim()
+    .split((/[\r\n]+/))
+    .reduce((r, e) =>
+        r.push(e, pluralize(e)) && r, []
+    );
+
 const regCensor = convertFilterToRegex(censor);
 //Logs list of censored words
 console.log(`List of censored words:\n\t${censor}\n`)
@@ -214,31 +222,22 @@ function CheckNecessaryFiles() {
  * @param {array} censor array containing list of banned words
  */
 function convertFilterToRegex() {
-    function getAlt(i, j) {
-        if (replace.hasOwnProperty(censor[i][j])) {
-            let or = "[" + censor[i][j];
-            for (let k = 0; k < replace[censor[i][j]].length; k++) {
-                or += "|" + replace[censor[i][j]][k];
-            }
-            or += "]";
-            return or + "+";
-        }
-        return censor[i][j] + "+";
-    }
     // /\bf+\s*a+\s*g+\b/
-    let replace = { "a": ["4", "@"], "b": ["8"], "c": ["<"], "e": ["3"], "f": ["ph"], "g": ["6", "9"], "i": ["1"], "l": ["1"], "o": ["0"], "s": ["5", "$"], "t": ["7", "+"], "w": ["vv"] }
+    let replace = { "a": "[a|4|@]", "b": "[b|8]", "c": "[c|<]", "e": "[e|3]", "f": "[f|ph]", "g": "[g|6|9]", "i": "[i|1]", "l": "[l|1]", "o": "[o|0]", "s": "[s|5|$]", "t": "[t|7|+]", "w": "[w|vv]" }
     let regex = [];
 
     for (let i = 0; i < censor.length; i++) {
-        let sen = "\\b" + getAlt(i, 0);
+        let word = censor[i].split('').map(x => {
+            return replace.hasOwnProperty(x) ? replace[x] : x;
+        });
 
-        for (let j = 1; j < censor[i].length; j++) {
-            sen += "\\s*" + getAlt(i, j);
+        let sen = "\\b" + word[0] + "+";
+        for (let j = 1; j < word.length; j++) {
+            sen += "\\s*" + word[j] + "+";
         }
-
-        sen += "\\b"
+        sen += "\\b";
         sen = new RegExp(sen);
-        regex.push(sen)
+        regex.push(sen);
     }
     return regex;
 }
