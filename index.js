@@ -116,7 +116,7 @@ client.on("message", message => {
                     sendAtAuthor(message, completed);
                 })
                 .catch(error => {
-                    sendAtAuthor(message, completed);
+                    sendAtAuthor(message, error);
                 });
             break;
 
