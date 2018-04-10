@@ -24,7 +24,6 @@ const censor = fs.readFileSync("./censor.txt", 'utf8')
 const regCensor = convertFilterToRegex(censor);
 //Logs list of censored words
 console.log(`List of censored words:\n\t${censor}\n`)
-console.log(`List of regex words:\n\t${regCensor}\n`)
 
 // Login credentials and prefix for the bot
 const config = require("./config.json");
@@ -269,6 +268,17 @@ function filter(message) {
             fs.writeFile("./offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
                 if (err ? console.log(err) : console.log("Offender JSON write success"));
             });
+
+            message.guild.fetchMembers()
+                .then(pGuild => {
+                    let gMems = pGuild.members.array();
+                    for (let j = 0; j < gMems.length; j++) {
+                        let member = gMems[j];
+                        if (member.roles.find("name", "Moderator")) {
+                            member.send(`${message.author}'s message contained "${censor[i]}" in the ${message.channel} channel`);
+                        }
+                    }
+                });
 
             throw "that kind of language is not tolerated here.";
         }
