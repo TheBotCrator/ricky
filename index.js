@@ -39,7 +39,7 @@ client.on("disconnect", event => {
 /**
  * On error event. Emitted whenever the client's WebSocket encounters a connection error.
  * Logs console message.
- * @param {Error} error encountered error
+ * @param {error} error encountered error
  */
 client.on("error", error => {
     console.log(`\n${error}\n`);
@@ -48,7 +48,7 @@ client.on("error", error => {
 /**
  * On message event. Emitted whenever a message is created.
  * Handles incoming user input, message censorship, and parsing for valid commands.
- * @param {Object} message created discord message
+ * @param {object} message created discord message
  */
 client.on("message", message => {
 
@@ -62,7 +62,7 @@ client.on("message", message => {
     try {
         filter(message);
     } catch (error) {
-        message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
+        sendAtAuthor(message, error);
         return;
     }
 
@@ -102,10 +102,10 @@ client.on("message", message => {
         case "conch":
             conch(arg)
                 .then(completed => {
-                    message.channel.send(completed)
+                    send(message, completed);
                 })
                 .catch(error => {
-                    sendChannel(error);
+                    sendAtAuthor(message, error);
                 });
             break;
 
@@ -113,10 +113,10 @@ client.on("message", message => {
         case "role":
             addRole(message, argNoTag)
                 .then(completed => {
-                    sendChannel(message, completed);
+                    sendAtAuthor(message, completed);
                 })
                 .catch(error => {
-                    sendChannel(message, error)
+                    sendAtAuthor(message, completed);
                 });
             break;
 
@@ -125,10 +125,10 @@ client.on("message", message => {
         case "offenders":
             getOffender(message)
                 .then(completed => {
-                    sendAuthor(message, completed);
+                    sendPrivateAuthor(message, completed);
                 })
                 .catch(error => {
-                    sendChannel(message, error);
+                    sendAtAuthor(message, error);
                 });
             break;
     }
@@ -162,7 +162,7 @@ client.on("resume", replayed => {
 /**
  * On warn event. Emitted for general warnings.
  * Logs console message.
- * @param {String} info warning
+ * @param {string} info warning
  */
 client.on("warn", info => {
     console.log(`\n${info}\n`);
@@ -171,8 +171,8 @@ client.on("warn", info => {
 /**
  * On unhandled Promise rejection.
  * Logs console message on where and why the error happened.
- * @param {Error} reason error object
- * @param {Promise} p promise that was rejected
+ * @param {error} reason error object
+ * @param {promise} p promise that was rejected
  */
 process.on("unhandledRejection", (reason, p) => {
     console.log(`\nUnhandled Rejection at: ${p}\nReason: ${reason}\n`);
@@ -229,7 +229,7 @@ function convertFilterToRegex() {
 /**
  * Compares user message with list of banned words. If message contains said words, message is deleted
  * and user is added to a JSON contating number of offending messages with the offending messages.
- * @param {Object} message discord message object
+ * @param {object} message discord message object
  */
 function filter(message) {
     // User message, all lowercase, no spaces.
@@ -261,27 +261,37 @@ function filter(message) {
 }
 
 /**
- * Send message in the channel they were recieved in
- * @param {Object} message discord message object
- * @param {String} content message to send
+ * Send a message in the channel it was recieved in
+ * @param {object} message discord message object
+ * @param {string} content message to send
  */
-function sendChannel(message, content) {
+function send(message, content) {
+    message.channel.send(content);
+}
+
+/**
+ * Send a reply message to author of original message.
+ * Deletes user's original message. After a delay the reply message is deleted.
+ * @param {object} message discord message object
+ * @param {string} content message to send
+ */
+function sendAtAuthor(message, content) {
     message.delete(250).then(message.channel.send(`${message.member.user}, ${content}`).then(msg => msg.delete(30000)));
 }
 
 /**
- * Send message to author of original message
- * @param {Object} message discord message object
- * @param {String} content message to send
+ * Send a private message to author of original message.
+ * @param {object} message discord message object
+ * @param {string} content message to send
  */
-function sendAuthor(message, content) {
+function sendPrivateAuthor(message, content) {
     message.delete(250).then(message.author.send(content));
 }
 
 /**
  * All hail the magic conch
  * a-loo-loo-loo-loo
- * @param {String} arg user input string
+ * @param {string} arg user input string
  */
 async function conch(arg) {
     if (arg) {
@@ -295,8 +305,8 @@ async function conch(arg) {
 
 /**
  * If this bot has appropriate permissions, update role of user with requested role
- * @param {Object} message discord message object
- * @param {String} argNoTag potential role value stripped of tags and emotes to prevent errors
+ * @param {object} message discord message object
+ * @param {string} argNoTag potential role value stripped of tags and emotes to prevent errors
  */
 async function addRole(message, argNoTag) {
     if (argNoTag) {
@@ -357,7 +367,7 @@ async function addRole(message, argNoTag) {
 /**
  * List censor offenses of user including count, and offending messages. Only available to those with 
  * the "Admin" or "Community Team" roles.
- * @param {Object} message discord message object
+ * @param {object} message discord message object
  */
 async function getOffender(message) {
     // User object of first mentioned user
