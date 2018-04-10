@@ -215,21 +215,9 @@ function CheckNecessaryFiles() {
  */
 function convertFilterToRegex() {
     // /\bf+\s*a+\s*g+\b/
-    let replace = {
-        "a": ["4", "@"],
-        "b": ["8"],
-        "c": ["<"],
-        "e": ["3"],
-        "f": ["ph"],
-        "g": ["6", "9"],
-        "i": ["1"],
-        "l": ["1"],
-        "o": ["0"],
-        "s": ["5", "$"],
-        "t": ["7", "+"],
-        "w": ["vv"]
-    }
+    let replace = {"a": ["4", "@"], "b": ["8"], "c": ["<"], "e": ["3"], "f": ["ph"], "g": ["6", "9"], "i": ["1"], "l": ["1"], "o": ["0"], "s": ["5", "$"], "t": ["7", "+"], "w": ["vv"]}
     let regex = [];
+
     for (let i = 0; i < censor.length; i++) {
         let sen = "";
         if(replace.hasOwnProperty(censor[i][0])){
