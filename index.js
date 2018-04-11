@@ -224,7 +224,7 @@ function convertCensorToRegex() {
     let regex = [];
 
     censor.forEach(word => {
-        word.map(letter => {
+        word.split('').map(letter => {
             return replace.hasOwnProperty(letter) ? replace[letter] : letter;
         });
 
