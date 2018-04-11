@@ -271,13 +271,13 @@ function filter(message) {
 
             message.guild.fetchMembers()
                 .then(pGuild => {
-                    let gMems = pGuild.members.array();
-                    for (let j = 0; j < gMems.length; j++) {
-                        let member = gMems[j];
-                        if (member.roles.find("name", "Moderator")) {
+                    pGuild.members.array()
+                        .filter(member => {
+                            return member.roles.find("name", "Moderator");
+                        })
+                        .forEach(member => {
                             member.send(`${message.author}'s message contained "${censor[i]}" in the ${message.channel} channel`);
-                        }
-                    }
+                        });
                 });
 
             throw "that kind of language is not tolerated here.";
@@ -320,7 +320,7 @@ function sendPrivateAuthor(message, content) {
  */
 async function conch(arg) {
     if (arg) {
-        console.log(`The conch has responded`)
+        console.log(`The conch has responded`);
         return "Evan: \"We're working on it.\"";
     }
     else {
@@ -406,9 +406,9 @@ async function getOffender(message) {
             console.log(`Sent ${message.author.tag} an offender summary of ${mentionedUser.tag}`);
             if (offenders.hasOwnProperty(mentionedUser.id)) {
                 let sentence = "";
-                sentence += ("**USER:** " + mentionedUser + '\n\n')
+                sentence += ("**USER:** " + mentionedUser + '\n\n');
                 sentence += ("**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + '\n\n');
-                sentence += ("**MESSAGES:**\n")
+                sentence += ("**MESSAGES:**\n");
 
                 for (let i = 0; i < offenders[mentionedUser.id]['messages'].length; i++) {
                     sentence += (offenders[mentionedUser.id]['messages'][i] + '\n');
