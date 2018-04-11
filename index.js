@@ -220,7 +220,7 @@ function CheckNecessaryFiles() {
  */
 function convertFilterToRegex() {
     // /\bf+\s*a+\s*g+\b/
-    let replace = { "a": "[a|4|@]", "b": "[b|8]", "c": "[c|<]", "e": "[e|3]", "f": "[f|ph]", "g": "[g|6|9]", "i": "[i|1]", "l": "[l|1]", "o": "[o|0]", "s": "[s|5|$]", "t": "[t|7|\+]", "w": "[w|vv]" }
+    let replace = { "a": "[a|4|@]", "b": "[b|8]", "c": "[c|<]", "e": "[e|3]", "f": "[f|ph]", "g": "[g|6|9]", "i": "[i|1]", "l": "[l|1]", "o": "[o|0]", "s": "[s|5|$]", "t": "[t|7|\+]", "w": "[w|vv]" };
     let regex = [];
 
     for (let i = 0; i < censor.length; i++) {
@@ -232,8 +232,7 @@ function convertFilterToRegex() {
         for (let j = 1; j < word.length; j++) {
             sen += "\\s*" + word[j] + "+";
         }
-        sen += "(?!\\w)";
-        sen = new RegExp(sen);
+        sen = new RegExp(sen + "(?!\\w)");
         regex.push(sen);
     }
     return regex;
