@@ -231,7 +231,7 @@ function convertCensorToRegex() {
         let sen = "(?=(?!\\w)|\\b)" + word[0] + "+";
 
         for (let j = 1; j < word.length; j++) {
-            sen += "\\s*" + word[j] + "+";
+            sen += ("\\s*" + word[j] + "+");
         }
 
         regex.push(new RegExp(sen + "(?!\\w)"));
@@ -395,14 +395,12 @@ async function getOffender(message) {
         if (mentionedUser) {
             console.log(`Sent ${message.author.tag} an offender summary of ${mentionedUser.tag}`);
             if (offenders.hasOwnProperty(mentionedUser.id)) {
-                let sentence = "";
-                sentence += ("**USER:** " + mentionedUser + '\n\n');
-                sentence += ("**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + '\n\n');
-                sentence += ("**MESSAGES:**\n");
+                let sentence = "**USER:** " + mentionedUser + "\n\n**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + "\n\n**MESSAGES:**\n";
 
                 for (let i = 0; i < offenders[mentionedUser.id]['messages'].length; i++) {
                     sentence += (offenders[mentionedUser.id]['messages'][i] + '\n');
                 }
+
                 return sentence;
             }
             else {
@@ -417,16 +415,14 @@ async function getOffender(message) {
             for (let key in offenders) {
                 if (offenders.hasOwnProperty(key)) {
                     count++;
-                    await message.guild.fetchMember(key).then(gMem => (users += gMem.user + '\n'));
+                    await message.guild.fetchMember(key).then(gMem => (users += (gMem.user + '\n')));
                 }
             }
 
-            let sentence = "";
+            let sentence = "**NUMBER OF OFFENDERS: **" + count + '\n\n';
 
-            sentence += "**NUMBER OF OFFENDERS: **" + count + '\n\n';
             if (count !== 0) {
-                sentence += "**OFFENDERS:**\n";
-                sentence += users;
+                sentence += ("**OFFENDERS:**\n" + users);
             }
 
             return sentence;
