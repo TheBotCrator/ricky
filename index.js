@@ -229,9 +229,11 @@ function convertFilterToRegex() {
         });
 
         let sen = "(?=(?!\\w)|\\b)" + word[0] + "+";
+
         for (let j = 1; j < word.length; j++) {
             sen += "\\s*" + word[j] + "+";
         }
+        
         sen = new RegExp(sen + "(?!\\w)");
         regex.push(sen);
     }
