@@ -140,6 +140,15 @@ client.on("message", message => {
     }
 });
 
+client.on("messageUpdate", (oMessage, nMessage) => {
+    try {
+        filter(nMessage);
+    } catch (error) {
+        sendAtAuthor(nMessage, error);
+        return;
+    }
+});
+
 /**
  * On ready event. Emitted when the client becomes ready to start working.
  * Logs console message.
