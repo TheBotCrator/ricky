@@ -263,10 +263,12 @@ function filter(message) {
                 console.log(`\t${message.author.tag} message contained : ${censor[i]}, first offence`);
             }
 
+            // Updates offender JSON file
             fs.writeFile("./offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
                 if (err ? console.log(err) : console.log("Offender JSON write success"));
             });
 
+            // Gets all memebers of the server, if member has "Moderator" role a private message is sent informing them about the infraction
             message.guild.fetchMembers()
                 .then(pGuild => {
                     pGuild.members
@@ -318,8 +320,8 @@ function sendPrivateAuthor(message, content) {
  */
 async function conch(arg) {
     if (arg) {
-        console.log(`The conch has responded`);
         return "Evan: \"We're working on it.\"";
+        console.log(`The conch has responded`);
     }
     else {
         throw "you need to actually ask me a question (ex: \`!conch Thing?\`).";
