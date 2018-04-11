@@ -24,7 +24,7 @@ const censor = fs.readFileSync("./censor.txt", 'utf8')
 console.log(`List of censored words:\n\t${censor}\n`);
 
 // List of regular expressions used for filtering bad words
-const regCensor = convertCensorToRegex(censor);
+const regCensor = convertCensorToRegex();
 
 // Login credentials and prefix for the bot
 const config = require("./config.json");
@@ -321,8 +321,8 @@ function sendPrivateAuthor(message, content) {
  */
 async function conch(arg) {
     if (arg) {
-        return "Evan: \"We're working on it.\"";
         console.log(`The conch has responded`);
+        return "Evan: \"We're working on it.\"";
     }
     else {
         throw "you need to actually ask me a question (ex: \`!conch Thing?\`).";
