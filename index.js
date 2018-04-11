@@ -335,20 +335,15 @@ async function addRole(message, argNoTag) {
     if (argNoTag) {
         let argNoTagLower = argNoTag.toLowerCase();
 
-        // Creates array of all role names in server
-        let roleList = message.guild.roles.array();
-        let names = roleList.map(role => {
-            return role.name;
-        });
-
-        // Checks if the role requested matches a role in the sever
-        let roleToAdd;
-        names.forEach(name => {
-            if (name.toLowerCase() === argNoTagLower) {
-                roleToAdd = name;
-                return;
-            }
-        });
+        // // Creates array of all role names in server
+        // // Checks if the role requested matches a role in the sever
+        let roleToAdd = message.guild.roles.array()
+            .map(role => {
+                return role.name.toLowerCase();
+            })
+            .find(role => {
+                return role === argNoTagLower;
+            });
 
         // If role requested matches a role in the server
         if (roleToAdd) {
