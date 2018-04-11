@@ -230,9 +230,9 @@ function convertCensorToRegex() {
 
         let sen = "(?=(?!\\w)|\\b)" + word[0] + "+";
 
-        for (let i = 1; i < word.length; i++) {
-            sen += ("\\s*" + word[i] + "+");
-        }
+        fix.slice(1).forEach(letter => {
+            sen += ("\\s*" + letter + "+");
+        });
 
         regex.push(new RegExp(sen + "(?!\\w)"));
     });
