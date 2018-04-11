@@ -249,9 +249,9 @@ function filter(message) {
     // User message, all lowercase, no spaces.
     const check = message.content.trim().toLowerCase();
 
-    for (let i = 0; i < regCensor.length; i++) {
+    regCensor.forEach((word, i) => {
         // Check if user message contains a censored word
-        if (regCensor[i].test(check)) {
+        if (word.test(check)) {
             // If uer is in offenders JSON their info is updated
             // else, their info is added to offenders JSON
             if (offenders.hasOwnProperty(message.member.id)) {
@@ -283,7 +283,7 @@ function filter(message) {
 
             throw "that kind of language is not tolerated here.";
         }
-    }
+    });
 }
 
 /**
