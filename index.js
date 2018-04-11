@@ -398,13 +398,13 @@ async function getOffender(message) {
         if (mentionedUser) {
             console.log(`Sent ${message.author.tag} an offender summary of ${mentionedUser.tag}`);
             if (offenders.hasOwnProperty(mentionedUser.id)) {
-                let sentence = "**USER:** " + mentionedUser + "\n\n**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + "\n\n**MESSAGES:**\n";
+                let sen = "**USER:** " + mentionedUser + "\n\n**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + "\n\n**MESSAGES:**\n";
 
                 offenders[mentionedUser.id]['messages'].forEach(message => {
-                    sentence += (message + '\n');
+                    sen += (message + '\n');
                 });
 
-                return sentence;
+                return sen;
             }
             else {
                 return mentionedUser + " has 0 offenses.";
@@ -422,13 +422,13 @@ async function getOffender(message) {
                 }
             }
 
-            let sentence = "**NUMBER OF OFFENDERS: **" + count + '\n\n';
+            let sen = "**NUMBER OF OFFENDERS: **" + count + '\n\n';
 
             if (count !== 0) {
-                sentence += ("**OFFENDERS:**\n" + users);
+                sen += ("**OFFENDERS:**\n" + users);
             }
 
-            return sentence;
+            return sen;
         }
     }
     else {
