@@ -21,7 +21,7 @@ const censor = fs.readFileSync("./censor.txt", 'utf8')
         r.push(e, pluralize(e)) && r, []
     );
 //Logs list of censored words
-console.log(`List of censored words:\n\t${censor}\n`)
+console.log(`List of censored words:\n\t${censor}\n`);
 
 // List of regular expressions used for filtering bad words
 const regCensor = convertCensorToRegex(censor);
