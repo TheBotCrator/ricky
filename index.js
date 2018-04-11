@@ -249,7 +249,7 @@ function filter(message) {
     // User message, all lowercase, no spaces.
     const check = message.content.trim().toLowerCase();
 
-    regCensor.forEach((word, i) => {
+    regCensor.forEach((word, index) => {
         // Check if user message contains a censored word
         if (word.test(check)) {
             // If uer is in offenders JSON their info is updated
@@ -257,11 +257,11 @@ function filter(message) {
             if (offenders.hasOwnProperty(message.member.id)) {
                 offenders[message.member.id]['offenses']++;
                 offenders[message.member.id]['messages'].push(message.content);
-                console.log(`\t${message.author.tag} message contained : ${censor[i]}, ${offenders[message.member.id]['offenses']} offences`);
+                console.log(`\t${message.author.tag} message contained : ${censor[index]}, ${offenders[message.member.id]['offenses']} offences`);
             }
             else {
                 offenders[message.member.id] = { offenses: 1, messages: [message.content] };
-                console.log(`\t${message.author.tag} message contained : ${censor[i]}, first offence`);
+                console.log(`\t${message.author.tag} message contained : ${censor[index]}, first offence`);
             }
 
             // Updates offender JSON file
@@ -277,7 +277,7 @@ function filter(message) {
                             return member.roles.find("name", "Moderator");
                         })
                         .forEach(member => {
-                            member.send(`${message.author}'s message contained "${censor[i]}" in the ${message.channel} channel`);
+                            member.send(`${message.author}'s message contained "${censor[index]}" in the ${message.channel} channel`);
                         });
                 });
 
