@@ -224,8 +224,8 @@ function convertCensorToRegex() {
     let regex = [];
 
     for (let i = 0; i < censor.length; i++) {
-        let word = censor[i].split('').map(x => {
-            return replace.hasOwnProperty(x) ? replace[x] : x;
+        let word = censor[i].split('').map(letter => {
+            return replace.hasOwnProperty(letter) ? replace[letter] : letter;
         });
 
         let sen = "(?=(?!\\w)|\\b)" + word[0] + "+";
