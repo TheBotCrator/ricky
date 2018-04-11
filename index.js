@@ -338,24 +338,21 @@ async function addRole(message, argNoTag) {
         // // Creates array of all role names in server
         // // Checks if a role in the server matched the role requested
         let roleToAdd = message.guild.roles.array()
-            .map(role => {
-                return role.name.toLowerCase();
-            })
             .find(role => {
-                return role === argNoTagLower;
+                return role.name.toLowerCase() === argNoTagLower;
             });
 
         // If role requested matches a role in the server
         if (roleToAdd) {
             // Get the role object matching the name of the role
-            let addedRole = message.guild.roles.find("name", roleToAdd);
+            let roleToAddName = roleToAdd.name;
 
             // If user already has role, remove it
             // else, add it
-            if (message.member.roles.find("name", roleToAdd)) {
-                return message.member.removeRole(addedRole)
+            if (message.member.roles.find("name", roleToAddName)) {
+                return message.member.removeRole(roleToAdd)
                     .then(() => {
-                        console.log(`${roleToAdd} was removed from ${message.author.tag}`);
+                        console.log(`${roleToAddName} was removed from ${message.author.tag}`);
                         return "role removed.";
                     })
                     .catch(error => {
@@ -363,9 +360,9 @@ async function addRole(message, argNoTag) {
                     });
             }
             else {
-                return message.member.addRole(addedRole)
+                return message.member.addRole(roleToAdd)
                     .then(() => {
-                        console.log(`${roleToAdd} was added to ${message.author.tag}`);
+                        console.log(`${roleToAddName} was added to ${message.author.tag}`);
                         return "role added.";
                     })
                     .catch(error => {
