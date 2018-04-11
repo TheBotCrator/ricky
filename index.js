@@ -233,7 +233,7 @@ function convertCensorToRegex() {
         for (let j = 1; j < word.length; j++) {
             sen += "\\s*" + word[j] + "+";
         }
-        
+
         regex.push(new RegExp(sen + "(?!\\w)"));
     }
     return regex;
@@ -269,8 +269,8 @@ function filter(message) {
 
             message.guild.fetchMembers()
                 .then(pGuild => {
-                    pGuild.members.array()
-                        .filter(member => {
+                    pGuild.members
+                        .filterArray(member => {
                             return member.roles.find("name", "Moderator");
                         })
                         .forEach(member => {
