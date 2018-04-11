@@ -233,7 +233,7 @@ function convertCensorToRegex() {
         for (let j = 1; j < word.length; j++) {
             sen += "\\s*" + word[j] + "+";
         }
-        
+
         regex.push(new RegExp(sen + "(?!\\w)"));
     }
     return regex;
@@ -335,31 +335,20 @@ async function addRole(message, argNoTag) {
     if (argNoTag) {
         let argNoTagLower = argNoTag.toLowerCase();
 
-        // // Creates array of all role names in server
-        // // Checks if a role in the server matched the role requested
+        // // Creates array of all role names in server and tries to find requested role
         let roleToAdd = message.guild.roles.array()
             .find(role => {
                 return role.name.toLowerCase() === argNoTagLower;
             });
 
-        // If role requested matches a role in the server
+        // If there is the requested role in the server
         if (roleToAdd) {
             // Get the role object matching the name of the role
             let roleToAddName = roleToAdd.name;
 
-            // If user already has role, remove it
-            // else, add it
-            if (message.member.roles.find("name", roleToAddName)) {
-                return message.member.removeRole(roleToAdd)
-                    .then(() => {
-                        console.log(`${roleToAddName} was removed from ${message.author.tag}`);
-                        return "role removed.";
-                    })
-                    .catch(error => {
-                        throw "I cannot remove that role.";
-                    });
-            }
-            else {
+            // If user doesn't have role, add it
+            // else, remove it
+            if (!message.member.roles.find("name", roleToAddName)) {
                 return message.member.addRole(roleToAdd)
                     .then(() => {
                         console.log(`${roleToAddName} was added to ${message.author.tag}`);
@@ -367,6 +356,16 @@ async function addRole(message, argNoTag) {
                     })
                     .catch(error => {
                         throw "I cannot give you that role.";
+                    });
+            }
+            else {
+                return message.member.removeRole(roleToAdd)
+                    .then(() => {
+                        console.log(`${roleToAddName} was removed from ${message.author.tag}`);
+                        return "role removed.";
+                    })
+                    .catch(error => {
+                        throw "I cannot remove that role.";
                     });
             }
         }
