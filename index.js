@@ -400,9 +400,9 @@ async function getOffender(message) {
             if (offenders.hasOwnProperty(mentionedUser.id)) {
                 let sentence = "**USER:** " + mentionedUser + "\n\n**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + "\n\n**MESSAGES:**\n";
 
-                for (let i = 0; i < offenders[mentionedUser.id]['messages'].length; i++) {
-                    sentence += (offenders[mentionedUser.id]['messages'][i] + '\n');
-                }
+                offenders[mentionedUser.id]['messages'].forEach(message => {
+                    sentence += (message + '\n');
+                });
 
                 return sentence;
             }
