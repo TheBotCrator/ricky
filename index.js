@@ -20,10 +20,11 @@ const censor = fs.readFileSync("./censor.txt", 'utf8')
     .reduce((r, e) =>
         r.push(e, pluralize(e)) && r, []
     );
-
-const regCensor = convertFilterToRegex(censor);
 //Logs list of censored words
 console.log(`List of censored words:\n\t${censor}\n`)
+
+// List of regular expressions used for filtering bad words
+const regCensor = convertFilterToRegex(censor);
 
 // Login credentials and prefix for the bot
 const config = require("./config.json");
@@ -60,11 +61,8 @@ client.on("error", error => {
  */
 client.on("message", message => {
 
-    // Ignore messages sent by bots
-    if (message.author.bot) return;
-
-    // Ignore message if it is not in a channel
-    if (message.channel.type !== "text") return;
+    // Ignore messages sent by bots and messages not sent in a text channel
+    if (message.author.bot || message.channel.type !== "text") return;
 
     // Censorship
     try {
