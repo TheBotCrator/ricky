@@ -14,8 +14,8 @@ const offenders = require("./offenders.json");
 
 // List of censored words
 const censor = fs.readFileSync("./censor.txt", 'utf8')
-    .toLowerCase()
     .trim()
+    .toLowerCase()
     .split((/[\r\n]+/))
     .reduce((r, e) =>
         r.push(e, pluralize(e)) && r, []
@@ -24,7 +24,7 @@ const censor = fs.readFileSync("./censor.txt", 'utf8')
 console.log(`List of censored words:\n\t${censor}\n`)
 
 // List of regular expressions used for filtering bad words
-const regCensor = convertFilterToRegex(censor);
+const regCensor = convertCensorToRegex(censor);
 
 // Login credentials and prefix for the bot
 const config = require("./config.json");
@@ -42,8 +42,8 @@ const client = new Discord.Client();
  * @param {CloseEvent} event WebSocket close event
  */
 client.on("disconnect", event => {
-    console.log(`\n***SERVER HAS BEEN DISCONNECTED***\nCLEAN DISCONNECT: ${event.wasClean}\nCLOSE CODE: ${event.code}`)
-})
+    console.log(`\n***SERVER HAS BEEN DISCONNECTED***\nCLEAN DISCONNECT: ${event.wasClean}\nCLOSE CODE: ${event.code}`);
+});
 
 /**
  * On error event. Emitted whenever the client's WebSocket encounters a connection error.
@@ -146,7 +146,7 @@ client.on("message", message => {
  */
 client.on("ready", () => {
     console.log("Bot Online\n");
-})
+});
 
 /**
  * On reconnect event. Emitted when the client tries to reconnect to the WebSocked. 
@@ -218,7 +218,7 @@ function CheckNecessaryFiles() {
  * Takes each word in the censor list and creates a new array with a corresponding regex expression for testing in the word filter
  * @param {array} censor array containing list of banned words
  */
-function convertFilterToRegex() {
+function convertCensorToRegex() {
     // /\bf+\s*a+\s*g+\b/
     let replace = { "a": "[a|4|@]", "b": "[b|8]", "c": "[c|<]", "e": "[e|3]", "f": "[f|ph]", "g": "[g|6|9]", "i": "[i|1]", "l": "[l|1]", "o": "[o|0]", "s": "[s|5|$]", "t": "[t|7|\+]", "w": "[w|vv]" };
     let regex = [];
@@ -233,9 +233,8 @@ function convertFilterToRegex() {
         for (let j = 1; j < word.length; j++) {
             sen += "\\s*" + word[j] + "+";
         }
-        
-        sen = new RegExp(sen + "(?!\\w)");
-        regex.push(sen);
+
+        regex.push(new RegExp(sen + "(?!\\w)"));
     }
     return regex;
 }
@@ -247,7 +246,7 @@ function convertFilterToRegex() {
  */
 function filter(message) {
     // User message, all lowercase, no spaces.
-    const check = message.content.toLowerCase().trim();
+    const check = message.content.trim().toLowerCase();
 
     for (let i = 0; i < censor.length; i++) {
         // Check if user message contains a censored word
@@ -304,7 +303,7 @@ function sendAtAuthor(message, content) {
 }
 
 /**
- * Send a private message to author of original message.
+ * Send a private message to author of original message
  * @param {object} message discord message object
  * @param {string} content message to send
  */
@@ -337,19 +336,14 @@ async function addRole(message, argNoTag) {
         let argNoTagLower = argNoTag.toLowerCase();
 
         // Creates array of all role names in server
-        let roleList = message.guild.roles.array();
-        let names = roleList.map(role => {
-            return role.name;
-        });
-
         // Checks if the role requested matches a role in the sever
-        let roleToAdd;
-        names.forEach(name => {
-            if (name.toLowerCase() === argNoTagLower) {
-                roleToAdd = name;
-                return;
-            }
-        });
+        let roleToAdd = message.guild.roles.array()
+            .map(role => {
+                return role.name;
+            })
+            .find(role => {
+                return role.name === argNoTagLower;
+            });
 
         // If role requested matches a role in the server
         if (roleToAdd) {
