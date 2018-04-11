@@ -336,7 +336,7 @@ async function addRole(message, argNoTag) {
         let argNoTagLower = argNoTag.toLowerCase();
 
         // // Creates array of all role names in server
-        // // Checks if the role requested matches a role in the sever
+        // // Checks if a role in the server matched the role requested
         let roleToAdd = message.guild.roles.array()
             .map(role => {
                 return role.name.toLowerCase();
