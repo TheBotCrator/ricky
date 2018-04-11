@@ -141,6 +141,19 @@ client.on("message", message => {
 });
 
 /**
+ * On messageUpdate event. Emitted whenever a message is updated - e.g. embed or content change.
+ * Filters edited message.
+ */
+client.on("messageUpdate", (oMessage, nMessage) => {
+    try {
+        filter(nMessage);
+    } catch (error) {
+        sendAtAuthor(nMessage, error);
+        return;
+    }
+});
+
+/**
  * On ready event. Emitted when the client becomes ready to start working.
  * Logs console message.
  */
