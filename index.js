@@ -236,6 +236,7 @@ function convertCensorToRegex() {
 
         regex.push(new RegExp(sen + "(?!\\w)"));
     });
+
     return regex;
 }
 
@@ -248,7 +249,7 @@ function filter(message) {
     // User message, all lowercase, no spaces.
     const check = message.content.trim().toLowerCase();
 
-    for (let i = 0; i < censor.length; i++) {
+    for (let i = 0; i < regCensor.length; i++) {
         // Check if user message contains a censored word
         if (regCensor[i].test(check)) {
             // If uer is in offenders JSON their info is updated
