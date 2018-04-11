@@ -140,6 +140,10 @@ client.on("message", message => {
     }
 });
 
+/**
+ * On messageUpdate event. Emitted whenever a message is updated - e.g. embed or content change.
+ * Filters edited message.
+ */
 client.on("messageUpdate", (oMessage, nMessage) => {
     try {
         filter(nMessage);
