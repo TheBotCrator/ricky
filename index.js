@@ -233,7 +233,7 @@ function convertCensorToRegex() {
         for (let j = 1; j < word.length; j++) {
             sen += "\\s*" + word[j] + "+";
         }
-
+        
         regex.push(new RegExp(sen + "(?!\\w)"));
     }
     return regex;
@@ -336,14 +336,19 @@ async function addRole(message, argNoTag) {
         let argNoTagLower = argNoTag.toLowerCase();
 
         // Creates array of all role names in server
+        let roleList = message.guild.roles.array();
+        let names = roleList.map(role => {
+            return role.name;
+        });
+
         // Checks if the role requested matches a role in the sever
-        let roleToAdd = message.guild.roles.array()
-            .map(role => {
-                return role.name;
-            })
-            .find(role => {
-                return role.name === argNoTagLower;
-            });
+        let roleToAdd;
+        names.forEach(name => {
+            if (name.toLowerCase() === argNoTagLower) {
+                roleToAdd = name;
+                return;
+            }
+        });
 
         // If role requested matches a role in the server
         if (roleToAdd) {
