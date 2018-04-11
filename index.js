@@ -290,7 +290,7 @@ function filter(message) {
                             return member.roles.find("name", "Moderator");
                         })
                         .forEach(member => {
-                            member.send(`${message.author}'s message contained "${censor[i]}" in the ${message.channel} channel`);
+                            member.send(`${message.author}'s message contained "${censor[i]}" in the ${message.channel} channel, ${offenders[message.member.id]['offenses']} offences`);
                         });
                 });
 
@@ -397,7 +397,7 @@ async function addRole(message, argNoTag) {
 
 /**
  * List censor offenses of user including count, and offending messages. Only available to those with 
- * the "Admin" or "Community Team" roles.
+ * the "Admin", "Moderator", or "Community Team" roles.
  * @param {object} message discord message object
  */
 async function getOffender(message) {
@@ -405,7 +405,7 @@ async function getOffender(message) {
     const mentionedUser = message.mentions.users.first();
 
     // Checks if user has correct permissions to use this command
-    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Community Team")) {
+    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator") || message.member.roles.find("name", "Community Team")) {
         // If there is a mentioned user it will pull up their info from the JSON and return
         // else, will return the number of offenders and all of their @'s
         if (mentionedUser) {
