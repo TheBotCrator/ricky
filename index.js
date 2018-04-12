@@ -54,7 +54,7 @@ client.on("error", error => {
 /**
  * On message event. Emitted whenever a message is created.
  * Handles incoming user input, message censorship, and parsing for valid commands.
- * @param {object} message created discord message
+ * @param {Message} message created discord message
  */
 client.on("message", message => {
 
@@ -140,12 +140,14 @@ client.on("message", message => {
 /**
  * On messageUpdate event. Emitted whenever a message is updated - e.g. embed or content change.
  * Filters edited message.
+ * @param {Message} oldMessage The message before the update
+ * @param {Message} newMessage The message after the update
  */
-client.on("messageUpdate", (oMessage, nMessage) => {
+client.on("messageUpdate", (oldMessage, newMessage) => {
     try {
-        filter(nMessage);
+        filter(newMessage);
     } catch (error) {
-        sendAtAuthor(nMessage, error);
+        sendAtAuthor(newMessage, error);
         return;
     }
 });
@@ -255,7 +257,7 @@ function convertToRegex(censor) {
 /**
  * Compares user message with list of banned words. If message contains said words, message is deleted
  * and user is added to a JSON contating number of offending messages with the offending messages.
- * @param {object} message discord message object
+ * @param {Message} message discord message
  */
 function filter(message) {
     // User message, all lowercase, no spaces.
@@ -301,8 +303,8 @@ function filter(message) {
 
 /**
  * Send a message in the channel it was recieved in
- * @param {object} message discord message object
- * @param {string} content message to send
+ * @param {Message} message discord message
+ * @param {string} content message content to send
  */
 function send(message, content) {
     message.channel.send(content);
@@ -311,8 +313,8 @@ function send(message, content) {
 /**
  * Send a reply message to author of original message.
  * Deletes user's original message. After a delay the reply message is deleted.
- * @param {object} message discord message object
- * @param {string} content message to send
+ * @param {Message} message discord message
+ * @param {string} content message content to send
  */
 function sendAtAuthor(message, content) {
     message.delete(250).then(message.channel.send(`${message.member.user}, ${content}`).then(msg => msg.delete(30000)));
@@ -320,8 +322,8 @@ function sendAtAuthor(message, content) {
 
 /**
  * Send a private message to author of original message
- * @param {object} message discord message object
- * @param {string} content message to send
+ * @param {Message} message discord message
+ * @param {string} content message content to send
  */
 function sendPrivateAuthor(message, content) {
     message.delete(250).then(message.author.send(content));
@@ -344,7 +346,7 @@ async function conch(arg) {
 
 /**
  * If this bot has appropriate permissions, update role of user with requested role
- * @param {object} message discord message object
+ * @param {Message} message discord message
  * @param {string} argNoTag potential role value stripped of tags and emotes to prevent errors
  */
 async function addRole(message, argNoTag) {
@@ -398,7 +400,7 @@ async function addRole(message, argNoTag) {
 /**
  * List censor offenses of user including count, and offending messages. Only available to those with 
  * the "Admin", "Moderator", or "Community Team" roles.
- * @param {object} message discord message object
+ * @param {Message} message discord message
  */
 async function getOffender(message) {
     // User object of first mentioned user
