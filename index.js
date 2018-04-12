@@ -15,12 +15,12 @@ const offenders = require("./offenders.json");
 // Regex test list of censored words
 const censor = convertToRegex(
     fs.readFileSync("./censor.txt", 'utf8')
-    .trim()
-    .toLowerCase()
-    .split((/[\r\n]+/))
-    .reduce((r, e) =>
-        r.push(e, pluralize(e)) && r, []
-    )
+        .trim()
+        .toLowerCase()
+        .split((/[\r\n]+/))
+        .reduce((r, e) =>
+            r.push(e, pluralize(e)) && r, []
+        )
 )
 
 // Login credentials and prefix for the bot
