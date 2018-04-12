@@ -259,12 +259,12 @@ function convertToRegex(censor) {
  */
 function filter(message) {
     // User message, all lowercase, no spaces.
-    const check = message.content.trim().toLowerCase();
+    const msg = message.content.trim().toLowerCase();
 
-    censor.forEach((word, i) => {
+    censor.forEach((regex, i) => {
         // Check if user message contains a censored word
-        if (word.test(check)) {
-            let match = check.match(word)[0];
+        if (regex.test(msg)) {
+            let match = msg.match(regex)[0];
             // If uer is in offenders JSON their info is updated
             // else, their info is added to offenders JSON
             if (offenders.hasOwnProperty(message.member.id)) {
