@@ -12,19 +12,16 @@ CheckNecessaryFiles();
 // Offenders json
 const offenders = require("./offenders.json");
 
-// List of censored words
-const censor = fs.readFileSync("./censor.txt", 'utf8')
+// Regex test list of censored words
+const censor = convertToRegex(
+    fs.readFileSync("./censor.txt", 'utf8')
     .trim()
     .toLowerCase()
     .split((/[\r\n]+/))
     .reduce((r, e) =>
         r.push(e, pluralize(e)) && r, []
-    );
-//Logs list of censored words
-console.log(`List of censored words:\n\t${censor}\n`);
-
-// List of regular expressions used for filtering bad words
-const regCensor = convertCensorToRegex();
+    )
+)
 
 // Login credentials and prefix for the bot
 const config = require("./config.json");
@@ -231,8 +228,10 @@ function CheckNecessaryFiles() {
  * Takes each word in the censor list and creates a new array with a corresponding regex expression for testing in the word filter
  * @param {array} censor array containing list of banned words
  */
-function convertCensorToRegex() {
-    // /\bf+\s*a+\s*g+\b/
+function convertToRegex(censor) {
+    //Logs list of censored words
+    console.log(`List of censored words:\n\t${censor}\n`);
+
     let replace = { "a": "[a|4|@]", "b": "[b|8]", "c": "[c|<]", "e": "[e|3]", "f": "[f|ph]", "g": "[g|6|9]", "i": "[i|1]", "l": "[l|1]", "o": "[o|0]", "s": "[s|5|$]", "t": "[t|7|\+]", "w": "[w|vv]" };
     let regex = [];
 
@@ -262,19 +261,20 @@ function filter(message) {
     // User message, all lowercase, no spaces.
     const check = message.content.trim().toLowerCase();
 
-    regCensor.forEach((word, i) => {
+    censor.forEach((word, i) => {
         // Check if user message contains a censored word
         if (word.test(check)) {
+            let match = check.match(word)[0];
             // If uer is in offenders JSON their info is updated
             // else, their info is added to offenders JSON
             if (offenders.hasOwnProperty(message.member.id)) {
                 offenders[message.member.id]['offenses']++;
                 offenders[message.member.id]['messages'].push(message.content);
-                console.log(`\t${message.author.tag} message contained : ${censor[i]}, ${offenders[message.member.id]['offenses']} offences`);
+                console.log(`\t${message.author.tag} message contained : ${match}, ${offenders[message.member.id]['offenses']} offences`);
             }
             else {
                 offenders[message.member.id] = { offenses: 1, messages: [message.content] };
-                console.log(`\t${message.author.tag} message contained : ${censor[i]}, first offence`);
+                console.log(`\t${message.author.tag} message contained : ${match}, first offence`);
             }
 
             // Updates offender JSON file
@@ -290,7 +290,7 @@ function filter(message) {
                             return member.roles.find("name", "Moderator");
                         })
                         .forEach(member => {
-                            member.send(`${message.author}'s message contained "${censor[i]}" in the ${message.channel} channel, ${offenders[message.member.id]['offenses']} offences`);
+                            member.send(`${message.author}'s message contained "${match}" in the ${message.channel} channel, ${offenders[message.member.id]['offenses']} offences`);
                         });
                 });
 
