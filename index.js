@@ -264,17 +264,17 @@ function filter(message) {
     censor.forEach((regex, i) => {
         // Check if user message contains a censored word
         if (regex.test(msg)) {
-            let match = msg.match(regex)[0];
+            let word = msg.match(regex)[0];
             // If uer is in offenders JSON their info is updated
             // else, their info is added to offenders JSON
             if (offenders.hasOwnProperty(message.member.id)) {
                 offenders[message.member.id]['offenses']++;
                 offenders[message.member.id]['messages'].push(message.content);
-                console.log(`\t${message.author.tag} message contained : ${match}, ${offenders[message.member.id]['offenses']} offences`);
+                console.log(`\t${message.author.tag} message contained : ${word}, ${offenders[message.member.id]['offenses']} offences`);
             }
             else {
                 offenders[message.member.id] = { offenses: 1, messages: [message.content] };
-                console.log(`\t${message.author.tag} message contained : ${match}, first offence`);
+                console.log(`\t${message.author.tag} message contained : ${word}, first offence`);
             }
 
             // Updates offender JSON file
