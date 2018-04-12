@@ -290,7 +290,7 @@ function filter(message) {
                             return member.roles.find("name", "Moderator");
                         })
                         .forEach(member => {
-                            member.send(`${message.author}'s message contained "${match}" in the ${message.channel} channel, ${offenders[message.member.id]['offenses']} offences`);
+                            member.send(`${message.author}'s message contained "${word}" in the ${message.channel} channel, ${offenders[message.member.id]['offenses']} offences`);
                         });
                 });
 
