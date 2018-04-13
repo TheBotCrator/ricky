@@ -4,6 +4,7 @@
 
 const Discord = require('discord.js');
 const fs = require('fs');
+const pluralize = require('pluralize');
 
 // Checks for necessary files in the directory
 CheckNecessaryFiles();
@@ -11,10 +12,16 @@ CheckNecessaryFiles();
 // Offenders json
 const offenders = require("./offenders.json");
 
-// List of censored words
-const censor = fs.readFileSync("./censor.txt", 'utf8').trim().split('\n');
-//Logs list of censored words
-console.log(`List of censored words:\n\t${censor}\n`)
+// Regex test list of censored words
+const censor = convertToRegex(
+    fs.readFileSync("./censor.txt", 'utf8')
+        .trim()
+        .toLowerCase()
+        .split((/[\r\n]+/))
+        .reduce((r, e) =>
+            r.push(e, pluralize(e)) && r, []
+        )
+)
 
 // Login credentials and prefix for the bot
 const config = require("./config.json");
@@ -32,13 +39,13 @@ const client = new Discord.Client();
  * @param {CloseEvent} event WebSocket close event
  */
 client.on("disconnect", event => {
-    console.log(`\n***SERVER HAS BEEN DISCONNECTED***\nCLEAN DISCONNECT: ${event.wasClean}\nCLOSE CODE: ${event.code}`)
-})
+    console.log(`\n***SERVER HAS BEEN DISCONNECTED***\nCLEAN DISCONNECT: ${event.wasClean}\nCLOSE CODE: ${event.code}`);
+});
 
 /**
  * On error event. Emitted whenever the client's WebSocket encounters a connection error.
  * Logs console message.
- * @param {Error} error encountered error
+ * @param {error} error encountered error
  */
 client.on("error", error => {
     console.log(`\n${error}\n`);
@@ -47,21 +54,18 @@ client.on("error", error => {
 /**
  * On message event. Emitted whenever a message is created.
  * Handles incoming user input, message censorship, and parsing for valid commands.
- * @param {Object} message created discord message
+ * @param {Message} message created discord message
  */
 client.on("message", message => {
 
-    // Ignore messages sent by bots
-    if (message.author.bot) return;
-
-    // Ignore message if it is not in a channel
-    if (message.channel.type !== "text") return;
+    // Ignore messages sent by bots and messages not sent in a text channel
+    if (message.author.bot || message.channel.type !== "text") return;
 
     // Censorship
     try {
-        filter(message, censor, offenders);
+        filter(message);
     } catch (error) {
-        message.delete(250).then(message.channel.send(`${message.member.user}, ${error}`).then(msg => msg.delete(30000)));
+        sendAtAuthor(message, error);
         return;
     }
 
@@ -101,10 +105,10 @@ client.on("message", message => {
         case "conch":
             conch(arg)
                 .then(completed => {
-                    message.channel.send(completed)
+                    send(message, completed);
                 })
                 .catch(error => {
-                    sendChannel(error);
+                    sendAtAuthor(message, error);
                 });
             break;
 
@@ -112,24 +116,39 @@ client.on("message", message => {
         case "role":
             addRole(message, argNoTag)
                 .then(completed => {
-                    sendChannel(message, completed);
+                    sendAtAuthor(message, completed);
                 })
                 .catch(error => {
-                    sendChannel(message, error)
+                    sendAtAuthor(message, error);
                 });
             break;
 
         // Offender retrieval
         case "offender":
         case "offenders":
-            getOffender(message, offenders)
+            getOffender(message)
                 .then(completed => {
-                    sendAuthor(message, completed);
+                    sendPrivateAuthor(message, completed);
                 })
                 .catch(error => {
-                    sendChannel(message, error);
+                    sendAtAuthor(message, error);
                 });
             break;
+    }
+});
+
+/**
+ * On messageUpdate event. Emitted whenever a message is updated - e.g. embed or content change.
+ * Filters edited message.
+ * @param {Message} oldMessage The message before the update
+ * @param {Message} newMessage The message after the update
+ */
+client.on("messageUpdate", (oldMessage, newMessage) => {
+    try {
+        filter(newMessage);
+    } catch (error) {
+        sendAtAuthor(newMessage, error);
+        return;
     }
 });
 
@@ -139,7 +158,7 @@ client.on("message", message => {
  */
 client.on("ready", () => {
     console.log("Bot Online\n");
-})
+});
 
 /**
  * On reconnect event. Emitted when the client tries to reconnect to the WebSocked. 
@@ -161,7 +180,7 @@ client.on("resume", replayed => {
 /**
  * On warn event. Emitted for general warnings.
  * Logs console message.
- * @param {String} info warning
+ * @param {string} info warning
  */
 client.on("warn", info => {
     console.log(`\n${info}\n`);
@@ -170,8 +189,8 @@ client.on("warn", info => {
 /**
  * On unhandled Promise rejection.
  * Logs console message on where and why the error happened.
- * @param {Error} reason error object
- * @param {Promise} p promise that was rejected
+ * @param {error} reason error object
+ * @param {promise} p promise that was rejected
  */
 process.on("unhandledRejection", (reason, p) => {
     console.log(`\nUnhandled Rejection at: ${p}\nReason: ${reason}\n`);
@@ -208,66 +227,116 @@ function CheckNecessaryFiles() {
 }
 
 /**
+ * Takes each word in the censor list and creates a new array with a corresponding regex expression for testing in the word filter
+ * @param {array} censor array containing list of banned words
+ */
+function convertToRegex(censor) {
+    //Logs list of censored words
+    console.log(`List of censored words:\n\t${censor}\n`);
+
+    let replace = { "a": "[a|4|@]", "b": "[b|8]", "c": "[c|<]", "e": "[e|3]", "f": "[f|ph]", "g": "[g|6|9]", "i": "[i|1]", "l": "[l|1]", "o": "[o|0]", "s": "[s|5|$]", "t": "[t|7|\+]", "w": "[w|vv]" };
+    let regex = [];
+
+    censor.forEach(word => {
+        word = word.split('').map(letter => {
+            return replace.hasOwnProperty(letter) ? replace[letter] : letter;
+        });
+
+        let sen = "(?=(?!\\w)|\\b)" + word[0] + "+";
+
+        for (let i = 1; i < word.length; i++) {
+            sen += ("\\s*" + word[i] + "+");
+        }
+
+        regex.push(new RegExp(sen + "(?!\\w)"));
+    });
+
+    return regex;
+}
+
+/**
  * Compares user message with list of banned words. If message contains said words, message is deleted
  * and user is added to a JSON contating number of offending messages with the offending messages.
- * @param {Object} message discord message object
- * @param {Array} censor array containing list of banned words
- * @param {Object} offenders JSON containing all offenders
+ * @param {Message} message discord message
  */
-function filter(message, censor, offenders) {
+function filter(message) {
     // User message, all lowercase, no spaces.
-    const check = message.content.toLowerCase().replace(/\s+/g, '').trim();
+    const msg = message.content.trim().toLowerCase();
 
-    for (let i = 0; i < censor.length; i++) {
+    censor.forEach((regex, i) => {
         // Check if user message contains a censored word
-        if (check.includes(censor[i])) {
+        if (regex.test(msg)) {
+            let word = msg.match(regex)[0];
             // If uer is in offenders JSON their info is updated
             // else, their info is added to offenders JSON
             if (offenders.hasOwnProperty(message.member.id)) {
                 offenders[message.member.id]['offenses']++;
                 offenders[message.member.id]['messages'].push(message.content);
-                console.log(`\t${message.author.tag} message contained : ${censor[i]}, ${offenders[message.member.id]['offenses']} offences`);
+                console.log(`\t${message.author.tag} message contained : ${word}, ${offenders[message.member.id]['offenses']} offences`);
             }
             else {
                 offenders[message.member.id] = { offenses: 1, messages: [message.content] };
-                console.log(`\t${message.author.tag} message contained : ${censor[i]}, first offence`);
+                console.log(`\t${message.author.tag} message contained : ${word}, first offence`);
             }
 
+            // Updates offender JSON file
             fs.writeFile("./offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
                 if (err ? console.log(err) : console.log("Offender JSON write success"));
             });
 
+            // Gets all memebers of the server, if member has "Moderator" role a private message is sent informing them about the infraction
+            message.guild.fetchMembers()
+                .then(pGuild => {
+                    pGuild.members
+                        .filterArray(member => {
+                            return member.roles.find("name", "Moderator");
+                        })
+                        .forEach(member => {
+                            member.send(`${message.author}'s message contained "${word}" in the ${message.channel} channel, ${offenders[message.member.id]['offenses']} offences`);
+                        });
+                });
+
             throw "that kind of language is not tolerated here.";
         }
-    }
+    });
 }
 
 /**
- * Send message in the channel they were recieved in
- * @param {Object} message discord message object
- * @param {String} content message to send
+ * Send a message in the channel it was recieved in
+ * @param {Message} message discord message
+ * @param {string} content message content to send
  */
-function sendChannel(message, content) {
+function send(message, content) {
+    message.channel.send(content);
+}
+
+/**
+ * Send a reply message to author of original message.
+ * Deletes user's original message. After a delay the reply message is deleted.
+ * @param {Message} message discord message
+ * @param {string} content message content to send
+ */
+function sendAtAuthor(message, content) {
     message.delete(250).then(message.channel.send(`${message.member.user}, ${content}`).then(msg => msg.delete(30000)));
 }
 
 /**
- * Send message to author of original message
- * @param {Object} message discord message object
- * @param {String} content message to send
+ * Send a private message to author of original message
+ * @param {Message} message discord message
+ * @param {string} content message content to send
  */
-function sendAuthor(message, content) {
+function sendPrivateAuthor(message, content) {
     message.delete(250).then(message.author.send(content));
 }
 
 /**
  * All hail the magic conch
  * a-loo-loo-loo-loo
- * @param {String} arg user input string
+ * @param {string} arg user input string
  */
 async function conch(arg) {
     if (arg) {
-        console.log(`The conch has responded`)
+        console.log(`The conch has responded`);
         return "Evan: \"We're working on it.\"";
     }
     else {
@@ -277,39 +346,31 @@ async function conch(arg) {
 
 /**
  * If this bot has appropriate permissions, update role of user with requested role
- * @param {Object} message discord message object
- * @param {String} argNoTag potential role value stripped of tags and emotes to prevent errors
+ * @param {Message} message discord message
+ * @param {string} argNoTag potential role value stripped of tags and emotes to prevent errors
  */
 async function addRole(message, argNoTag) {
     if (argNoTag) {
         let argNoTagLower = argNoTag.toLowerCase();
 
-        // Creates array of all role names in server
-        let roleList = message.guild.roles.array();
-        let names = roleList.map(role => {
-            return role.name;
-        });
-
-        // Checks if the role requested matches a role in the sever
-        let roleToAdd;
-        names.forEach(name => {
-            if (name.toLowerCase() === argNoTagLower) {
-                roleToAdd = name;
-                return;
-            }
-        });
+        // // Creates array of all role names in server
+        // // Checks if a role in the server matched the role requested
+        let roleToAdd = message.guild.roles
+            .find(role => {
+                return role.name.toLowerCase() === argNoTagLower;
+            });
 
         // If role requested matches a role in the server
         if (roleToAdd) {
             // Get the role object matching the name of the role
-            let addedRole = message.guild.roles.find("name", roleToAdd);
+            let roleToAddName = roleToAdd.name;
 
             // If user already has role, remove it
             // else, add it
-            if (message.member.roles.find("name", roleToAdd)) {
-                return message.member.removeRole(addedRole)
+            if (message.member.roles.find("name", roleToAddName)) {
+                return message.member.removeRole(roleToAdd)
                     .then(() => {
-                        console.log(`${roleToAdd} was removed from ${message.author.tag}`);
+                        console.log(`${roleToAddName} was removed from ${message.author.tag}`);
                         return "role removed.";
                     })
                     .catch(error => {
@@ -317,9 +378,9 @@ async function addRole(message, argNoTag) {
                     });
             }
             else {
-                return message.member.addRole(addedRole)
+                return message.member.addRole(roleToAdd)
                     .then(() => {
-                        console.log(`${roleToAdd} was added to ${message.author.tag}`);
+                        console.log(`${roleToAddName} was added to ${message.author.tag}`);
                         return "role added.";
                     })
                     .catch(error => {
@@ -338,30 +399,27 @@ async function addRole(message, argNoTag) {
 
 /**
  * List censor offenses of user including count, and offending messages. Only available to those with 
- * the "Admin" or "Community Team" roles.
- * @param {Object} message discord message object
- * @param {Object} offenders JSON containing all offenders
+ * the "Admin", "Moderator", or "Community Team" roles.
+ * @param {Message} message discord message
  */
-async function getOffender(message, offenders) {
+async function getOffender(message) {
     // User object of first mentioned user
     const mentionedUser = message.mentions.users.first();
 
     // Checks if user has correct permissions to use this command
-    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Community Team")) {
+    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator") || message.member.roles.find("name", "Community Team")) {
         // If there is a mentioned user it will pull up their info from the JSON and return
         // else, will return the number of offenders and all of their @'s
         if (mentionedUser) {
             console.log(`Sent ${message.author.tag} an offender summary of ${mentionedUser.tag}`);
             if (offenders.hasOwnProperty(mentionedUser.id)) {
-                let sentence = "";
-                sentence += ("**USER:** " + mentionedUser + '\n\n')
-                sentence += ("**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + '\n\n');
-                sentence += ("**MESSAGES:**\n")
+                let sen = "**USER:** " + mentionedUser + "\n\n**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + "\n\n**MESSAGES:**\n";
 
-                for (let i = 0; i < offenders[mentionedUser.id]['messages'].length; i++) {
-                    sentence += (offenders[mentionedUser.id]['messages'][i] + '\n');
-                }
-                return sentence;
+                offenders[mentionedUser.id]['messages'].forEach(message => {
+                    sen += (message + '\n');
+                });
+
+                return sen;
             }
             else {
                 return mentionedUser + " has 0 offenses.";
@@ -375,19 +433,17 @@ async function getOffender(message, offenders) {
             for (let key in offenders) {
                 if (offenders.hasOwnProperty(key)) {
                     count++;
-                    await message.guild.fetchMember(key).then(gMem => (users += gMem.user + '\n'));
+                    await message.guild.fetchMember(key).then(gMem => (users += (gMem.user + '\n')));
                 }
             }
 
-            let sentence = "";
+            let sen = "**NUMBER OF OFFENDERS: **" + count + '\n\n';
 
-            sentence += "**NUMBER OF OFFENDERS: **" + count + '\n\n';
             if (count !== 0) {
-                sentence += "**OFFENDERS:**\n";
-                sentence += users;
+                sen += ("**OFFENDERS:**\n" + users);
             }
 
-            return sentence;
+            return sen;
         }
     }
     else {
