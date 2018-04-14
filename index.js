@@ -272,7 +272,7 @@ function filter(message) {
             if (offenders.hasOwnProperty(message.member.id)) {
                 offenders[message.member.id]['offenses']++;
                 offenders[message.member.id]['messages'].push(message.content);
-                console.log(`\t${message.author.tag} message contained : ${word}, ${offenders[message.member.id]['offenses']} offences`);
+                console.log(`\t${message.author.tag} message contained : ${word}, ${offenders[message.member.id]['offenses']} offenses`);
             }
             else {
                 offenders[message.member.id] = { offenses: 1, messages: [message.content] };
@@ -292,7 +292,7 @@ function filter(message) {
                             return member.roles.find("name", "Moderator");
                         })
                         .forEach(member => {
-                            member.send(`${message.author}'s message contained "${word}" in the ${message.channel} channel, ${offenders[message.member.id]['offenses']} offences`);
+                            member.send(`${message.author}'s message contained "${word}" in the ${message.channel} channel, ${offenders[message.member.id]['offenses']} offenses`);
                         });
                 });
 
