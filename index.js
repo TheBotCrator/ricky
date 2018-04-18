@@ -10,11 +10,11 @@ const pluralize = require('pluralize');
 CheckNecessaryFiles();
 
 // Offenders json
-const offenders = require("./offenders.json");
+const offenders = require("./data/offenders.json");
 
 // Regex test list of censored words
 const censor = convertToRegex(
-    fs.readFileSync("./censor.txt", 'utf8')
+    fs.readFileSync("./data/censor.txt", 'utf8')
         .trim()
         .toLowerCase()
         .split((/[\r\n]+/))
@@ -24,7 +24,7 @@ const censor = convertToRegex(
 )
 
 // Login credentials and prefix for the bot
-const config = require("./config.json");
+const config = require("./data/config.json");
 
 // Creates a new Dicord "Client"
 const client = new Discord.Client();
@@ -211,21 +211,26 @@ process.on("unhandledRejection", (reason, p) => {
  * If the most important file, config.json, is not there then the process exits.
  */
 function CheckNecessaryFiles() {
+    if (!fs.existsSync("./data")) {
+        fs.mkdirSync("./data");
+        console.log("Data folder for all program necessary files was not found, one has been created\n");
+    }
+
     // Create offenders JSON if one does not already exist 
-    if (!fs.existsSync("./offenders.json")) {
-        fs.writeFileSync("./offenders.json", '{}');
+    if (!fs.existsSync("./data/offenders.json")) {
+        fs.writeFileSync("./data/offenders.json", '{}');
         console.log("Offenders file was not found, one has been created\n");
     }
 
     // Create censor list if one does not already exist
-    if (!fs.existsSync("./censor.txt")) {
-        fs.writeFileSync("./censor.txt", '\uFFFF');
-        console.log("A CENSORED WORD FILE WAS NOT FOUND, ONE HAS BEEN CREATED\nPLEASE EDIT THIS FILE BY PLACING EACH WORD ON A NEW LINE\n");
+    if (!fs.existsSync("./data/censor.txt")) {
+        fs.closeSync(fs.openSync("./data/censor.txt", 'w'));
+        console.log("CENSORED WORD FILE WAS NOT FOUND, ONE HAS BEEN CREATED\nPLEASE EDIT THIS FILE BY PLACING EACH WORD ON A NEW LINE\n");
     }
 
     // Create config JSON if one does not already exist
-    if (!fs.existsSync("./config.json")) {
-        fs.writeFileSync("./config.json", '{\n\t"prefix" : "PREFIX_HERE",\n\t"token" : "DISCORD_TOKEN_HERE"\n}');
+    if (!fs.existsSync("./data/config.json")) {
+        fs.writeFileSync("./data/config.json", '{\n\t"prefix" : "PREFIX_HERE",\n\t"token" : "DISCORD_TOKEN_HERE"\n}');
         console.log("***CONFIG JSON NOT DETECTED, ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE TO INCLUDE PREFIX AND DISCORD TOKEN***\n");
         process.exit(0);
     }
