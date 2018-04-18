@@ -123,6 +123,11 @@ client.on("message", message => {
                 });
             break;
 
+        case "mute":
+        case "unmute":
+
+            break;
+
         // Offender retrieval
         case "offender":
         case "offenders":
@@ -397,17 +402,39 @@ async function addRole(message, argNoTag) {
     }
 }
 
+function mute(message) {
+    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator") || message.member.roles.find("name", "Community Team")){
+        const mentionedUser = message.mentions.users.first();
+
+        if (mentionedUser) {
+            message.guild.channels.array().forEach(gChannel => {
+                gChannel.overwritePermissions(mentionedUser, {
+                    SEND_MESSAGES: false,
+                    ADD_REACTIONS: false
+                })
+            })
+        }
+        else {
+            throw "you need to inclued an @user to mute someone."
+        }
+    }
+    else {
+        throw "you do not have permission to use that command."
+    }
+}
+
 /**
  * List censor offenses of user including count, and offending messages. Only available to those with 
  * the "Admin", "Moderator", or "Community Team" roles.
  * @param {Message} message discord message
  */
 async function getOffender(message) {
-    // User object of first mentioned user
-    const mentionedUser = message.mentions.users.first();
-
     // Checks if user has correct permissions to use this command
     if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator") || message.member.roles.find("name", "Community Team")) {
+
+        // User object of first mentioned user
+        const mentionedUser = message.mentions.users.first();
+
         // If there is a mentioned user it will pull up their info from the JSON and return
         // else, will return the number of offenders and all of their @'s
         if (mentionedUser) {
