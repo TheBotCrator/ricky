@@ -17,7 +17,8 @@ const censor = convertToRegex(
     fs.readFileSync("./data/censor.txt", 'utf8')
         .trim()
         .toLowerCase()
-        .split((/[\r\n]+/))
+        .replace(/(\r\n|\n){2,}/g, '\n')
+        .split(/\r\n|\n/)
         .reduce((r, e) =>
             r.push(e, pluralize(e)) && r, []
         )
@@ -25,6 +26,9 @@ const censor = convertToRegex(
 
 // Login credentials and prefix for the bot
 const config = require("./data/config.json");
+
+const muted = fs.readFileSync("./data/muted.txt", 'utf8').trim().split(/\r\n|\n/);
+console.log(`List of muted member IDs:\n${muted}`);
 
 // Creates a new Dicord "Client"
 const client = new Discord.Client();
@@ -125,7 +129,13 @@ client.on("message", message => {
 
         case "mute":
         case "unmute":
-
+            mute(message)
+                .then(completed => {
+                    sendAtAuthor(message, completed);
+                })
+                .catch(error => {
+                    sendAtAuthor(message, error);
+                });
             break;
 
         // Offender retrieval
@@ -220,6 +230,11 @@ function CheckNecessaryFiles() {
     if (!fs.existsSync("./data/offenders.json")) {
         fs.writeFileSync("./data/offenders.json", '{}');
         console.log("Offenders file was not found, one has been created\n");
+    }
+
+    if (!fs.existsSync("./Data/muted.txt")) {
+        fs.closeSync(fs.openSync("./Data/muted.txt", 'w'));
+        console.log("Muted users file was not found, one has been created\n");
     }
 
     // Create censor list if one does not already exist
@@ -407,17 +422,48 @@ async function addRole(message, argNoTag) {
     }
 }
 
-function mute(message) {
-    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator") || message.member.roles.find("name", "Community Team")){
+async function mute(message) {
+    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator") || message.member.roles.find("name", "Community Team")) {
         const mentionedUser = message.mentions.users.first();
 
         if (mentionedUser) {
-            message.guild.channels.array().forEach(gChannel => {
-                gChannel.overwritePermissions(mentionedUser, {
-                    SEND_MESSAGES: false,
-                    ADD_REACTIONS: false
-                })
-            })
+            let mentionedUserId = mentionedUser.id;
+
+            if (muted.includes(mentionedUserId)) {
+                message.guild.channels.array().forEach(gChannel => {
+                    gChannel.permissionOverwrites
+                        .filterArray(overwrite => {
+                            return overwrite.type === "member";
+                        })
+                        .forEach(userOverwrite => {
+                            if (userOverwrite.id === mentionedUserId) userOverwrite.delete();
+                        });
+                });
+
+                muted.splice(muted.indexOf(mentionedUserId), 1);
+
+                fs.writeFile("./data/muted.txt", muted.join('\n'), 'utf8', (err) => {
+                    if (err) throw err;
+                });
+
+                return "that user has been unmuted";
+            }
+            else {
+                message.guild.channels.array().forEach(gChannel => {
+                    gChannel.overwritePermissions(mentionedUser, {
+                        SEND_MESSAGES: false,
+                        ADD_REACTIONS: false
+                    });
+                });
+
+                fs.appendFile("./data/muted.txt", mentionedUserId + '\n', 'utf8', (err) => {
+                    if (err) throw error;
+                });
+                
+                muted.push(mentionedUser.id);
+
+                return "that user has been muted";
+            }
         }
         else {
             throw "you need to inclued an @user to mute someone."
