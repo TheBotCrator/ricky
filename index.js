@@ -208,7 +208,7 @@ process.on("unhandledRejection", (reason, p) => {
 function CheckNecessaryFiles() {
     if (!fs.existsSync("./data")) {
         fs.mkdirSync("./data");
-        console.log("Directory folder for all program necessary files was not found, one has been created\n");
+        console.log("Data folder for all program necessary files was not found, one has been created\n");
     }
 
     // Create offenders JSON if one does not already exist 
