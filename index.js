@@ -10,7 +10,7 @@ const pluralize = require('pluralize');
 CheckNecessaryFiles();
 
 // Offenders json
-const offenders = require("./offenders.json");
+const offenders = require("./Data/offenders.json");
 
 // Regex test list of censored words
 const censor = convertToRegex(
