@@ -19,6 +19,7 @@ const censor = convertToRegex(
         .toLowerCase()
         .replace(/(\r\n|\n){2,}/g, '\n')
         .split(/\r\n|\n/)
+        .filter(Boolean)
         .reduce((r, e) =>
             r.push(e, pluralize(e)) && r, []
         )
@@ -27,8 +28,7 @@ const censor = convertToRegex(
 // Login credentials and prefix for the bot
 const config = require("./data/config.json");
 
-const muted = fs.readFileSync("./data/muted.txt", 'utf8').trim().split(/\r\n|\n/);
-console.log(`List of muted member IDs:\n${muted}`);
+const muted = fs.readFileSync("./data/muted.txt", 'utf8').trim().split(/\r\n|\n/).filter(Boolean);
 
 // Creates a new Dicord "Client"
 const client = new Discord.Client();
@@ -423,22 +423,26 @@ async function addRole(message, argNoTag) {
 }
 
 async function mute(message) {
-    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator") || message.member.roles.find("name", "Community Team")) {
+    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator")) {
         const mentionedUser = message.mentions.users.first();
 
         if (mentionedUser) {
             let mentionedUserId = mentionedUser.id;
 
             if (muted.includes(mentionedUserId)) {
-                message.guild.channels.array().forEach(gChannel => {
-                    gChannel.permissionOverwrites
-                        .filterArray(overwrite => {
-                            return overwrite.type === "member";
-                        })
-                        .forEach(userOverwrite => {
-                            if (userOverwrite.id === mentionedUserId) userOverwrite.delete();
-                        });
-                });
+                message.guild.channels
+                    .filterArray(gChannel => {
+                        return gChannel.type === "text";
+                    })
+                    .forEach(textChannel => {
+                        textChannel.permissionOverwrites
+                            .filterArray(overwrite => {
+                                return overwrite.type === "member";
+                            })
+                            .forEach(userOverwrite => {
+                                if (userOverwrite.id === mentionedUserId) userOverwrite.delete();
+                            });
+                    });
 
                 muted.splice(muted.indexOf(mentionedUserId), 1);
 
@@ -449,17 +453,21 @@ async function mute(message) {
                 return "that user has been unmuted";
             }
             else {
-                message.guild.channels.array().forEach(gChannel => {
-                    gChannel.overwritePermissions(mentionedUser, {
-                        SEND_MESSAGES: false,
-                        ADD_REACTIONS: false
+                message.guild.channels
+                    .filterArray(gChannel => {
+                        return gChannel.type === "text";
+                    })
+                    .forEach(textChannel => {
+                        textChannel.overwritePermissions(mentionedUser, {
+                            SEND_MESSAGES: false,
+                            ADD_REACTIONS: false
+                        });
                     });
-                });
 
                 fs.appendFile("./data/muted.txt", mentionedUserId + '\n', 'utf8', (err) => {
                     if (err) throw error;
                 });
-                
+
                 muted.push(mentionedUser.id);
 
                 return "that user has been muted";
@@ -476,12 +484,12 @@ async function mute(message) {
 
 /**
  * List censor offenses of user including count, and offending messages. Only available to those with 
- * the "Admin", "Moderator", or "Community Team" roles.
+ * the "Admin" or "Moderator" roles.
  * @param {Message} message discord message
  */
 async function getOffender(message) {
     // Checks if user has correct permissions to use this command
-    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator") || message.member.roles.find("name", "Community Team")) {
+    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator")) {
 
         // User object of first mentioned user
         const mentionedUser = message.mentions.users.first();
