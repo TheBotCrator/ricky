@@ -422,53 +422,67 @@ async function addRole(message, argNoTag) {
     }
 }
 
+/**
+ * Will add/remove a user specific permission to each text channel not allowing the tagged user to send
+ * messages or add reactions. Only available to those with the "Admin" or "Moderator" roles.
+ * @param {Message} message discord message
+ */
 async function mute(message) {
+    // Checks if user has correct permissions to use this command
     if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator")) {
+
+        // User object of first mentioned user
         const mentionedUser = message.mentions.users.first();
 
         if (mentionedUser) {
+
             let mentionedUserId = mentionedUser.id;
 
+            // Checks if user is already muted
             if (muted.includes(mentionedUserId)) {
-                message.guild.channels
-                    .filterArray(gChannel => {
-                        return gChannel.type === "text";
-                    })
-                    .forEach(textChannel => {
-                        textChannel.permissionOverwrites
-                            .filterArray(overwrite => {
-                                return overwrite.type === "member";
-                            })
-                            .forEach(userOverwrite => {
-                                if (userOverwrite.id === mentionedUserId) userOverwrite.delete();
+
+                // Iterates over every channel in the server, deleting the user specific permission
+                message.guild.channels.array()
+                    .forEach(gChannel => {
+                        if (gChannel.type === "text") {
+                            gChannel.permissionOverwrites.some(overwrite => {
+                                if (overwrite.id === mentionedUserId) overwrite.delete();
+                                return true;
                             });
+                        }
                     });
 
+                // Updates the muted user array
                 muted.splice(muted.indexOf(mentionedUserId), 1);
 
+                // Updates muted user file
                 fs.writeFile("./data/muted.txt", muted.join('\n'), 'utf8', (err) => {
-                    if (err) throw err;
+                    if (err ? console.log(err) : console.log("User removed from muted list"));
                 });
 
                 return "that user has been unmuted";
             }
             else {
-                message.guild.channels
-                    .filterArray(gChannel => {
-                        return gChannel.type === "text";
-                    })
-                    .forEach(textChannel => {
-                        textChannel.overwritePermissions(mentionedUser, {
-                            SEND_MESSAGES: false,
-                            ADD_REACTIONS: false
-                        });
+
+                // Iterates over every channel in the server, adding a user specific permission that does not allow
+                // that user to send messages or add reactions
+                message.guild.channels.array()
+                    .forEach(gChannel => {
+                        if (gChannel.type === "text") {
+                            gChannel.overwritePermissions(mentionedUser, {
+                                SEND_MESSAGES: false,
+                                ADD_REACTIONS: false
+                            });
+                        }
                     });
 
-                fs.appendFile("./data/muted.txt", mentionedUserId + '\n', 'utf8', (err) => {
-                    if (err) throw error;
-                });
-
+                // Updates the muter user array
                 muted.push(mentionedUser.id);
+
+                // Updates muted user file
+                fs.appendFile("./data/muted.txt", mentionedUserId + '\n', 'utf8', (err) => {
+                    if (err ? console.log(err) : console.log("User added to muted list"));
+                });
 
                 return "that user has been muted";
             }
