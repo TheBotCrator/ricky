@@ -28,6 +28,7 @@ const censor = convertToRegex(
 // Login credentials and prefix for the bot
 const config = require("./data/config.json");
 
+// Muted users list
 const muted = fs.readFileSync("./data/muted.txt", 'utf8').trim().split(/\r\n|\n/).filter(Boolean);
 
 // Creates a new Dicord "Client"
@@ -127,6 +128,7 @@ client.on("message", message => {
                 });
             break;
 
+        // Mute and unmute a user
         case "mute":
         case "unmute":
             mute(message)
@@ -221,6 +223,7 @@ process.on("unhandledRejection", (reason, p) => {
  * If the most important file, config.json, is not there then the process exits.
  */
 function CheckNecessaryFiles() {
+    // Create the main directory for all necessary txt and JSON files
     if (!fs.existsSync("./data")) {
         fs.mkdirSync("./data");
         console.log("Data folder for all program necessary files was not found, one has been created\n");
@@ -232,6 +235,7 @@ function CheckNecessaryFiles() {
         console.log("Offenders file was not found, one has been created\n");
     }
 
+    // Create muted user list if one does not already exist
     if (!fs.existsSync("./Data/muted.txt")) {
         fs.closeSync(fs.openSync("./Data/muted.txt", 'w'));
         console.log("Muted users file was not found, one has been created\n");
@@ -259,9 +263,11 @@ function convertToRegex(censor) {
     //Logs list of censored words
     console.log(`List of censored words:\n\t${censor}\n`);
 
+    // Most common letter variations
     let replace = { "a": "[a|4|@]", "b": "[b|8]", "c": "[c|<]", "e": "[e|3]", "f": "[f|ph]", "g": "[g|6|9]", "i": "[i|1]", "l": "[l|1]", "o": "[o|0]", "s": "[s|5|$]", "t": "[t|7|\+]", "w": "[w|vv]" };
     let regex = [];
 
+    // Loop over every word in censor, creating a regex pattern and adding it to an array
     censor.forEach(word => {
         word = word.split('').map(letter => {
             return replace.hasOwnProperty(letter) ? replace[letter] : letter;
