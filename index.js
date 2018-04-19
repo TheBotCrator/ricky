@@ -312,13 +312,11 @@ function filter(message) {
             // Gets all memebers of the server, if member has "Moderator" role a private message is sent informing them about the infraction
             message.guild.fetchMembers()
                 .then(pGuild => {
-                    pGuild.members
-                        .filterArray(member => {
-                            return member.roles.find("name", "Moderator");
-                        })
-                        .forEach(member => {
+                    pGuild.members.forEach(member => {
+                        if (member.roles.find("name", "Moderator")) {
                             member.send(`${message.author}'s message contained "${word}" in the ${message.channel} channel, ${offenders[message.member.id]['offenses']} offenses`);
-                        });
+                        }
+                    });
                 });
 
             throw "that kind of language is not tolerated here.";
@@ -380,10 +378,9 @@ async function addRole(message, argNoTag) {
 
         // // Creates array of all role names in server
         // // Checks if a role in the server matched the role requested
-        let roleToAdd = message.guild.roles
-            .find(role => {
-                return role.name.toLowerCase() === argNoTagLower;
-            });
+        let roleToAdd = message.guild.roles.find(role => {
+            return role.name.toLowerCase() === argNoTagLower;
+        });
 
         // If role requested matches a role in the server
         if (roleToAdd) {
