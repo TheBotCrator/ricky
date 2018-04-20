@@ -12,6 +12,9 @@ CheckNecessaryFiles();
 // Offenders json
 const offenders = require("./data/offenders.json");
 
+// Muted users list
+const muted = fs.readFileSync("./data/muted.txt", 'utf8').trim().split(/\r\n|\n/).filter(Boolean);
+
 // Regex test list of censored words
 const censor = convertToRegex(
     fs.readFileSync("./data/censor.txt", 'utf8')
@@ -27,9 +30,6 @@ const censor = convertToRegex(
 
 // Login credentials and prefix for the bot
 const config = require("./data/config.json");
-
-// Muted users list
-const muted = fs.readFileSync("./data/muted.txt", 'utf8').trim().split(/\r\n|\n/).filter(Boolean);
 
 // Creates a new Dicord "Client"
 const client = new Discord.Client();
@@ -47,7 +47,7 @@ const client = new Discord.Client();
 client.on("channelCreate", channel => {
     if (channel.type === "text") {
         muted.forEach(userID => {
-            channel.guild.fetchMember(userID).then(gMem => {
+            client.fetchUser(userID).then(gMem => {
                 channel.overwritePermissions(gMem, {
                     SEND_MESSAGES: false,
                     ADD_REACTIONS: false
@@ -428,7 +428,7 @@ function filter(message) {
             }
 
             // Updates offender JSON file
-            fs.writeFile("./offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
+            fs.writeFile("./data/offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
                 if (err ? console.log(err) : console.log("Offender JSON write success"));
             });
 
@@ -484,7 +484,7 @@ async function getOffender(message) {
             for (let key in offenders) {
                 if (offenders.hasOwnProperty(key)) {
                     count++;
-                    await message.guild.fetchMember(key).then(gMem => (users += (gMem.user + '\n')));
+                    await client.fetchUser(key).then(user => (users += (user + '\n')));
                 }
             }
 
