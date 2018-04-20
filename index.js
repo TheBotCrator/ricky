@@ -233,8 +233,90 @@ process.on("unhandledRejection", (reason, p) => {
 });
 
 //-----------------------------------------------
+// SEND MESSAGE FUNCTIONS
+//-----------------------------------------------
+
+/**
+ * Send a message in the channel it was recieved in
+ * @param {Message} message discord message
+ * @param {string} content message content to send
+ */
+function send(message, content) {
+    message.channel.send(content);
+}
+
+/**
+ * Send a reply message to author of original message.
+ * Deletes user's original message. After a delay the reply message is deleted.
+ * @param {Message} message discord message
+ * @param {string} content message content to send
+ */
+function sendAtAuthor(message, content) {
+    message.delete(250).then(message.channel.send(`${message.member.user}, ${content}`).then(msg => msg.delete(30000)));
+}
+
+/**
+ * Send a private message to author of original message
+ * @param {Message} message discord message
+ * @param {string} content message content to send
+ */
+function sendPrivateAuthor(message, content) {
+    message.delete(250).then(message.author.send(content));
+}
+
+//-----------------------------------------------
 // UTILITY FUNCTIONS
 //-----------------------------------------------
+
+/**
+ * If this bot has appropriate permissions, update role of user with requested role
+ * @param {Message} message discord message
+ * @param {string} argNoTag potential role value stripped of tags and emotes to prevent errors
+ */
+async function addRole(message, argNoTag) {
+    if (argNoTag) {
+        let argNoTagLower = argNoTag.toLowerCase();
+
+        // // Checks if a role in the server matched the role requested
+        let roleToAdd = message.guild.roles.find(role => {
+            return role.name.toLowerCase() === argNoTagLower;
+        });
+
+        // If role requested matches a role in the server
+        if (roleToAdd) {
+            let roleToAddName = roleToAdd.name;
+
+            // If user already has role, remove it
+            // else, add it
+            if (message.member.roles.find("name", roleToAddName)) {
+                return message.member.removeRole(roleToAdd)
+                    .then(() => {
+                        console.log(`${roleToAddName} was removed from ${message.author.tag}`);
+                        return "role removed.";
+                    })
+                    .catch(error => {
+                        throw "I cannot remove that role.";
+                    });
+            }
+            else {
+                return message.member.addRole(roleToAdd)
+                    .then(() => {
+                        console.log(`${roleToAddName} was added to ${message.author.tag}`);
+                        return "role added.";
+                    })
+                    .catch(error => {
+                        throw "I cannot give you that role.";
+                    });
+            }
+        }
+        else {
+            throw "that is not a role.";
+        }
+    }
+    else {
+        throw "please put the role you wish to add (ex: \`!role Thing\`).";
+    }
+}
 
 /**
  * Checks if all necessary files are in the directory.
@@ -271,6 +353,21 @@ function CheckNecessaryFiles() {
         fs.writeFileSync("./data/config.json", '{\n\t"prefix" : "PREFIX_HERE",\n\t"token" : "DISCORD_TOKEN_HERE"\n}');
         console.log("***CONFIG JSON NOT DETECTED, ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE TO INCLUDE PREFIX AND DISCORD TOKEN***\n");
         process.exit(0);
+    }
+}
+
+/**
+ * All hail the magic conch
+ * a-loo-loo-loo-loo
+ * @param {string} arg user input string
+ */
+async function conch(arg) {
+    if (arg) {
+        console.log(`The conch has responded`);
+        return "Evan: \"We're working on it.\"";
+    }
+    else {
+        throw "you need to actually ask me a question (ex: \`!conch Thing?\`).";
     }
 }
 
@@ -351,95 +448,57 @@ function filter(message) {
 }
 
 /**
- * Send a message in the channel it was recieved in
+ * List censor offenses of user including count, and offending messages. Only available to those with 
+ * the "Admin" or "Moderator" roles.
  * @param {Message} message discord message
- * @param {string} content message content to send
  */
-function send(message, content) {
-    message.channel.send(content);
-}
+async function getOffender(message) {
+    // Checks if user has correct permissions to use this command
+    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator")) {
+        // User object of first mentioned user
+        const mentionedUser = message.mentions.users.first();
 
-/**
- * Send a reply message to author of original message.
- * Deletes user's original message. After a delay the reply message is deleted.
- * @param {Message} message discord message
- * @param {string} content message content to send
- */
-function sendAtAuthor(message, content) {
-    message.delete(250).then(message.channel.send(`${message.member.user}, ${content}`).then(msg => msg.delete(30000)));
-}
+        // If there is a mentioned user it will pull up their info from the JSON and return
+        // else, will return the number of offenders and all of their @'s
+        if (mentionedUser) {
+            console.log(`Sent ${message.author.tag} an offender summary of ${mentionedUser.tag}`);
 
-/**
- * Send a private message to author of original message
- * @param {Message} message discord message
- * @param {string} content message content to send
- */
-function sendPrivateAuthor(message, content) {
-    message.delete(250).then(message.author.send(content));
-}
+            if (offenders.hasOwnProperty(mentionedUser.id)) {
+                let sen = "**USER:** " + mentionedUser + "\n\n**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + "\n\n**MESSAGES:**\n";
 
-/**
- * All hail the magic conch
- * a-loo-loo-loo-loo
- * @param {string} arg user input string
- */
-async function conch(arg) {
-    if (arg) {
-        console.log(`The conch has responded`);
-        return "Evan: \"We're working on it.\"";
-    }
-    else {
-        throw "you need to actually ask me a question (ex: \`!conch Thing?\`).";
-    }
-}
+                offenders[mentionedUser.id]['messages'].forEach(message => {
+                    sen += (message + '\n');
+                });
 
-/**
- * If this bot has appropriate permissions, update role of user with requested role
- * @param {Message} message discord message
- * @param {string} argNoTag potential role value stripped of tags and emotes to prevent errors
- */
-async function addRole(message, argNoTag) {
-    if (argNoTag) {
-        let argNoTagLower = argNoTag.toLowerCase();
-
-        // // Checks if a role in the server matched the role requested
-        let roleToAdd = message.guild.roles.find(role => {
-            return role.name.toLowerCase() === argNoTagLower;
-        });
-
-        // If role requested matches a role in the server
-        if (roleToAdd) {
-            let roleToAddName = roleToAdd.name;
-
-            // If user already has role, remove it
-            // else, add it
-            if (message.member.roles.find("name", roleToAddName)) {
-                return message.member.removeRole(roleToAdd)
-                    .then(() => {
-                        console.log(`${roleToAddName} was removed from ${message.author.tag}`);
-                        return "role removed.";
-                    })
-                    .catch(error => {
-                        throw "I cannot remove that role.";
-                    });
+                return sen;
             }
             else {
-                return message.member.addRole(roleToAdd)
-                    .then(() => {
-                        console.log(`${roleToAddName} was added to ${message.author.tag}`);
-                        return "role added.";
-                    })
-                    .catch(error => {
-                        throw "I cannot give you that role.";
-                    });
+                return mentionedUser + " has 0 offenses.";
             }
         }
         else {
-            throw "that is not a role.";
+            console.log(`Sent ${message.author.tag} a list of offending users`);
+            let count = 0;
+            let users = "";
+
+            for (let key in offenders) {
+                if (offenders.hasOwnProperty(key)) {
+                    count++;
+                    await message.guild.fetchMember(key).then(gMem => (users += (gMem.user + '\n')));
+                }
+            }
+
+            let sen = "**NUMBER OF OFFENDERS: **" + count + '\n\n';
+
+            if (count !== 0) {
+                sen += ("**OFFENDERS:**\n" + users);
+            }
+
+            return sen;
         }
     }
     else {
-        throw "please put the role you wish to add (ex: \`!role Thing\`).";
+        throw "you do not have permission to use that command."
     }
 }
 
@@ -515,61 +574,6 @@ async function mute(message) {
         }
         else {
             throw "please put the user you wish to mute (ex: \`!mute @user\`)."
-        }
-    }
-    else {
-        throw "you do not have permission to use that command."
-    }
-}
-
-/**
- * List censor offenses of user including count, and offending messages. Only available to those with 
- * the "Admin" or "Moderator" roles.
- * @param {Message} message discord message
- */
-async function getOffender(message) {
-    // Checks if user has correct permissions to use this command
-    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator")) {
-        // User object of first mentioned user
-        const mentionedUser = message.mentions.users.first();
-
-        // If there is a mentioned user it will pull up their info from the JSON and return
-        // else, will return the number of offenders and all of their @'s
-        if (mentionedUser) {
-            console.log(`Sent ${message.author.tag} an offender summary of ${mentionedUser.tag}`);
-
-            if (offenders.hasOwnProperty(mentionedUser.id)) {
-                let sen = "**USER:** " + mentionedUser + "\n\n**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + "\n\n**MESSAGES:**\n";
-
-                offenders[mentionedUser.id]['messages'].forEach(message => {
-                    sen += (message + '\n');
-                });
-
-                return sen;
-            }
-            else {
-                return mentionedUser + " has 0 offenses.";
-            }
-        }
-        else {
-            console.log(`Sent ${message.author.tag} a list of offending users`);
-            let count = 0;
-            let users = "";
-
-            for (let key in offenders) {
-                if (offenders.hasOwnProperty(key)) {
-                    count++;
-                    await message.guild.fetchMember(key).then(gMem => (users += (gMem.user + '\n')));
-                }
-            }
-
-            let sen = "**NUMBER OF OFFENDERS: **" + count + '\n\n';
-
-            if (count !== 0) {
-                sen += ("**OFFENDERS:**\n" + users);
-            }
-
-            return sen;
         }
     }
     else {
