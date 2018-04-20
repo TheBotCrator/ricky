@@ -322,7 +322,7 @@ function filter(message) {
             if (offenders.hasOwnProperty(message.member.id)) {
                 offenders[message.member.id]['offenses']++;
                 offenders[message.member.id]['messages'].push(message.content);
-                console.log(`\t${message.author.tag} message contained : ${word}, ${offenders[message.member.id]['offenses']} offenses`);
+                console.log(`\t${message.author.tag} message contained: ${word}, ${offenders[message.member.id]['offenses']} offenses`);
             }
             else {
                 offenders[message.member.id] = { offenses: 1, messages: [message.content] };
@@ -401,7 +401,6 @@ async function addRole(message, argNoTag) {
     if (argNoTag) {
         let argNoTagLower = argNoTag.toLowerCase();
 
-        // // Creates array of all role names in server
         // // Checks if a role in the server matched the role requested
         let roleToAdd = message.guild.roles.find(role => {
             return role.name.toLowerCase() === argNoTagLower;
@@ -409,7 +408,6 @@ async function addRole(message, argNoTag) {
 
         // If role requested matches a role in the server
         if (roleToAdd) {
-            // Get the role object matching the name of the role
             let roleToAddName = roleToAdd.name;
 
             // If user already has role, remove it
@@ -468,21 +466,25 @@ async function mute(message) {
                     .forEach(gChannel => {
                         if (gChannel.type === "text") {
                             gChannel.permissionOverwrites.some(overwrite => {
-                                if (overwrite.id === mentionedUserId) overwrite.delete();
-                                return true;
+                                if (overwrite.id === mentionedUserId) {
+                                    overwrite.delete();
+                                    return true;
+                                }
                             });
                         }
                     });
+
+                console.log(`${message.author.tag} unmuted ${mentionedUser.tag}`);
 
                 // Updates the muted user array
                 muted.splice(muted.indexOf(mentionedUserId), 1);
 
                 // Updates muted user file
                 fs.writeFile("./data/muted.txt", muted.join('\n'), 'utf8', (err) => {
-                    if (err ? console.log(err) : console.log("User removed from muted list"));
+                    if (err ? console.log(err) : console.log("Muted txt write success"));
                 });
 
-                return "that user has been unmuted";
+                return "that user has been unmuted.";
             }
             else {
 
@@ -498,15 +500,17 @@ async function mute(message) {
                         }
                     });
 
+                console.log(`${message.author.tag} muted ${mentionedUser.tag}`);
+
                 // Updates the muter user array
                 muted.push(mentionedUser.id);
 
                 // Updates muted user file
                 fs.appendFile("./data/muted.txt", mentionedUserId + '\n', 'utf8', (err) => {
-                    if (err ? console.log(err) : console.log("User added to muted list"));
+                    if (err ? console.log(err) : console.log("Muted txt write success"));
                 });
 
-                return "that user has been muted";
+                return "that user has been muted.";
             }
         }
         else {
@@ -534,6 +538,7 @@ async function getOffender(message) {
         // else, will return the number of offenders and all of their @'s
         if (mentionedUser) {
             console.log(`Sent ${message.author.tag} an offender summary of ${mentionedUser.tag}`);
+
             if (offenders.hasOwnProperty(mentionedUser.id)) {
                 let sen = "**USER:** " + mentionedUser + "\n\n**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + "\n\n**MESSAGES:**\n";
 
