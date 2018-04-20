@@ -47,8 +47,8 @@ const client = new Discord.Client();
 client.on("channelCreate", channel => {
     if (channel.type === "text") {
         muted.forEach(userID => {
-            client.fetchUser(userID).then(gMem => {
-                channel.overwritePermissions(gMem, {
+            client.fetchUser(userID).then(user => {
+                channel.overwritePermissions(user, {
                     SEND_MESSAGES: false,
                     ADD_REACTIONS: false
                 });
