@@ -317,7 +317,7 @@ function filter(message) {
         // Check if user message contains a censored word
         if (regex.test(msg)) {
             let word = msg.match(regex)[0];
-            
+
             // If uer is in offenders JSON their info is updated
             // else, their info is added to offenders JSON
             if (offenders.hasOwnProperty(message.member.id)) {
@@ -455,7 +455,6 @@ async function mute(message) {
         const mentionedUser = message.mentions.users.first();
 
         if (mentionedUser) {
-
             // Stupidity check
             if (mentionedUser === message.author) throw "you cannot mute yourself.";
 
@@ -463,7 +462,6 @@ async function mute(message) {
 
             // Checks if user is already muted
             if (muted.includes(mentionedUserId)) {
-
                 // Iterates over every channel in the server, deleting the user specific permission overwrite
                 message.guild.channels.array()
                     .forEach(gChannel => {
@@ -516,7 +514,7 @@ async function mute(message) {
             }
         }
         else {
-            throw "you need to inclued an @user to mute someone."
+            throw "please put the user you wish to mute (ex: \`!mute @user\`)."
         }
     }
     else {
@@ -532,7 +530,6 @@ async function mute(message) {
 async function getOffender(message) {
     // Checks if user has correct permissions to use this command
     if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator")) {
-
         // User object of first mentioned user
         const mentionedUser = message.mentions.users.first();
 
