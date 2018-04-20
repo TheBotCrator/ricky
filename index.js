@@ -239,7 +239,7 @@ function convertToRegex(censor) {
     //Logs list of censored words
     console.log(`List of censored words:\n\t${censor}\n`);
 
-    let replace = { "a": "[a|4|@]", "b": "[b|8]", "c": "[c|<]", "e": "[e|3]", "f": "[f|ph]", "g": "[g|6|9]", "i": "[i|1]", "l": "[l|1]", "o": "[o|0]", "s": "[s|5|$]", "t": "[t|7|\+]", "w": "[w|vv]" };
+    let replace = { "a": "(a|4|@)", "b": "(b|8)", "c": "(c|<)", "e": "(e|3)", "f": "(f|ph)", "g": "(g|6|9)", "i": "(i|1)", "l": "(l|1)", "o": "(o|0)", "s": "(s|5|$)", "t": "(t|7|\\+)", "w": "(w|vv)" };
     let regex = [];
 
     censor.forEach(word => {
@@ -285,7 +285,7 @@ function filter(message) {
             }
 
             // Updates offender JSON file
-            fs.writeFile("./offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
+            fs.writeFile("./data/offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
                 if (err ? console.log(err) : console.log("Offender JSON write success"));
             });
 
