@@ -441,7 +441,7 @@ async function mute(message) {
             // Checks if user is already muted
             if (muted.includes(mentionedUserId)) {
 
-                // Iterates over every channel in the server, deleting the user specific permission
+                // Iterates over every channel in the server, deleting the user specific permission overwrite
                 message.guild.channels.array()
                     .forEach(gChannel => {
                         if (gChannel.type === "text") {
@@ -464,7 +464,7 @@ async function mute(message) {
             }
             else {
 
-                // Iterates over every channel in the server, adding a user specific permission that does not allow
+                // Iterates over every channel in the server, adding a user specific permission overwrite that does not allow
                 // that user to send messages or add reactions
                 message.guild.channels.array()
                     .forEach(gChannel => {
