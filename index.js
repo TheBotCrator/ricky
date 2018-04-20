@@ -28,6 +28,7 @@ const censor = convertToRegex(
 // Login credentials and prefix for the bot
 const config = require("./data/config.json");
 
+// Muted users list
 const muted = fs.readFileSync("./data/muted.txt", 'utf8').trim().split(/\r\n|\n/).filter(Boolean);
 
 // Creates a new Dicord "Client"
@@ -36,6 +37,25 @@ const client = new Discord.Client();
 //-----------------------------------------------
 // EVENT HANDLERS
 //-----------------------------------------------
+
+/**
+ * Emitted whenever a channel is created.
+ * Will add user specific permission overwrites to the new channel if that user is in the muted list.
+ * 
+ * @param {Channel} channel created channel
+ */
+client.on("channelCreate", channel => {
+    if (channel.type === "text") {
+        muted.forEach(userID => {
+            channel.guild.fetchMember(userID).then(gMem => {
+                channel.overwritePermissions(gMem, {
+                    SEND_MESSAGES: false,
+                    ADD_REACTIONS: false
+                });
+            });
+        });
+    }
+});
 
 /**
  * On disconnect event. Emitted when the client's WebSocket disconnects and will no longer attempt to reconnect.
@@ -127,6 +147,7 @@ client.on("message", message => {
                 });
             break;
 
+        // Mute and unmute a user
         case "mute":
         case "unmute":
             mute(message)
@@ -221,6 +242,7 @@ process.on("unhandledRejection", (reason, p) => {
  * If the most important file, config.json, is not there then the process exits.
  */
 function CheckNecessaryFiles() {
+    // Create the main directory for all necessary txt and JSON files
     if (!fs.existsSync("./data")) {
         fs.mkdirSync("./data");
         console.log("Data folder for all program necessary files was not found, one has been created\n");
@@ -232,6 +254,7 @@ function CheckNecessaryFiles() {
         console.log("Offenders file was not found, one has been created\n");
     }
 
+    // Create muted user list if one does not already exist
     if (!fs.existsSync("./Data/muted.txt")) {
         fs.closeSync(fs.openSync("./Data/muted.txt", 'w'));
         console.log("Muted users file was not found, one has been created\n");
@@ -259,9 +282,11 @@ function convertToRegex(censor) {
     //Logs list of censored words
     console.log(`List of censored words:\n\t${censor}\n`);
 
+    // Most common letter variations
     let replace = { "a": "[a|4|@]", "b": "[b|8]", "c": "[c|<]", "e": "[e|3]", "f": "[f|ph]", "g": "[g|6|9]", "i": "[i|1]", "l": "[l|1]", "o": "[o|0]", "s": "[s|5|$]", "t": "[t|7|\+]", "w": "[w|vv]" };
     let regex = [];
 
+    // Loop over every word in censor, creating a regex pattern and adding it to an array
     censor.forEach(word => {
         word = word.split('').map(letter => {
             return replace.hasOwnProperty(letter) ? replace[letter] : letter;
@@ -312,13 +337,11 @@ function filter(message) {
             // Gets all memebers of the server, if member has "Moderator" role a private message is sent informing them about the infraction
             message.guild.fetchMembers()
                 .then(pGuild => {
-                    pGuild.members
-                        .filterArray(member => {
-                            return member.roles.find("name", "Moderator");
-                        })
-                        .forEach(member => {
+                    pGuild.members.forEach(member => {
+                        if (member.roles.find("name", "Moderator")) {
                             member.send(`${message.author}'s message contained "${word}" in the ${message.channel} channel, ${offenders[message.member.id]['offenses']} offenses`);
-                        });
+                        }
+                    });
                 });
 
             throw "that kind of language is not tolerated here.";
@@ -380,10 +403,9 @@ async function addRole(message, argNoTag) {
 
         // // Creates array of all role names in server
         // // Checks if a role in the server matched the role requested
-        let roleToAdd = message.guild.roles
-            .find(role => {
-                return role.name.toLowerCase() === argNoTagLower;
-            });
+        let roleToAdd = message.guild.roles.find(role => {
+            return role.name.toLowerCase() === argNoTagLower;
+        });
 
         // If role requested matches a role in the server
         if (roleToAdd) {
