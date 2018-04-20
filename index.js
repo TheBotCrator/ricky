@@ -317,6 +317,7 @@ function filter(message) {
         // Check if user message contains a censored word
         if (regex.test(msg)) {
             let word = msg.match(regex)[0];
+            
             // If uer is in offenders JSON their info is updated
             // else, their info is added to offenders JSON
             if (offenders.hasOwnProperty(message.member.id)) {
@@ -489,7 +490,6 @@ async function mute(message) {
                 return "that user has been unmuted.";
             }
             else {
-
                 // Iterates over every channel in the server, adding a user specific permission overwrite that does not allow
                 // that user to send messages or add reactions
                 message.guild.channels.array()
