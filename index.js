@@ -285,7 +285,7 @@ function filter(message) {
             }
 
             // Updates offender JSON file
-            fs.writeFile("./offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
+            fs.writeFile("./data/offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
                 if (err ? console.log(err) : console.log("Offender JSON write success"));
             });
 
