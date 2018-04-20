@@ -39,6 +39,25 @@ const client = new Discord.Client();
 //-----------------------------------------------
 
 /**
+ * Emitted whenever a channel is created.
+ * Will add user specific permission overwrites to the new channel if that user is in the muted list.
+ * 
+ * @param {Channel} channel created channel
+ */
+client.on("channelCreate", channel => {
+    if (channel.type === "text") {
+        muted.forEach(userID => {
+            channel.guild.fetchMember(userID).then(gMem => {
+                channel.overwritePermissions(gMem, {
+                    SEND_MESSAGES: false,
+                    ADD_REACTIONS: false
+                });
+            });
+        });
+    }
+});
+
+/**
  * On disconnect event. Emitted when the client's WebSocket disconnects and will no longer attempt to reconnect.
  * Logs console message.
  * @param {CloseEvent} event WebSocket close event
