@@ -450,11 +450,13 @@ async function addRole(message, argNoTag) {
 async function mute(message) {
     // Checks if user has correct permissions to use this command
     if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator")) {
-
         // User object of first mentioned user
         const mentionedUser = message.mentions.users.first();
 
         if (mentionedUser) {
+
+            // Stupidity check
+            if (mentionedUser === message.author) throw "you cannot mute yourself.";
 
             let mentionedUserId = mentionedUser.id;
 
