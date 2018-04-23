@@ -193,6 +193,15 @@ client.on("messageUpdate", (oldMessage, newMessage) => {
  * Logs console message.
  */
 client.on("ready", () => {
+    client.guilds.array.forEach(guild => {
+        if (guild.roles.some(role => { return role.name === "MutableChannel"})) {
+            guild.createRole({
+                name: 'MutableChannel',
+                permissions: 0
+            });
+            console.log(`A MutableChannel role was not found in ${guild.name}, one has been created.\nThis is used to mute users. Please place this role above the bot's role so it is not accessable in the role command\n`);
+        }
+    })
     console.log("Bot Online\n");
 });
 
