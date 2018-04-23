@@ -193,8 +193,8 @@ client.on("messageUpdate", (oldMessage, newMessage) => {
  * Logs console message.
  */
 client.on("ready", () => {
-    client.guilds.array.forEach(guild => {
-        if (guild.roles.some(role => { return role.name === "MutableChannel"})) {
+    client.guilds.array().forEach(guild => {
+        if (!guild.roles.find('name', "MutableChannel")) {
             guild.createRole({
                 name: 'MutableChannel',
                 permissions: 0
