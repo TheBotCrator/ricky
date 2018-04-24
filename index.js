@@ -39,19 +39,6 @@ const client = new Discord.Client();
 //-----------------------------------------------
 
 /**
- * Emitted whenever a channel is created.
- * Will add a permission overwite for the MutableChannel role
- * 
- * @param {Channel} channel created channel
- */
-client.on("channelCreate", channel => {
-    if (channel.type === "text") {
-        let MutableChannel = channel.guild.roles.find("name", "MutableChannel");
-        channel.overwritePermissions(channel.guild.roles.find('name', "MutableChannel"));
-    }
-});
-
-/**
  * Emitted whenever a channel is updated 0 e.g. name change, topic change.
  * Will check if the channel has the "MutableChannel" permission overwite, if so, will add
  * all muted users specific permission overwites to this channel.
@@ -580,14 +567,15 @@ async function mute(message) {
                 return "that user has been unmuted.";
             }
             else {
+                let MutableChannelID = message.guild.roles.find('name', "MutableChannel");
                 // Iterates over every channel in the server, adding a user specific permission overwrite that does not allow
                 // that user to send messages or add reactions
                 message.guild.channels.array()
                     .forEach(gChannel => {
-                        if (gChannel.type === "text") {
+                        if (gChannel.type === "text" && gChannel.permissionOverwrites.find('id', MutableChannelID)) {
                             gChannel.overwritePermissions(mentionedUser, {
                                 SEND_MESSAGES: false,
-                                ADD_REACTIONS: false
+                                ADD_REACTIONS: false,
                             });
                         }
                     });
