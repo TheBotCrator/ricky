@@ -40,20 +40,44 @@ const client = new Discord.Client();
 
 /**
  * Emitted whenever a channel is created.
- * Will add user specific permission overwrites to the new channel if that user is in the muted list.
+ * Will add a permission overwite for the MutableChannel role
  * 
  * @param {Channel} channel created channel
  */
 client.on("channelCreate", channel => {
     if (channel.type === "text") {
-        muted.forEach(userID => {
-            client.fetchUser(userID).then(user => {
-                channel.overwritePermissions(user, {
-                    SEND_MESSAGES: false,
-                    ADD_REACTIONS: false
+        let MutableChannel = channel.guild.roles.find("name", "MutableChannel");
+        channel.overwritePermissions(channel.guild.roles.find('name', "MutableChannel"));
+    }
+});
+
+/**
+ * Emitted whenever a channel is updated 0 e.g. name change, topic change.
+ * Will check if the channel has the "MutableChannel" permission overwite, if so, will add
+ * all muted users specific permission overwites to this channel.
+ * 
+ * @param {Channel} oldChannel channel before update
+ * @param {Channel} newChannel channel after update
+ */
+client.on("channelUpdate", (oldChannel, newChannel) => {
+    if (newChannel.type === "text") {
+        let MutableChannelID = newChannel.guild.roles.find("name", "MutableChannel").id;
+
+        if (newChannel.permissionOverwrites.find('id', MutableChannelID)) {
+            muted.forEach(userID => {
+                client.fetchUser(userID).then(user => {
+                    newChannel.overwritePermissions(user, {
+                        SEND_MESSAGES: false,
+                        ADD_REACTIONS: false
+                    });
                 });
             });
-        });
+        }
+        else {
+            newChannel.permissionOverwrites.array().forEach(overwrite => {
+                if (overwrite.type === "member") overwrite.delete();
+            });
+        }
     }
 });
 
