@@ -542,17 +542,17 @@ async function mute(message) {
             if (mentionedUser === message.author)
                 throw "you cannot mute yourself.";
 
-            let mentionedUserId = mentionedUser.id;
+            let mentionedUserID = mentionedUser.id;
             let MutableChannelID = message.guild.roles.find('name', "MutableChannel");
 
             // Checks if user is already muted
-            if (muted.includes(mentionedUserId)) {
+            if (muted.includes(mentionedUserID)) {
                 // Iterates over every channel in the server, deleting the user specific permission overwrite
                 message.guild.channels.array()
                     .forEach(gChannel => {
                         if (gChannel.type === "text" && gChannel.permissionOverwrites.exists('id', MutableChannelID)) {
                             gChannel.permissionOverwrites.some(overwrite => {
-                                if (overwrite.id === mentionedUserId) {
+                                if (overwrite.id === mentionedUserID) {
                                     overwrite.delete();
                                     return true;
                                 }
@@ -563,7 +563,7 @@ async function mute(message) {
                 console.log(`${message.author.tag} unmuted ${mentionedUser.tag}`);
 
                 // Updates the muted user array
-                muted.splice(muted.indexOf(mentionedUserId), 1);
+                muted.splice(muted.indexOf(mentionedUserID), 1);
 
                 // Updates muted user file
                 fs.writeFile("./data/muted.txt", muted.join('\n'), 'utf8', (err) => {
@@ -591,7 +591,7 @@ async function mute(message) {
                 muted.push(mentionedUser.id);
 
                 // Updates muted user file
-                fs.appendFile("./data/muted.txt", mentionedUserId + '\n', 'utf8', (err) => {
+                fs.appendFile("./data/muted.txt", mentionedUserID + '\n', 'utf8', (err) => {
                     if (err ? console.log(err) : console.log("Muted txt write success"));
                 });
 
