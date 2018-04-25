@@ -50,14 +50,14 @@ client.on("channelUpdate", (oldChannel, newChannel) => {
     if (newChannel.type === "text") {
         let MutableChannelID = newChannel.guild.roles.find("name", "MutableChannel").id;
 
-        if (newChannel.permissionOverwrites.find('id', MutableChannelID)) {
+        if (newChannel.permissionOverwrites.exists('id', MutableChannelID)) {
             muted.forEach(userID => {
-                client.fetchUser(userID).then(user => {
-                    newChannel.overwritePermissions(user, {
+                if (!newChannel.permissionOverwrites.exists('id', userID)) {
+                    newChannel.overwritePermissions(userID, {
                         SEND_MESSAGES: false,
                         ADD_REACTIONS: false
                     });
-                });
+                }
             });
         }
         else {
@@ -209,7 +209,7 @@ client.on("messageUpdate", (oldMessage, newMessage) => {
  */
 client.on("ready", () => {
     client.guilds.array().forEach(guild => {
-        if (!guild.roles.find('name', "MutableChannel")) {
+        if (!guild.roles.exists('name', "MutableChannel")) {
             guild.createRole({
                 name: 'MutableChannel',
                 permissions: 0
@@ -312,7 +312,7 @@ async function addRole(message, argNoTag) {
 
             // If user already has role, remove it
             // else, add it
-            if (message.member.roles.find("name", roleToAddName)) {
+            if (message.member.roles.exists("name", roleToAddName)) {
                 return message.member.removeRole(roleToAdd)
                     .then(() => {
                         console.log(`${roleToAddName} was removed from ${message.author.tag}`);
@@ -478,7 +478,7 @@ function filter(message) {
  */
 async function getOffender(message) {
     // Checks if user has correct permissions to use this command
-    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator")) {
+    if (message.member.roles.exists("name", "Admin") || message.member.roles.exists("name", "Moderator")) {
         // User object of first mentioned user
         const mentionedUser = message.mentions.users.first();
 
@@ -533,7 +533,7 @@ async function getOffender(message) {
  */
 async function mute(message) {
     // Checks if user has correct permissions to use this command
-    if (message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Moderator")) {
+    if (message.member.roles.exists("name", "Admin") || message.member.roles.exists("name", "Moderator")) {
         // User object of first mentioned user
         const mentionedUser = message.mentions.users.first();
 
@@ -550,7 +550,7 @@ async function mute(message) {
                 // Iterates over every channel in the server, deleting the user specific permission overwrite
                 message.guild.channels.array()
                     .forEach(gChannel => {
-                        if (gChannel.type === "text" && gChannel.permissionOverwrites.find('id', MutableChannelID)) {
+                        if (gChannel.type === "text" && gChannel.permissionOverwrites.exists('id', MutableChannelID)) {
                             gChannel.permissionOverwrites.some(overwrite => {
                                 if (overwrite.id === mentionedUserId) {
                                     overwrite.delete();
@@ -577,7 +577,7 @@ async function mute(message) {
                 // that user to send messages or add reactions
                 message.guild.channels.array()
                     .forEach(gChannel => {
-                        if (gChannel.type === "text" && gChannel.permissionOverwrites.find('id', MutableChannelID)) {
+                        if (gChannel.type === "text" && gChannel.permissionOverwrites.exists('id', MutableChannelID)) {
                             gChannel.overwritePermissions(mentionedUser, {
                                 SEND_MESSAGES: false,
                                 ADD_REACTIONS: false,
