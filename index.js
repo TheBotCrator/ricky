@@ -26,7 +26,7 @@ const censor = convertToRegex(
         .reduce((r, e) =>
             r.push(e, pluralize(e)) && r, []
         )
-)
+);
 
 // Login credentials and prefix for the bot
 const config = require("./data/config.json");
@@ -62,7 +62,8 @@ client.on("channelUpdate", (oldChannel, newChannel) => {
         }
         else {
             newChannel.permissionOverwrites.array().forEach(overwrite => {
-                if (overwrite.type === "member") overwrite.delete();
+                if (overwrite.type === "member")
+                    overwrite.delete();
             });
         }
     }
@@ -94,7 +95,8 @@ client.on("error", error => {
 client.on("message", message => {
 
     // Ignore messages sent by bots and messages not sent in a text channel
-    if (message.author.bot || message.channel.type !== "text") return;
+    if (message.author.bot || message.channel.type !== "text")
+        return;
 
     // Censorship
     try {
@@ -110,7 +112,8 @@ client.on("message", message => {
 
     // Ignore message if it doesn't start with correct prefix
     // "hello world" => ignored
-    if (!message.content.startsWith(config.prefix)) return;
+    if (!message.content.startsWith(config.prefix))
+        return;
 
     // Splits user message on spacing, getting the first "word", which is the "command"
     // "$insertCommandHere <@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "insertcommandhere"
@@ -118,7 +121,8 @@ client.on("message", message => {
 
     // Ignores message if they are talking about money
     // "$10" or "$$$" => ignored
-    if (/^\d+$/.test(command) || /\$+/.test(command)) return;
+    if (/^\d+$/.test(command) || /\$+/.test(command))
+        return;
 
     // Extracts the "argument", everything else in the message except the prefix and command
     // "$insertCommandHere <@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "<@!100022489140195328> <:thOnk:337235802733936650> is a great emote"
@@ -535,16 +539,18 @@ async function mute(message) {
 
         if (mentionedUser) {
             // Stupidity check
-            if (mentionedUser === message.author) throw "you cannot mute yourself.";
+            if (mentionedUser === message.author)
+                throw "you cannot mute yourself.";
 
             let mentionedUserId = mentionedUser.id;
+            let MutableChannelID = message.guild.roles.find('name', "MutableChannel");
 
             // Checks if user is already muted
             if (muted.includes(mentionedUserId)) {
                 // Iterates over every channel in the server, deleting the user specific permission overwrite
                 message.guild.channels.array()
                     .forEach(gChannel => {
-                        if (gChannel.type === "text") {
+                        if (gChannel.type === "text" && gChannel.permissionOverwrites.find('id', MutableChannelID)) {
                             gChannel.permissionOverwrites.some(overwrite => {
                                 if (overwrite.id === mentionedUserId) {
                                     overwrite.delete();
@@ -567,7 +573,6 @@ async function mute(message) {
                 return "that user has been unmuted.";
             }
             else {
-                let MutableChannelID = message.guild.roles.find('name', "MutableChannel");
                 // Iterates over every channel in the server, adding a user specific permission overwrite that does not allow
                 // that user to send messages or add reactions
                 message.guild.channels.array()
