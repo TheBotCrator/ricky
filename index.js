@@ -543,7 +543,7 @@ async function mute(message) {
                 throw "you cannot mute yourself.";
 
             let mentionedUserID = mentionedUser.id;
-            let MutableChannelID = message.guild.roles.find('name', "MutableChannel");
+            let MutableChannelID = message.guild.roles.find('name', "MutableChannel").id;
 
             // Checks if user is already muted
             if (muted.includes(mentionedUserID)) {
