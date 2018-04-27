@@ -216,7 +216,27 @@ client.on("ready", () => {
             });
             console.log(`A MutableChannel role was not found in ${guild.name}, one has been created.\nThis is used to mute users. Please place this role above the bot's role so it is not accessable in the role command and add it to all mutable channels\n`);
         }
-    })
+
+        let MutableChannelID = guild.roles.find("name", "MutableChannel").id;
+        guild.channels.array().forEach(channel => {
+            if (channel.permissionOverwrites.exists('id', MutableChannelID)) {
+                muted.forEach(userID => {
+                    if (!channel.permissionOverwrites.exists('id', userID)) {
+                        channel.overwritePermissions(userID, {
+                            SEND_MESSAGES: false,
+                            ADD_REACTIONS: false
+                        });
+                    }
+                });
+            }
+            else {
+                channel.permissionOverwrites.array().forEach(overwrite => {
+                    if (overwrite.type === "member")
+                        overwrite.delete();
+                });
+            }
+        });
+    });
     console.log("Bot Online\n");
 });
 
@@ -235,6 +255,22 @@ client.on("reconnecting", () => {
  */
 client.on("resume", replayed => {
     console.log(`Reconnectd. ${replayed} events replayed.\n`);
+});
+
+/**
+ * Emitted whenever a guild role is deleted.
+ * This will check if the deleted role was MutableChannel, if so, MutableChannel is recreated as it is
+ * necessary for bot functionality.
+ * @param {Role} role deleted role
+ */
+client.on("roleDelete", role => {
+    if (role.name === "MutableChannel") {
+        role.guild.createRole({
+            name: 'MutableChannel',
+            permissions: 0
+        });
+        console.log("MUTABLECHANNEL ROLE WAS DELETED, PLEASE DO NOT DO THIS AS IT WILL BREAK THE MUTE COMMAND");
+    }
 });
 
 /**
