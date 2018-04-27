@@ -289,7 +289,9 @@ client.on("warn", info => {
  * @param {promise} p promise that was rejected
  */
 process.on("unhandledRejection", (reason, p) => {
-    console.log(`\nUnhandled Rejection at: ${p}\nReason: ${reason}\n`);
+    console.log(`\nUnhandled Rejection at:`)
+    console.log(p);
+    console.log(`Reason: ${reason}`);
 });
 
 //-----------------------------------------------
