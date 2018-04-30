@@ -399,7 +399,7 @@ function CheckNecessaryFiles() {
     }
 
     // Create muted user list if one does not already exist
-    if (!fs.existsSync("./Data/muted.txt")) {
+    if (!fs.existsSync("./data/muted.txt")) {
         fs.closeSync(fs.openSync("./Data/muted.txt", 'w'));
         console.log("Muted users file was not found, one has been created\n");
     }
