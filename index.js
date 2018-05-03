@@ -62,8 +62,12 @@ client.on("channelUpdate", (oldChannel, newChannel) => {
         }
         else {
             newChannel.permissionOverwrites.array().forEach(overwrite => {
-                if (overwrite.type === "member")
-                    overwrite.delete();
+                muted.forEach(userID => {
+                    if (overwrite.id === userID) {
+                        overwrite.delete();
+                        return true;
+                    }
+                })
             });
         }
     }
