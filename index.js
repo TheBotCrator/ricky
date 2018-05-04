@@ -47,9 +47,12 @@ const client = new Discord.Client();
  * @param {Channel} newChannel channel after update
  */
 client.on("channelUpdate", (oldChannel, newChannel) => {
+    // If it's a text channel
     if (newChannel.type === "text") {
+        // Get MutableChannelID
         let MutableChannelID = newChannel.guild.roles.find("name", "MutableChannel").id;
 
+        // If channel has mutableChannel, add user specific overwites
         if (newChannel.permissionOverwrites.exists('id', MutableChannelID)) {
             muted.forEach(userID => {
                 if (!newChannel.permissionOverwrites.exists('id', userID)) {
@@ -60,10 +63,15 @@ client.on("channelUpdate", (oldChannel, newChannel) => {
                 }
             });
         }
+        // If it doesn't, remove user specific overwrites if the user is in the muted list
         else {
             newChannel.permissionOverwrites.array().forEach(overwrite => {
-                if (overwrite.type === "member")
-                    overwrite.delete();
+                muted.some(userID => {
+                    if (overwrite.id === userID) {
+                        overwrite.delete();
+                        return true;
+                    }
+                });
             });
         }
     }
@@ -208,6 +216,7 @@ client.on("messageUpdate", (oldMessage, newMessage) => {
  * Logs console message.
  */
 client.on("ready", () => {
+    // Check if MutableChannel is a role, if not, create
     client.guilds.array().forEach(guild => {
         if (!guild.roles.exists('name', "MutableChannel")) {
             guild.createRole({
@@ -217,8 +226,11 @@ client.on("ready", () => {
             console.log(`A MutableChannel role was not found in ${guild.name}, one has been created.\nThis is used to mute users. Please place this role above the bot's role so it is not accessable in the role command and add it to all mutable channels\n`);
         }
 
+        // Get MutableChannelID
         let MutableChannelID = guild.roles.find("name", "MutableChannel").id;
+
         guild.channels.array().forEach(channel => {
+            // If channel has mutableChannel, add user specific overwites
             if (channel.permissionOverwrites.exists('id', MutableChannelID)) {
                 muted.forEach(userID => {
                     if (!channel.permissionOverwrites.exists('id', userID)) {
@@ -229,10 +241,15 @@ client.on("ready", () => {
                     }
                 });
             }
+            // If it doesn't, remove user specific overwrites if the user is in the muted list
             else {
                 channel.permissionOverwrites.array().forEach(overwrite => {
-                    if (overwrite.type === "member")
-                        overwrite.delete();
+                    muted.some(userID => {
+                        if (overwrite.id === userID) {
+                            overwrite.delete();
+                            return true;
+                        }
+                    });
                 });
             }
         });
