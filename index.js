@@ -47,9 +47,12 @@ const client = new Discord.Client();
  * @param {Channel} newChannel channel after update
  */
 client.on("channelUpdate", (oldChannel, newChannel) => {
+    // If it's a text channel
     if (newChannel.type === "text") {
+        // Get MutableChannelID
         let MutableChannelID = newChannel.guild.roles.find("name", "MutableChannel").id;
 
+        // If channel has mutableChannel, add user specific overwites
         if (newChannel.permissionOverwrites.exists('id', MutableChannelID)) {
             muted.forEach(userID => {
                 if (!newChannel.permissionOverwrites.exists('id', userID)) {
@@ -60,6 +63,7 @@ client.on("channelUpdate", (oldChannel, newChannel) => {
                 }
             });
         }
+        // If it doesn't, remove user specific overwrites if the user is in the muted list
         else {
             newChannel.permissionOverwrites.array().forEach(overwrite => {
                 muted.forEach(userID => {
