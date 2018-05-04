@@ -66,7 +66,7 @@ client.on("channelUpdate", (oldChannel, newChannel) => {
         // If it doesn't, remove user specific overwrites if the user is in the muted list
         else {
             newChannel.permissionOverwrites.array().forEach(overwrite => {
-                muted.forEach(userID => {
+                muted.some(userID => {
                     if (overwrite.id === userID) {
                         overwrite.delete();
                         return true;
