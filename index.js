@@ -67,7 +67,7 @@ client.on("channelUpdate", (oldChannel, newChannel) => {
                         overwrite.delete();
                         return true;
                     }
-                })
+                });
             });
         }
     }
