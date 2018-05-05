@@ -373,7 +373,7 @@ async function addRole(message, argNoTag) {
                         console.log(`${roleToAddName} was removed from ${message.author.tag}`);
                         return 'role removed.';
                     })
-                    .catch(error => {
+                    .catch(() => {
                         throw 'I cannot remove that role.';
                     });
             }
@@ -383,7 +383,7 @@ async function addRole(message, argNoTag) {
                         console.log(`${roleToAddName} was added to ${message.author.tag}`);
                         return 'role added.';
                     })
-                    .catch(error => {
+                    .catch(() => {
                         throw 'I cannot give you that role.';
                     });
             }
@@ -488,7 +488,7 @@ function filter(message) {
     // User message, all lowercase, no spaces.
     const msg = message.content.trim().toLowerCase();
 
-    censor.forEach((regex, i) => {
+    censor.forEach(regex => {
         // Check if user message contains a censored word
         if (regex.test(msg)) {
             let word = msg.match(regex)[0];
