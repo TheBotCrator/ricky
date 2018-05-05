@@ -50,7 +50,7 @@ client.on('channelUpdate', (oldChannel, newChannel) => {
     // If it's a text channel
     if (newChannel.type === 'text') {
         // Get MutableChannelID
-        let MutableChannelID = newChannel.guild.roles.find('name", "MutableChannel').id;
+        let MutableChannelID = newChannel.guild.roles.find('name', 'MutableChannel').id;
 
         // If channel has mutableChannel, add user specific overwites
         if (newChannel.permissionOverwrites.exists('id', MutableChannelID)) {
