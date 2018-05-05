@@ -306,7 +306,7 @@ client.on('warn', info => {
  * @param {promise} p promise that was rejected
  */
 process.on('unhandledRejection', (reason, p) => {
-    console.log('\nUnhandled Rejection at:')
+    console.log('\nUnhandled Rejection at:');
     console.log(p);
     console.log(`Reason: ${reason}`);
 });
@@ -576,7 +576,7 @@ async function getOffender(message) {
         }
     }
     else {
-        throw 'you do not have permission to use that command.'
+        throw 'you do not have permission to use that command.';
     }
 }
 
@@ -653,11 +653,11 @@ async function mute(message) {
             }
         }
         else {
-            throw 'please put the user you wish to mute (ex: \`!mute @user\`).'
+            throw 'please put the user you wish to mute (ex: \`!mute @user\`).';
         }
     }
     else {
-        throw 'you do not have permission to use that command.'
+        throw 'you do not have permission to use that command.';
     }
 }
 
