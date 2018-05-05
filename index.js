@@ -103,8 +103,9 @@ client.on('error', error => {
 client.on('message', message => {
 
     // Ignore messages sent by bots and messages not sent in a text channel
-    if (message.author.bot || message.channel.type !== 'text')
+    if (message.author.bot || message.channel.type !== 'text') {
         return;
+    }
 
     // Censorship
     try {
@@ -120,8 +121,9 @@ client.on('message', message => {
 
     // Ignore message if it doesn't start with correct prefix
     // "hello world" => ignored
-    if (!message.content.startsWith(config.prefix))
+    if (!message.content.startsWith(config.prefix)) {
         return;
+    }
 
     // Splits user message on spacing, getting the first "word", which is the "command"
     // "$insertCommandHere <@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "insertcommandhere"
@@ -129,8 +131,9 @@ client.on('message', message => {
 
     // Ignores message if they are talking about money
     // "$10" or "$$$" => ignored
-    if (/^\d+$/.test(command) || /\$+/.test(command))
+    if (/^\d+$/.test(command) || /\$+/.test(command)) {
         return;
+    }
 
     // Extracts the "argument", everything else in the message except the prefix and command
     // "$insertCommandHere <@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "<@!100022489140195328> <:thOnk:337235802733936650> is a great emote"
@@ -507,7 +510,12 @@ function filter(message) {
 
             // Updates offender JSON file
             fs.writeFile('./data/offenders.json', JSON.stringify(offenders, null, 4), 'utf8', err => {
-                if (err ? console.log(err) : console.log('Offender JSON write success'));
+                if (err) {
+                    console.log(err);
+                }
+                else {
+                    console.log('Offender JSON write success');
+                }
             });
 
             // Gets all memebers of the server, if member has "Moderator" role a private message is sent informing them about the infraction
@@ -593,8 +601,9 @@ async function mute(message) {
 
         if (mentionedUser) {
             // Stupidity check
-            if (mentionedUser === message.author)
+            if (mentionedUser === message.author) {
                 throw 'you cannot mute yourself.';
+            }
 
             let mentionedUserID = mentionedUser.id;
             let MutableChannelID = message.guild.roles.find('name', 'MutableChannel').id;
@@ -621,7 +630,12 @@ async function mute(message) {
 
                 // Updates muted user file
                 fs.writeFile('./data/muted.txt', muted.join('\n'), 'utf8', (err) => {
-                    if (err ? console.log(err) : console.log('Muted txt write success'));
+                    if (err) {
+                        console.log(err);
+                    }
+                    else {
+                        console.log('Muted txt write success');
+                    }
                 });
 
                 return 'that user has been unmuted.';
@@ -646,7 +660,12 @@ async function mute(message) {
 
                 // Updates muted user file
                 fs.appendFile('./data/muted.txt', mentionedUserID + '\n', 'utf8', (err) => {
-                    if (err ? console.log(err) : console.log('Muted txt write success'));
+                    if (err) {
+                        console.log(err);
+                    }
+                    else {
+                        console.log('Muted txt write success');
+                    }
                 });
 
                 return 'that user has been muted.';
