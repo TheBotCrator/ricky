@@ -393,7 +393,7 @@ async function addRole(message, argNoTag) {
         }
     }
     else {
-        throw 'please put the role you wish to add (ex: \`!role Thing\`).';
+        throw 'please put the role you wish to add (ex: `!role Thing`).';
     }
 }
 
@@ -446,7 +446,7 @@ async function conch(arg) {
         return 'Evan: "We\'re working on it."';
     }
     else {
-        throw 'you need to actually ask me a question (ex: \`!conch Thing?\`).';
+        throw 'you need to actually ask me a question (ex: `!conch Thing?`).';
     }
 }
 
@@ -653,7 +653,7 @@ async function mute(message) {
             }
         }
         else {
-            throw 'please put the user you wish to mute (ex: \`!mute @user\`).';
+            throw 'please put the user you wish to mute (ex: `!mute @user`).';
         }
     }
     else {
