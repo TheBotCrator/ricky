@@ -10,14 +10,14 @@ const pluralize = require('pluralize');
 CheckNecessaryFiles();
 
 // Offenders json
-const offenders = require("./data/offenders.json");
+const offenders = require('./data/offenders.json');
 
 // Muted users list
-const muted = fs.readFileSync("./data/muted.txt", 'utf8').trim().split(/\r\n|\n/).filter(Boolean);
+const muted = fs.readFileSync('./data/muted.txt', 'utf8').trim().split(/\r\n|\n/).filter(Boolean);
 
 // Regex test list of censored words
 const censor = convertToRegex(
-    fs.readFileSync("./data/censor.txt", 'utf8')
+    fs.readFileSync('./data/censor.txt', 'utf8')
         .trim()
         .toLowerCase()
         .replace(/(\r\n|\n){2,}/g, '\n')
@@ -29,7 +29,7 @@ const censor = convertToRegex(
 );
 
 // Login credentials and prefix for the bot
-const config = require("./data/config.json");
+const config = require('./data/config.json');
 
 // Creates a new Dicord "Client"
 const client = new Discord.Client();
@@ -46,11 +46,11 @@ const client = new Discord.Client();
  * @param {Channel} oldChannel channel before update
  * @param {Channel} newChannel channel after update
  */
-client.on("channelUpdate", (oldChannel, newChannel) => {
+client.on('channelUpdate', (oldChannel, newChannel) => {
     // If it's a text channel
-    if (newChannel.type === "text") {
+    if (newChannel.type === 'text') {
         // Get MutableChannelID
-        let MutableChannelID = newChannel.guild.roles.find("name", "MutableChannel").id;
+        let MutableChannelID = newChannel.guild.roles.find('name', 'MutableChannel').id;
 
         // If channel has mutableChannel, add user specific overwites
         if (newChannel.permissionOverwrites.exists('id', MutableChannelID)) {
@@ -82,7 +82,7 @@ client.on("channelUpdate", (oldChannel, newChannel) => {
  * Logs console message.
  * @param {CloseEvent} event WebSocket close event
  */
-client.on("disconnect", event => {
+client.on('disconnect', event => {
     console.log(`\n***SERVER HAS BEEN DISCONNECTED***\nCLEAN DISCONNECT: ${event.wasClean}\nCLOSE CODE: ${event.code}`);
 });
 
@@ -91,7 +91,7 @@ client.on("disconnect", event => {
  * Logs console message.
  * @param {error} error encountered error
  */
-client.on("error", error => {
+client.on('error', error => {
     console.log(`\n${error}\n`);
 });
 
@@ -100,11 +100,12 @@ client.on("error", error => {
  * Handles incoming user input, message censorship, and parsing for valid commands.
  * @param {Message} message created discord message
  */
-client.on("message", message => {
+client.on('message', message => {
 
     // Ignore messages sent by bots and messages not sent in a text channel
-    if (message.author.bot || message.channel.type !== "text")
+    if (message.author.bot || message.channel.type !== 'text') {
         return;
+    }
 
     // Censorship
     try {
@@ -120,8 +121,9 @@ client.on("message", message => {
 
     // Ignore message if it doesn't start with correct prefix
     // "hello world" => ignored
-    if (!message.content.startsWith(config.prefix))
+    if (!message.content.startsWith(config.prefix)) {
         return;
+    }
 
     // Splits user message on spacing, getting the first "word", which is the "command"
     // "$insertCommandHere <@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "insertcommandhere"
@@ -129,12 +131,13 @@ client.on("message", message => {
 
     // Ignores message if they are talking about money
     // "$10" or "$$$" => ignored
-    if (/^\d+$/.test(command) || /\$+/.test(command))
+    if (/^\d+$/.test(command) || /\$+/.test(command)) {
         return;
+    }
 
     // Extracts the "argument", everything else in the message except the prefix and command
     // "$insertCommandHere <@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "<@!100022489140195328> <:thOnk:337235802733936650> is a great emote"
-    const arg = message.content.slice(config.prefix.length + command.length).replace(/\s+/g, " ").trim();
+    const arg = message.content.slice(config.prefix.length + command.length).replace(/\s+/g, ' ').trim();
 
     // Removes any tagged users or custom emotes and extra spaces from an arg
     // "<@!100022489140195328> <:thOnk:337235802733936650> is a great emote" => "is a great emote"
@@ -149,7 +152,7 @@ client.on("message", message => {
 
     switch (command) {
         // The magic conch
-        case "conch":
+        case 'conch':
             conch(arg)
                 .then(completed => {
                     send(message, completed);
@@ -160,7 +163,7 @@ client.on("message", message => {
             break;
 
         // Automated role assignment
-        case "role":
+        case 'role':
             addRole(message, argNoTag)
                 .then(completed => {
                     sendAtAuthor(message, completed);
@@ -171,8 +174,8 @@ client.on("message", message => {
             break;
 
         // Mute and unmute a user
-        case "mute":
-        case "unmute":
+        case 'mute':
+        case 'unmute':
             mute(message)
                 .then(completed => {
                     sendAtAuthor(message, completed);
@@ -183,8 +186,8 @@ client.on("message", message => {
             break;
 
         // Offender retrieval
-        case "offender":
-        case "offenders":
+        case 'offender':
+        case 'offenders':
             getOffender(message)
                 .then(completed => {
                     sendPrivateAuthor(message, completed);
@@ -202,7 +205,7 @@ client.on("message", message => {
  * @param {Message} oldMessage The message before the update
  * @param {Message} newMessage The message after the update
  */
-client.on("messageUpdate", (oldMessage, newMessage) => {
+client.on('messageUpdate', (oldMessage, newMessage) => {
     try {
         filter(newMessage);
     } catch (error) {
@@ -215,10 +218,10 @@ client.on("messageUpdate", (oldMessage, newMessage) => {
  * On ready event. Emitted when the client becomes ready to start working.
  * Logs console message.
  */
-client.on("ready", () => {
+client.on('ready', () => {
     // Check if MutableChannel is a role, if not, create
     client.guilds.array().forEach(guild => {
-        if (!guild.roles.exists('name', "MutableChannel")) {
+        if (!guild.roles.exists('name', 'MutableChannel')) {
             guild.createRole({
                 name: 'MutableChannel',
                 permissions: 0
@@ -227,7 +230,7 @@ client.on("ready", () => {
         }
 
         // Get MutableChannelID
-        let MutableChannelID = guild.roles.find("name", "MutableChannel").id;
+        let MutableChannelID = guild.roles.find('name', 'MutableChannel').id;
 
         guild.channels.array().forEach(channel => {
             // If channel has mutableChannel, add user specific overwites
@@ -254,15 +257,15 @@ client.on("ready", () => {
             }
         });
     });
-    console.log("Bot Online\n");
+    console.log('Bot Online\n');
 });
 
 /**
  * On reconnect event. Emitted when the client tries to reconnect to the WebSocked. 
  * Logs console message.
  */
-client.on("reconnecting", () => {
-    console.log("\nReconnecting...");
+client.on('reconnecting', () => {
+    console.log('\nReconnecting...');
 });
 
 /**
@@ -270,7 +273,7 @@ client.on("reconnecting", () => {
  * Logs console message.
  * @param {int} replayed number of events that were replayed
  */
-client.on("resume", replayed => {
+client.on('resume', replayed => {
     console.log(`Reconnectd. ${replayed} events replayed.\n`);
 });
 
@@ -280,13 +283,13 @@ client.on("resume", replayed => {
  * necessary for bot functionality.
  * @param {Role} role deleted role
  */
-client.on("roleDelete", role => {
-    if (role.name === "MutableChannel") {
+client.on('roleDelete', role => {
+    if (role.name === 'MutableChannel') {
         role.guild.createRole({
             name: 'MutableChannel',
             permissions: 0
         });
-        console.log("MUTABLECHANNEL ROLE WAS DELETED, PLEASE DO NOT DO THIS AS IT WILL BREAK THE MUTE COMMAND");
+        console.log('MUTABLECHANNEL ROLE WAS DELETED, PLEASE DO NOT DO THIS AS IT WILL BREAK THE MUTE COMMAND');
     }
 });
 
@@ -295,7 +298,7 @@ client.on("roleDelete", role => {
  * Logs console message.
  * @param {string} info warning
  */
-client.on("warn", info => {
+client.on('warn', info => {
     console.log(`\n${info}\n`);
 });
 
@@ -305,8 +308,8 @@ client.on("warn", info => {
  * @param {error} reason error object
  * @param {promise} p promise that was rejected
  */
-process.on("unhandledRejection", (reason, p) => {
-    console.log(`\nUnhandled Rejection at:`)
+process.on('unhandledRejection', (reason, p) => {
+    console.log('\nUnhandled Rejection at:');
     console.log(p);
     console.log(`Reason: ${reason}`);
 });
@@ -367,33 +370,33 @@ async function addRole(message, argNoTag) {
 
             // If user already has role, remove it
             // else, add it
-            if (message.member.roles.exists("name", roleToAddName)) {
+            if (message.member.roles.exists('name', roleToAddName)) {
                 return message.member.removeRole(roleToAdd)
                     .then(() => {
                         console.log(`${roleToAddName} was removed from ${message.author.tag}`);
-                        return "role removed.";
+                        return 'role removed.';
                     })
-                    .catch(error => {
-                        throw "I cannot remove that role.";
+                    .catch(() => {
+                        throw 'I cannot remove that role.';
                     });
             }
             else {
                 return message.member.addRole(roleToAdd)
                     .then(() => {
                         console.log(`${roleToAddName} was added to ${message.author.tag}`);
-                        return "role added.";
+                        return 'role added.';
                     })
-                    .catch(error => {
-                        throw "I cannot give you that role.";
+                    .catch(() => {
+                        throw 'I cannot give you that role.';
                     });
             }
         }
         else {
-            throw "that is not a role.";
+            throw 'that is not a role.';
         }
     }
     else {
-        throw "please put the role you wish to add (ex: \`!role Thing\`).";
+        throw 'please put the role you wish to add (ex: `!role Thing`).';
     }
 }
 
@@ -404,33 +407,33 @@ async function addRole(message, argNoTag) {
  */
 function CheckNecessaryFiles() {
     // Create the main directory for all necessary txt and JSON files
-    if (!fs.existsSync("./data")) {
-        fs.mkdirSync("./data");
-        console.log("Data folder for all program necessary files was not found, one has been created\n");
+    if (!fs.existsSync('./data')) {
+        fs.mkdirSync('./data');
+        console.log('Data folder for all program necessary files was not found, one has been created\n');
     }
 
     // Create offenders JSON if one does not already exist 
-    if (!fs.existsSync("./data/offenders.json")) {
-        fs.writeFileSync("./data/offenders.json", '{}');
-        console.log("Offenders file was not found, one has been created\n");
+    if (!fs.existsSync('./data/offenders.json')) {
+        fs.writeFileSync('./data/offenders.json', '{}');
+        console.log('Offenders file was not found, one has been created\n');
     }
 
     // Create muted user list if one does not already exist
-    if (!fs.existsSync("./data/muted.txt")) {
-        fs.closeSync(fs.openSync("./data/muted.txt", 'w'));
-        console.log("Muted users file was not found, one has been created\n");
+    if (!fs.existsSync('./data/muted.txt')) {
+        fs.closeSync(fs.openSync('./data/muted.txt', 'w'));
+        console.log('Muted users file was not found, one has been created\n');
     }
 
     // Create censor list if one does not already exist
-    if (!fs.existsSync("./data/censor.txt")) {
-        fs.closeSync(fs.openSync("./data/censor.txt", 'w'));
-        console.log("CENSORED WORD FILE WAS NOT FOUND, ONE HAS BEEN CREATED\nPLEASE EDIT THIS FILE BY PLACING EACH WORD ON A NEW LINE\n");
+    if (!fs.existsSync('./data/censor.txt')) {
+        fs.closeSync(fs.openSync('./data/censor.txt', 'w'));
+        console.log('CENSORED WORD FILE WAS NOT FOUND, ONE HAS BEEN CREATED\nPLEASE EDIT THIS FILE BY PLACING EACH WORD ON A NEW LINE\n');
     }
 
     // Create config JSON if one does not already exist
-    if (!fs.existsSync("./data/config.json")) {
-        fs.writeFileSync("./data/config.json", '{\n\t"prefix" : "PREFIX_HERE",\n\t"token" : "DISCORD_TOKEN_HERE"\n}');
-        console.log("***CONFIG JSON NOT DETECTED, ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE TO INCLUDE PREFIX AND DISCORD TOKEN***\n");
+    if (!fs.existsSync('./data/config.json')) {
+        fs.writeFileSync('./data/config.json', '{\n\t"prefix" : "PREFIX_HERE",\n\t"token" : "DISCORD_TOKEN_HERE"\n}');
+        console.log('***CONFIG JSON NOT DETECTED, ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE TO INCLUDE PREFIX AND DISCORD TOKEN***\n');
         process.exit(0);
     }
 }
@@ -442,11 +445,11 @@ function CheckNecessaryFiles() {
  */
 async function conch(arg) {
     if (arg) {
-        console.log(`The conch has responded`);
-        return "Evan: \"We're working on it.\"";
+        console.log('The conch has responded');
+        return 'Evan: "We\'re working on it."';
     }
     else {
-        throw "you need to actually ask me a question (ex: \`!conch Thing?\`).";
+        throw 'you need to actually ask me a question (ex: `!conch Thing?`).';
     }
 }
 
@@ -458,7 +461,7 @@ function convertToRegex(censor) {
     //Logs list of censored words
     console.log(`List of censored words:\n\t${censor}\n`);
 
-    let replace = { "a": "(a|4|@)", "b": "(b|8)", "c": "(c|<)", "e": "(e|3)", "f": "(f|ph)", "g": "(g|6|9)", "i": "(i|1)", "l": "(l|1)", "o": "(o|0)", "s": "(s|5|$)", "t": "(t|7|\\+)", "w": "(w|vv)" };
+    let replace = { 'a': '(a|4|@)', 'b': '(b|8)', 'c': '(c|<)', 'e': '(e|3)', 'f': '(f|ph)', 'g': '(g|6|9)', 'i': '(i|1)', 'l': '(l|1)', 'o': '(o|0)', 's': '(s|5|$)', 't': '(t|7|\\+)', 'w': '(w|vv)' };
     let regex = [];
 
     // Loop over every word in censor, creating a regex pattern and adding it to an array
@@ -467,13 +470,13 @@ function convertToRegex(censor) {
             return replace.hasOwnProperty(letter) ? replace[letter] : letter;
         });
 
-        let sen = "(?=(?!\\w)|\\b)" + word[0] + "+";
+        let sen = '(?=(?!\\w)|\\b)' + word[0] + '+';
 
         for (let i = 1; i < word.length; i++) {
-            sen += ("\\s*" + word[i] + "+");
+            sen += ('\\s*' + word[i] + '+');
         }
 
-        regex.push(new RegExp(sen + "(?!\\w)"));
+        regex.push(new RegExp(sen + '(?!\\w)'));
     });
 
     return regex;
@@ -488,7 +491,7 @@ function filter(message) {
     // User message, all lowercase, no spaces.
     const msg = message.content.trim().toLowerCase();
 
-    censor.forEach((regex, i) => {
+    censor.forEach(regex => {
         // Check if user message contains a censored word
         if (regex.test(msg)) {
             let word = msg.match(regex)[0];
@@ -506,21 +509,26 @@ function filter(message) {
             }
 
             // Updates offender JSON file
-            fs.writeFile("./data/offenders.json", JSON.stringify(offenders, null, 4), 'utf8', err => {
-                if (err ? console.log(err) : console.log("Offender JSON write success"));
+            fs.writeFile('./data/offenders.json', JSON.stringify(offenders, null, 4), 'utf8', err => {
+                if (err) {
+                    console.log(err);
+                }
+                else {
+                    console.log('Offender JSON write success');
+                }
             });
 
             // Gets all memebers of the server, if member has "Moderator" role a private message is sent informing them about the infraction
             message.guild.fetchMembers()
                 .then(pGuild => {
                     pGuild.members.forEach(member => {
-                        if (member.roles.find("name", "Moderator")) {
+                        if (member.roles.find('name', 'Moderator')) {
                             member.send(`${message.author}'s message contained "${word}" in the ${message.channel} channel, ${offenders[message.member.id]['offenses']} offenses`);
                         }
                     });
                 });
 
-            throw "that kind of language is not tolerated here.";
+            throw 'that kind of language is not tolerated here.';
         }
     });
 }
@@ -532,7 +540,7 @@ function filter(message) {
  */
 async function getOffender(message) {
     // Checks if user has correct permissions to use this command
-    if (message.member.roles.exists("name", "Admin") || message.member.roles.exists("name", "Moderator")) {
+    if (message.member.roles.exists('name', 'Admin') || message.member.roles.exists('name', 'Moderator')) {
         // User object of first mentioned user
         const mentionedUser = message.mentions.users.first();
 
@@ -542,7 +550,7 @@ async function getOffender(message) {
             console.log(`Sent ${message.author.tag} an offender summary of ${mentionedUser.tag}`);
 
             if (offenders.hasOwnProperty(mentionedUser.id)) {
-                let sen = "**USER:** " + mentionedUser + "\n\n**TOTAL OFFENSES:** " + offenders[mentionedUser.id]['offenses'] + "\n\n**MESSAGES:**\n";
+                let sen = '**USER:** ' + mentionedUser + '\n\n**TOTAL OFFENSES:** ' + offenders[mentionedUser.id]['offenses'] + '\n\n**MESSAGES:**\n';
 
                 offenders[mentionedUser.id]['messages'].forEach(message => {
                     sen += (message + '\n');
@@ -551,13 +559,13 @@ async function getOffender(message) {
                 return sen;
             }
             else {
-                return mentionedUser + " has 0 offenses.";
+                return mentionedUser + ' has 0 offenses.';
             }
         }
         else {
             console.log(`Sent ${message.author.tag} a list of offending users`);
             let count = 0;
-            let users = "";
+            let users = '';
 
             for (let key in offenders) {
                 if (offenders.hasOwnProperty(key)) {
@@ -566,17 +574,17 @@ async function getOffender(message) {
                 }
             }
 
-            let sen = "**NUMBER OF OFFENDERS: **" + count + '\n\n';
+            let sen = '**NUMBER OF OFFENDERS: **' + count + '\n\n';
 
             if (count !== 0) {
-                sen += ("**OFFENDERS:**\n" + users);
+                sen += ('**OFFENDERS:**\n' + users);
             }
 
             return sen;
         }
     }
     else {
-        throw "you do not have permission to use that command."
+        throw 'you do not have permission to use that command.';
     }
 }
 
@@ -587,24 +595,25 @@ async function getOffender(message) {
  */
 async function mute(message) {
     // Checks if user has correct permissions to use this command
-    if (message.member.roles.exists("name", "Admin") || message.member.roles.exists("name", "Moderator")) {
+    if (message.member.roles.exists('name', 'Admin') || message.member.roles.exists('name', 'Moderator')) {
         // User object of first mentioned user
         const mentionedUser = message.mentions.users.first();
 
         if (mentionedUser) {
             // Stupidity check
-            if (mentionedUser === message.author)
-                throw "you cannot mute yourself.";
+            if (mentionedUser === message.author) {
+                throw 'you cannot mute yourself.';
+            }
 
             let mentionedUserID = mentionedUser.id;
-            let MutableChannelID = message.guild.roles.find('name', "MutableChannel").id;
+            let MutableChannelID = message.guild.roles.find('name', 'MutableChannel').id;
 
             // Checks if user is already muted
             if (muted.includes(mentionedUserID)) {
                 // Iterates over every channel in the server, deleting the user specific permission overwrite
                 message.guild.channels.array()
                     .forEach(gChannel => {
-                        if (gChannel.type === "text" && gChannel.permissionOverwrites.exists('id', MutableChannelID)) {
+                        if (gChannel.type === 'text' && gChannel.permissionOverwrites.exists('id', MutableChannelID)) {
                             gChannel.permissionOverwrites.some(overwrite => {
                                 if (overwrite.id === mentionedUserID) {
                                     overwrite.delete();
@@ -620,18 +629,23 @@ async function mute(message) {
                 muted.splice(muted.indexOf(mentionedUserID), 1);
 
                 // Updates muted user file
-                fs.writeFile("./data/muted.txt", muted.join('\n'), 'utf8', (err) => {
-                    if (err ? console.log(err) : console.log("Muted txt write success"));
+                fs.writeFile('./data/muted.txt', muted.join('\n'), 'utf8', (err) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    else {
+                        console.log('Muted txt write success');
+                    }
                 });
 
-                return "that user has been unmuted.";
+                return 'that user has been unmuted.';
             }
             else {
                 // Iterates over every channel in the server, adding a user specific permission overwrite that does not allow
                 // that user to send messages or add reactions
                 message.guild.channels.array()
                     .forEach(gChannel => {
-                        if (gChannel.type === "text" && gChannel.permissionOverwrites.exists('id', MutableChannelID)) {
+                        if (gChannel.type === 'text' && gChannel.permissionOverwrites.exists('id', MutableChannelID)) {
                             gChannel.overwritePermissions(mentionedUser, {
                                 SEND_MESSAGES: false,
                                 ADD_REACTIONS: false,
@@ -645,19 +659,24 @@ async function mute(message) {
                 muted.push(mentionedUser.id);
 
                 // Updates muted user file
-                fs.appendFile("./data/muted.txt", mentionedUserID + '\n', 'utf8', (err) => {
-                    if (err ? console.log(err) : console.log("Muted txt write success"));
+                fs.appendFile('./data/muted.txt', mentionedUserID + '\n', 'utf8', (err) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    else {
+                        console.log('Muted txt write success');
+                    }
                 });
 
-                return "that user has been muted.";
+                return 'that user has been muted.';
             }
         }
         else {
-            throw "please put the user you wish to mute (ex: \`!mute @user\`)."
+            throw 'please put the user you wish to mute (ex: `!mute @user`).';
         }
     }
     else {
-        throw "you do not have permission to use that command."
+        throw 'you do not have permission to use that command.';
     }
 }
 
