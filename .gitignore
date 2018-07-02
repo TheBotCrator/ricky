@@ -1,6 +1,3 @@
 .DS_Store
+.vscode
 node_modules
-censor.txt
-config.json
-muted.txt
-offenders.json
