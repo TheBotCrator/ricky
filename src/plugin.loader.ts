@@ -1,3 +1,5 @@
+import { BasePlugin } from './plugins/base.plugin';
+
 const PluginConfig = [
     './plugins/filter.plugin',
     './plugins/roles.plugin',
@@ -6,7 +8,7 @@ const PluginConfig = [
     './plugins/conch.plugin',
 ];
 
-const plugins = [];
+const plugins: Array<BasePlugin> = [];
 PluginConfig.forEach(path => {
     let bClass = require(path);
 
