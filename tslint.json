@@ -1,0 +1,32 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint-eslint-rules"
+    ],
+    "jsRules": {},
+    "rules": {
+        "curly": true,
+        "linebreak-style": [
+            true,
+            "LF"
+        ],
+        "no-console": false,
+        "quotemark": [
+            true,
+            "single",
+            "avoid-escape"
+        ],
+        "semicolon": [
+            true,
+            "always"
+        ],
+        "ter-indent": [
+            true,
+            4,
+            {
+                "SwitchCase": 1
+            }
+        ]
+    },
+    "rulesDirectory": []
+}
