@@ -21,7 +21,7 @@ export default class Filter extends BasePlugin {
     onMessage(message: Discord.Message, command: string) {
         const msg = message.content.trim().toLowerCase();
 
-        return censor.some(regex => {
+        let saidBad = censor.some(regex => {
             // Check if user message contains a censored word
             if (regex.test(msg)) {
                 let word = msg.match(regex)[0];
@@ -68,6 +68,8 @@ export default class Filter extends BasePlugin {
                 return false;
             }
         });
+
+        return saidBad || !message.content.startsWith(this.prefix);
     }
 
     onMessageUpdate(newMessage: Discord.Message): void {
