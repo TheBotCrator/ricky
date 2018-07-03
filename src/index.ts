@@ -6,6 +6,7 @@
 import * as fs from 'fs';
 CheckNecessaryFiles();
 
+// Discord and custom Plugin Imports
 import * as Discord from 'discord.js';
 import { plugins } from './plugin.loader';
 
