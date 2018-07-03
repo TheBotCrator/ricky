@@ -7,7 +7,7 @@ export abstract class BasePlugin {
 
     onMessage(message: Discord.Message, command: string): boolean { return false; }
 
-    onMessageUpdate(newMessage: Discord.Message): void { }
+    onMessageUpdate(oldMessage: Discord.Message, newMessage: Discord.Message): void { }
 
     onReady(client: Discord.Client): void { }
 }
