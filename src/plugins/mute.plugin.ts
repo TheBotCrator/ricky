@@ -100,7 +100,7 @@ export default class Mute extends BasePlugin {
         }
     }
 
-    onChannelUpdate(newChannel: Discord.Channel, oldChannel: Discord.Channel): void {
+    onChannelUpdate(oldChannel: Discord.Channel, newChannel: Discord.Channel): void {
         if (newChannel.type === 'text') {
             // Cast newChannel to a Text Channel
             let textChannel = newChannel as Discord.TextChannel;
@@ -145,7 +145,7 @@ export default class Mute extends BasePlugin {
             }
 
             guild.channels.array().forEach(channel => {
-                this.onChannelUpdate(channel, null);
+                this.onChannelUpdate(null, channel);
             });
         });
     }
