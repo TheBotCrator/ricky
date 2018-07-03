@@ -26,14 +26,14 @@ export default class Offenders extends BasePlugin {
                             sen += (message + '\n');
                         });
 
-                        message.author.send(sen);
+                        message.delete(250).then(() => message.author.send(sen));
                     }
                     else {
-                        message.author.send(`${mentionedUser} has 0 offenses`);
+                        message.delete(250).then(() => message.author.send(`${mentionedUser} has 0 offenses`));
                     }
                 }
                 else {
-                    console.log(`Sent ${message.author.tag} a list of offending users`);
+                    console.log(`Sent ${message.author.tag} a list of language offenders`);
                     let count = 0;
                     let users = '';
 
@@ -51,6 +51,7 @@ export default class Offenders extends BasePlugin {
                     }
 
                     message.author.send(sen);
+                    message.channel.send(`${message.member.user}, I have sent you a list of language offenders.`);
                 }
             }
             else {
