@@ -24,7 +24,7 @@ export default class Roles extends BasePlugin {
                     if (message.member.roles.exists('name', roleToAddName)) {
                         message.member.removeRole(roleToAdd)
                             .then(() => {
-                                console.log(`${roleToAddName} was removed from ${message.author.tag}`);
+                                console.log(`'${roleToAddName}' was removed from ${message.author.tag}`);
                                 message.channel.send(`${message.member.user}, role removed.`);
                             })
                             .catch(() => {
@@ -34,7 +34,7 @@ export default class Roles extends BasePlugin {
                     else {
                         message.member.addRole(roleToAdd)
                             .then(() => {
-                                console.log(`${roleToAddName} was added to ${message.author.tag}`);
+                                console.log(`'${roleToAddName}' was added to ${message.author.tag}`);
                                 message.channel.send(`${message.member.user}, role added`);
                             })
                             .catch(() => {
@@ -69,6 +69,7 @@ export default class Roles extends BasePlugin {
 
             message.author.send(sen);
             message.channel.send(`${message.member.user}, I have sent you a list of roles.`);
+            console.log(`Sent ${message.author.tag} a list of roles`);
 
             return true;
         }
