@@ -13,7 +13,7 @@ PluginConfig.forEach(path => {
     let bClass = require(path);
 
     try {
-        plugins.push(new bClass());
+        plugins.push(new bClass.default());
     }
     catch (err) {
         //This is only here if there is no default export for classes
