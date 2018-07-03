@@ -6,7 +6,7 @@ export abstract class BasePlugin {
         this.prefix = require('../../data/config.json').prefix as string;
     }
 
-    onChannelUpdate(oldChannel, newChannel): void {
+    onChannelUpdate(oldChannel: Discord.Channel, newChannel: Discord.Channel): void {
     }
 
     onMessage(message: Discord.Message, command: string): boolean {
