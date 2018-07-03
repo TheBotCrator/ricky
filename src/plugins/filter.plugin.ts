@@ -3,6 +3,8 @@ import * as Discord from 'discord.js';
 import * as fs from 'fs';
 import * as pluralize from 'pluralize';
 
+const offenders = require('../../data/offenders.json');
+
 const censor = convertToRegex(
     fs.readFileSync('./data/censor.txt', 'utf8')
         .trim()
@@ -14,8 +16,6 @@ const censor = convertToRegex(
             r.push(e, pluralize(e)) && r, []
         )
 );
-
-const offenders = require('../../data/offenders.json');
 
 export default class Filter extends BasePlugin {
     onMessage(message: Discord.Message, command: string) {
@@ -60,7 +60,7 @@ export default class Filter extends BasePlugin {
                         });
                     });
 
-                message.channel.send(`${message.member.user}, that kind of language is not tolerated here.`);
+                message.delete(250).then(() => message.channel.send(`${message.member.user}, that kind of language is not tolerated here.`));
 
                 return true;
             }
