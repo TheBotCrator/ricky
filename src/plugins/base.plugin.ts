@@ -1,21 +1,13 @@
 import * as Discord from 'discord.js';
 
 export abstract class BasePlugin {
-    prefix: string;
-    constructor() {
-        this.prefix = require('../../data/config.json').prefix as string;
-    }
+    protected readonly prefix: string = require('../../data/config.json').prefix as string;
 
-    onChannelUpdate(oldChannel: Discord.Channel, newChannel: Discord.Channel): void {
-    }
+    onChannelUpdate(oldChannel: Discord.Channel, newChannel: Discord.Channel): void { }
 
-    onMessage(message: Discord.Message, command: string): boolean {
-        return false;
-    }
+    onMessage(message: Discord.Message, command: string): boolean { return false; }
 
-    onMessageUpdate(newMessage: Discord.Message): void {
-    }
+    onMessageUpdate(newMessage: Discord.Message): void { }
 
-    onReady(client: Discord.Client): void {
-    }
+    onReady(client: Discord.Client): void { }
 }
