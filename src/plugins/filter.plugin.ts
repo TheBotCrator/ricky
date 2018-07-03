@@ -72,7 +72,7 @@ export default class Filter extends BasePlugin {
         return saidBad || !message.content.startsWith(this.prefix);
     }
 
-    onMessageUpdate(newMessage: Discord.Message): void {
+    onMessageUpdate(oldMessage: Discord.Message, newMessage: Discord.Message): void {
         this.onMessage(newMessage, null);
     }
 }
