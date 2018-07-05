@@ -11,8 +11,7 @@ import * as Discord from 'discord.js';
 import { plugins } from './plugin.loader';
 
 // Login credentials and prefix for the bot
-const token = require('../data/config.json').token as string;
-const prefix = require('../data/config.json').prefix as string;
+const config = require('../data/config.json');
 
 // Creates a new Dicord "Client"
 const client = new Discord.Client();
@@ -62,11 +61,11 @@ client.on('message', message => {
         return;
     }
 
-    if (message.content.startsWith(prefix)) {
+    if (message.content.startsWith(config.prefix)) {
         console.log(`\t${message.author.tag}: ${message.content}`);
     }
     
-    const command = message.content.slice(prefix.length).split(/ +/g)[0].toLowerCase();
+    const command = message.content.slice(config.prefix.length).split(/ +/g)[0].toLowerCase();
 
     plugins.some(clss => clss.onMessage(message, command));
 });
@@ -190,4 +189,4 @@ function CheckNecessaryFiles() {
 // DISCORD API LOGIN
 //-----------------------------------------------
 
-client.login(token);
+client.login(config.token);
