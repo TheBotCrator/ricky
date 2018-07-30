@@ -1,4 +1,4 @@
-import { BasePlugin } from './plugins/base.plugin';
+import { BasePlugin } from './plugins/base';
 
 const PluginConfig = [
     './plugins/filter.plugin',

@@ -1,4 +1,4 @@
-import { BasePlugin } from './base.plugin';
+import { BasePlugin } from './base';
 import * as Discord from 'discord.js';
 
 export default class Roles extends BasePlugin {
