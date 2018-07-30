@@ -1,4 +1,4 @@
-import { BasePlugin } from './base.plugin';
+import { BasePlugin } from './base';
 import * as Discord from 'discord.js';
 
 const offendersJSON = require('../../data/offenders.json');

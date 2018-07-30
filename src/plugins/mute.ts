@@ -1,4 +1,4 @@
-import { BasePlugin } from './base.plugin';
+import { BasePlugin } from './base';
 import * as fs from 'fs';
 import * as Discord from 'discord.js';
 
