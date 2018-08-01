@@ -1,98 +1,40 @@
 import { BasePlugin } from './base';
-import * as fs from 'fs';
-import * as Discord from 'discord.js';
-
-const muted = fs.readFileSync('./data/muted.txt', 'utf8').trim().split(/\r\n|\n/).filter(Boolean);
+import Discord from 'discord.js';
+import fs from 'fs';
 
 export default class Mute extends BasePlugin {
+    private muted: string[] = fs.readFileSync('./data/muted.txt', { encoding: 'utf8' })
+        .trim()
+        .split(/\r\n|\n/)
+        .filter(Boolean);
+
     onMessage(message: Discord.Message, command: string): boolean {
         if (command === 'mute' || command === 'unmute') {
-            // Checks if user has correct permissions to use this command
             if (message.member.roles.exists('name', 'Admin') || message.member.roles.exists('name', 'Moderator')) {
-                // User object of first mentioned user
-                const mentionedUser = message.mentions.users.first();
+                const mentionedUsers: Discord.User[] = message.mentions.users.array();
 
-                if (mentionedUser) {
-                    // Stupidity check
-                    if (mentionedUser === message.author) {
-                        message.channel.send(`${message.member.user}, you cannot mute yourself.`);
-                        return true;
-                    }
-
-                    let mentionedUserID = mentionedUser.id;
-                    let MutableChannelID = message.guild.roles.find('name', 'MutableChannel').id;
-
-                    // Checks if user is already muted
-                    if (muted.includes(mentionedUserID)) {
-                        // Iterates over every channel in the server, deleting the user specific permission overwrite
-                        message.guild.channels.array()
-                            .forEach(gChannel => {
-                                if (gChannel.type === 'text' && gChannel.permissionOverwrites.exists('id', MutableChannelID)) {
-                                    gChannel.permissionOverwrites.some(overwrite => {
-                                        if (overwrite.id === mentionedUserID) {
-                                            overwrite.delete();
-                                            return true;
-                                        }
-                                    });
-                                }
-                            });
-
-                        console.log(`${message.author.tag} unmuted ${mentionedUser.tag}`);
-
-                        // Updates the muted user array
-                        muted.splice(muted.indexOf(mentionedUserID), 1);
-
-                        // Updates muted user file
-                        fs.writeFile('./data/muted.txt', muted.join('\n'), 'utf8', (err) => {
-                            if (err) {
-                                console.log(err);
+                if (mentionedUsers.length) {
+                    mentionedUsers.forEach(user => {
+                        if (user === message.author) {
+                            message.channel.send(`${message.member.user}, you cannot mute yourself.`);
+                        }
+                        else {
+                            if (this.muted.includes(user.id)) {
+                                this.unMute(message, user);
                             }
                             else {
-                                console.log('Muted txt write success');
+                                this.mute(message, user);
                             }
-                        });
-
-                        message.channel.send(`${message.member.user}, that user has been unmuted.`);
-                    }
-                    else {
-                        // Iterates over every channel in the server, adding a user specific permission overwrite that does not allow
-                        // that user to send messages or add reactions
-                        message.guild.channels.array()
-                            .forEach(gChannel => {
-                                if (gChannel.type === 'text' && gChannel.permissionOverwrites.exists('id', MutableChannelID)) {
-                                    gChannel.overwritePermissions(mentionedUser, {
-                                        SEND_MESSAGES: false,
-                                        ADD_REACTIONS: false,
-                                    });
-                                }
-                            });
-
-                        console.log(`${message.author.tag} muted ${mentionedUser.tag}`);
-
-                        // Updates the muter user array
-                        muted.push(mentionedUser.id);
-
-                        // Updates muted user file
-                        fs.appendFile('./data/muted.txt', mentionedUserID + '\n', 'utf8', (err) => {
-                            if (err) {
-                                console.log(err);
-                            }
-                            else {
-                                console.log('Muted txt write success');
-                            }
-                        });
-
-                        message.channel.send(`${message.member.user}, that user has been muted.`);
-                    }
+                        }
+                    });
                 }
                 else {
-                    message.channel.send(`${message.member.user}, please put the user you wish to mute (ex: \`${this.prefix}mute @user\`).`);
+                    message.channel.send(`${message.member.user}, please put the user(s) you wish to mute (ex: \`${this.prefix}mute @user @user, @user\`).`);
                 }
             }
             else {
                 message.channel.send(`${message.member.user}, 'you do not have permission to use that command.'`);
             }
-
             return true;
         }
         else {
@@ -102,40 +44,20 @@ export default class Mute extends BasePlugin {
 
     onChannelUpdate(oldChannel: Discord.Channel, newChannel: Discord.Channel): void {
         if (newChannel.type === 'text') {
-            // Cast newChannel to a Text Channel
-            let textChannel = newChannel as Discord.TextChannel;
+            const textChannel = newChannel as Discord.TextChannel;
+            const MutableChannelID: string = textChannel.guild.roles.find('name', 'MutableChannel').id;
 
-            // Get MutableChannelID
-            let MutableChannelID = textChannel.guild.roles.find('name', 'MutableChannel').id;
-
-            // If channel has mutableChannel, add user specific overwites
             if (textChannel.permissionOverwrites.exists('id', MutableChannelID)) {
-                muted.forEach(userID => {
-                    if (!textChannel.permissionOverwrites.exists('id', userID)) {
-                        textChannel.overwritePermissions(userID, {
-                            SEND_MESSAGES: false,
-                            ADD_REACTIONS: false
-                        });
-                    }
-                });
+                this.addOverwrites(textChannel);
             }
-            // If it doesn't, remove user specific overwrites if the user is in the muted list
             else {
-                textChannel.permissionOverwrites.array().forEach(overwrite => {
-                    muted.some(userID => {
-                        if (overwrite.id === userID) {
-                            overwrite.delete();
-                            return true;
-                        }
-                    });
-                });
+                this.removeOverwrites(textChannel);
             }
         }
     }
 
     onReady(client: Discord.Client): void {
-        //Check if MutableChannel is a role, if not, create
-        client.guilds.array().forEach(guild => {
+        client.guilds.forEach(guild => {
             if (!guild.roles.exists('name', 'MutableChannel')) {
                 guild.createRole({
                     name: 'MutableChannel',
@@ -144,9 +66,75 @@ export default class Mute extends BasePlugin {
                 console.log(`A MutableChannel role was not found in ${guild.name}, one has been created.\nThis is used to mute users. Please place this role above the bot's role so it is not accessable in the role command and add it to all mutable channels\n`);
             }
 
-            guild.channels.array().forEach(channel => {
-                this.onChannelUpdate(null, channel);
+            guild.channels.forEach(channel => {
+                this.onChannelUpdate(channel, channel);
             });
+        });
+    }
+
+    private mute(message: Discord.Message, user: Discord.User): void {
+        const MutableChannelID: string = message.guild.roles.find('name', 'MutableChannel').id;
+
+        message.guild.channels.forEach(channel => {
+            if (channel.type === 'text' && channel.permissionOverwrites.exists('id', MutableChannelID)) {
+                channel.overwritePermissions(user, {
+                    SEND_MESSAGES: false,
+                    ADD_REACTIONS: false,
+                });
+            }
+        });
+
+        message.channel.send(`${message.member.user}, ${user} has been muted.`);
+        console.log(`${message.author.tag} muted ${user.tag}`);
+
+        const mutedWriteStream = fs.createWriteStream('./data/muted.txt', { flags: 'a' });
+        mutedWriteStream.write(`${user.id}\n`, () => {
+            this.muted.push(user.id);
+            console.log('Muted txt write success');
+        });
+
+        mutedWriteStream.end();
+    }
+
+    private unMute(message: Discord.Message, user: Discord.User): void {
+        const MutableChannelID: string = message.guild.roles.find('name', 'MutableChannel').id;
+
+        message.guild.channels.forEach(channel => {
+            if (channel.type === 'text' && channel.permissionOverwrites.exists('id', MutableChannelID)) {
+                if (channel.permissionOverwrites.exists('id', user.id)) {
+                    channel.permissionOverwrites.find('id', user.id).delete();
+                }
+            }
+        });
+
+        message.channel.send(`${message.member.user}, ${user} has been unmuted.`);
+        console.log(`${message.author.tag} unmuted ${user.tag}`);
+
+        this.muted.splice(this.muted.indexOf(user.id), 1);
+
+        const mutedWriteStream = fs.createWriteStream('./data/muted.txt');
+        mutedWriteStream.write(this.muted.join('\n'), () => {
+            console.log('Muted txt write success');
+        });
+        mutedWriteStream.end();
+    }
+
+    private addOverwrites(channel: Discord.TextChannel): void {
+        this.muted.forEach(userID => {
+            if (!channel.permissionOverwrites.exists('id', userID)) {
+                channel.overwritePermissions(userID, {
+                    SEND_MESSAGES: false,
+                    ADD_REACTIONS: false
+                });
+            }
+        });
+    }
+
+    private removeOverwrites(channel: Discord.TextChannel): void {
+        this.muted.forEach(userID => {
+            if (channel.permissionOverwrites.exists('id', userID)) {
+                channel.permissionOverwrites.find('id', userID).delete();
+            }
         });
     }
 }
