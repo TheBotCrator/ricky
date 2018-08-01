@@ -84,7 +84,7 @@ export default class Mute extends BasePlugin {
             }
         });
 
-        message.channel.send(`${message.member.user}, ${user} has been muted.`);
+        message.channel.send(`${user} has been muted.`);
         console.log(`${message.author.tag} muted ${user.tag}`);
 
         const mutedWriteStream = fs.createWriteStream('./data/muted.txt', { flags: 'a' });
@@ -107,7 +107,7 @@ export default class Mute extends BasePlugin {
             }
         });
 
-        message.channel.send(`${message.member.user}, ${user} has been unmuted.`);
+        message.channel.send(`${user} has been unmuted.`);
         console.log(`${message.author.tag} unmuted ${user.tag}`);
 
         this.muted.splice(this.muted.indexOf(user.id), 1);
