@@ -58,7 +58,6 @@ export default class Offenders extends BasePlugin {
     private oneLookUp(message: Discord.Message, user: Discord.User) {
         if (this.offenders.hasOwnProperty(user.toString())) {
             const userData: { [key: string]: any } = this.offenders[user.toString()];
-
             let sen: string = '**USER:** ' + user + '\n\n**TOTAL OFFENSES:** ' + userData['offenses'] + '\n\n**MESSAGES:**\n';
 
             (userData['messages'] as string[]).forEach(message => {
