@@ -7,15 +7,10 @@ export default class Offenders extends BasePlugin {
 
     onMessage(message: Discord.Message, command: string): boolean {
         if (command === 'offender' || command === 'offenders') {
-            // Checks if user has correct permissions to use this command
             if (message.member.roles.exists('name', 'Admin') || message.member.roles.exists('name', 'Moderator')) {
-                // User objects of all mentioned users
                 const mentionedUsers: Discord.User[] = message.mentions.users.array();
 
-                // If there are mentioned users it will pull up all their info from the JSON and send the requester a message
-                // else, will send the requester the number of offenders and all of their @'s
                 if (mentionedUsers.length) {
-                    // Don't let the user know they were pinged
                     message.delete();
 
                     mentionedUsers.forEach(user => {
