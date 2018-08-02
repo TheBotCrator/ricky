@@ -1,14 +1,15 @@
 import { BasePlugin } from './plugins/base';
 
 const PluginConfig = [
-    './plugins/filter.plugin',
-    './plugins/roles.plugin',
-    './plugins/mute.plugin',
-    './plugins/offenders.plugin',
-    './plugins/conch.plugin',
+    './plugins/filter',
+    './plugins/commandCheck',
+    './plugins/roles',
+    './plugins/mute',
+    './plugins/offenders',
+    './plugins/conch',
 ];
 
-const plugins: Array<BasePlugin> = [];
+export const plugins: BasePlugin[] = [];
 PluginConfig.forEach(path => {
     let bClass = require(path);
 
@@ -19,5 +20,3 @@ PluginConfig.forEach(path => {
         //This is only here if there is no default export for classes
     }
 });
-
-export { plugins };
