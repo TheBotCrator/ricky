@@ -4,8 +4,8 @@ import * as Discord from 'discord.js';
 export default class Conch extends BasePlugin {
     onMessage(message: Discord.Message, command: string) {
         if (command === 'conch') {
-            const arg = message.content.slice(this.prefix.length + command.length).replace(/\s+/g, ' ').trim();
-
+            const arg: string = message.content.slice(this.prefix.length + command.length).replace(/\s+/g, ' ').trim();
+            
             if (arg) {
                 console.log('The Conch has responded');
                 message.channel.send('Evan: "We\'re working on it."');
