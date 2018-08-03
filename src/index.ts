@@ -2,19 +2,15 @@
 // GLOBAL && REQUIREMENTS
 //-----------------------------------------------
 
-// Checks for necessary files in the directory
-import * as fs from 'fs';
-CheckNecessaryFiles();
-
 // Discord and custom Plugin Imports
 import * as Discord from 'discord.js';
-import { plugins } from './plugin.loader';
+import { plugins } from './pluginLoader';
 
 // Login credentials and prefix for the bot
-const config = require('../data/config.json');
+const config: {[key: string]: string} = require('../data/config.json');
 
 // Creates a new Dicord "Client"
-const client = new Discord.Client();
+const client: Discord.Client = new Discord.Client();
 
 //-----------------------------------------------
 // EVENT HANDLERS
@@ -60,12 +56,8 @@ client.on('message', message => {
     if (message.author.bot || message.channel.type !== 'text') {
         return;
     }
-
-    if (message.content.startsWith(config.prefix)) {
-        console.log(`\t${message.author.tag}: ${message.content}`);
-    }
     
-    const command = message.content.slice(config.prefix.length).split(/ +/g)[0].toLowerCase();
+    const command: string = message.content.slice(config.prefix.length).split(' ')[0].toLowerCase();
 
     plugins.some(clss => clss.onMessage(message, command));
 });
@@ -118,7 +110,7 @@ client.on('roleDelete', role => {
             name: 'MutableChannel',
             permissions: []
         });
-        console.log('MUTABLECHANNEL ROLE WAS DELETED, PLEASE DO NOT DO THIS AS IT WILL BREAK THE MUTE COMMAND');
+        console.log('\nMUTABLECHANNEL ROLE WAS DELETED, PLEASE DO NOT DO THIS AS IT WILL BREAK THE MUTE COMMAND\n');
     }
 });
 
@@ -142,48 +134,6 @@ process.on('unhandledRejection', (reason, p) => {
     console.log(p);
     console.log(`Reason: ${reason}`);
 });
-
-//-----------------------------------------------
-// UTILITY FUNCTIONS
-//-----------------------------------------------
-
-/**
- * Checks if all necessary files are in the directory.
- * If these files are not there, they are created synchronously and a console message is logged.
- * If the most important file, config.json, is not there then the process exits.
- */
-function CheckNecessaryFiles() {
-    // Create the main directory for all necessary txt and JSON files
-    if (!fs.existsSync('./data')) {
-        fs.mkdirSync('./data');
-        console.log('Data folder for all program necessary files was not found, one has been created\n');
-    }
-
-    // Create offenders JSON if one does not already exist 
-    if (!fs.existsSync('./data/offenders.json')) {
-        fs.writeFileSync('./data/offenders.json', '{}');
-        console.log('Offenders file was not found, one has been created\n');
-    }
-
-    // Create muted user list if one does not already exist
-    if (!fs.existsSync('./data/muted.txt')) {
-        fs.closeSync(fs.openSync('./data/muted.txt', 'w'));
-        console.log('Muted users file was not found, one has been created\n');
-    }
-
-    // Create censor list if one does not already exist
-    if (!fs.existsSync('./data/censor.txt')) {
-        fs.closeSync(fs.openSync('./data/censor.txt', 'w'));
-        console.log('CENSORED WORD FILE WAS NOT FOUND, ONE HAS BEEN CREATED\nPLEASE EDIT THIS FILE BY PLACING EACH WORD ON A NEW LINE\n');
-    }
-
-    // Create config JSON if one does not already exist
-    if (!fs.existsSync('./data/config.json')) {
-        fs.writeFileSync('./data/config.json', '{\n\t"prefix" : "PREFIX_HERE",\n\t"token" : "DISCORD_TOKEN_HERE"\n}');
-        console.log('***CONFIG JSON NOT DETECTED, ONE HAS BEEN CREATED***\n***PLEASE EDIT THIS FILE TO INCLUDE PREFIX AND DISCORD TOKEN***\n');
-        process.exit(0);
-    }
-}
 
 //-----------------------------------------------
 // DISCORD API LOGIN
