@@ -75,7 +75,7 @@ export default class Roles extends BasePlugin {
         const botName: string = message.client.user.username;
         const botRolePosition: number = message.guild.roles.find('name', botName).position;
 
-        let sen = '';
+        let sen: string = '';
         message.guild.roles.forEach(role => {
             if (0 < role.position && role.position < botRolePosition) {
                 sen += `\n${role.name}:\n\`${this.prefix}role ${role.name}\``;
