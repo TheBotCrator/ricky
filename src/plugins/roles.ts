@@ -4,7 +4,7 @@ import Discord from 'discord.js';
 export default class Roles extends BasePlugin {
     onMessage(message: Discord.Message, command: string): boolean {
         if (command === 'role') {
-            const arg: string = message.content.slice(this.prefix.length + command.length).replace(/\s\s+/g, ' ').trim();
+            const arg: string = message.content.slice(this.prefix.length + command.length).replace(/\s+/g, ' ').trim();
 
             if (arg) {
                 // /<(?:@!?\d+|:.+?:\d+)>/g is the regex to test for all types of discord tags
