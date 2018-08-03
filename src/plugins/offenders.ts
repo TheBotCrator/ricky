@@ -43,7 +43,7 @@ export default class Offenders extends BasePlugin {
             }
         }
 
-        let sen = '**NUMBER OF OFFENDERS: **' + count + '\n\n';
+        let sen: string = '**NUMBER OF OFFENDERS: **' + count + '\n\n';
 
         if (count !== 0) {
             sen += ('**OFFENDERS:**\n' + users);
