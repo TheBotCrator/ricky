@@ -92,7 +92,6 @@ export default class Mute extends BasePlugin {
             this.muted.push(user.id);
             console.log('Muted txt write success');
         });
-
         mutedWriteStream.end();
     }
 
@@ -112,11 +111,12 @@ export default class Mute extends BasePlugin {
 
         this.muted.splice(this.muted.indexOf(user.id), 1);
 
-        const mutedWriteStream = fs.createWriteStream('./data/muted.txt');
-        mutedWriteStream.write(this.muted.join('\n'), () => {
+        const mutedOpen = fs.openSync('./data/muted.txt', 'w');
+        if (this.muted.length) {
+            fs.writeSync(mutedOpen, this.muted.join('\n') + '\n');
             console.log('Muted txt write success');
-        });
-        mutedWriteStream.end();
+        }
+        fs.closeSync(mutedOpen);
     }
 
     private addOverwrites(channel: Discord.TextChannel): void {
