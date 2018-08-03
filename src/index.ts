@@ -7,10 +7,10 @@ import * as Discord from 'discord.js';
 import { plugins } from './pluginLoader';
 
 // Login credentials and prefix for the bot
-const config = require('../data/config.json');
+const config: {[key: string]: string} = require('../data/config.json');
 
 // Creates a new Dicord "Client"
-const client = new Discord.Client();
+const client: Discord.Client = new Discord.Client();
 
 //-----------------------------------------------
 // EVENT HANDLERS
@@ -56,12 +56,8 @@ client.on('message', message => {
     if (message.author.bot || message.channel.type !== 'text') {
         return;
     }
-
-    if (message.content.startsWith(config.prefix)) {
-        console.log(`\t${message.author.tag}: ${message.content}`);
-    }
     
-    const command = message.content.slice(config.prefix.length).split(/ +/g)[0].toLowerCase();
+    const command: string = message.content.slice(config.prefix.length).split(' ')[0].toLowerCase();
 
     plugins.some(clss => clss.onMessage(message, command));
 });
@@ -114,7 +110,7 @@ client.on('roleDelete', role => {
             name: 'MutableChannel',
             permissions: []
         });
-        console.log('MUTABLECHANNEL ROLE WAS DELETED, PLEASE DO NOT DO THIS AS IT WILL BREAK THE MUTE COMMAND');
+        console.log('\nMUTABLECHANNEL ROLE WAS DELETED, PLEASE DO NOT DO THIS AS IT WILL BREAK THE MUTE COMMAND\n');
     }
 });
 
