@@ -4,21 +4,29 @@ import fs from 'fs';
 import pluralize from 'pluralize';
 
 export default class Filter extends BasePlugin {
+    // All the words in the censor.txt file
     private censorWords: string[] = this.getWords();
+
+    // The censorWords list, but in regex form for checking
     private regexWords: RegExp[] = this.convertToRegex(this.censorWords);
 
+    // List of language offenders
     private offenders: { [key: string]: { [key: string]: any } } = require('../../data/offenders.json');
 
     onMessage(message: Discord.Message, command: string): boolean {
         const msg: string = message.content.trim().toLowerCase();
 
         return this.regexWords.some((regex, index) => {
+            // Checks if the user's message contained any banned words
             if (regex.test(msg)) {
+                // Deleting that user's message is top priority
                 message.delete().then(() => message.channel.send(`${message.member.user}, that kind of language is not tolerated here.`));
 
+                // The word that triggered the regex test and it's cooresponding "normal" version 
                 const badWord: string = (msg.match(regex) as string[])[0]; // Cast it as string[] becuase we already know a word is in there, just grab the first one
                 const badWordinCensor: string = this.censorWords[index];
 
+                // This is just here for readabiluty and to save processing power
                 let userData: { [key: string]: any } = this.offenders[message.author.toString()];
 
                 // If uer is in offenders JSON their info is updated
@@ -65,6 +73,7 @@ export default class Filter extends BasePlugin {
         console.log(`List of censored words:\n\t${this.censorWords}\n`);
     }
 
+    // Gets all of the words in censor.txt and pluralizes them
     private getWords(): string[] {
         const words: string[] = [];
 
@@ -81,6 +90,7 @@ export default class Filter extends BasePlugin {
         return words;
     }
 
+    // Converts all the strings inside the list to word boundary regex checks 
     private convertToRegex(censorList: string[]): RegExp[] {
         const replace: { [key: string]: string } = { 'a': '(a|4|@)', 'b': '(b|8)', 'c': '(c|<)', 'e': '(e|3)', 'f': '(f|ph)', 'g': '(g|6|9)', 'i': '(i|1)', 'l': '(l|1)', 'o': '(o|0)', 's': '(s|5|$)', 't': '(t|7|\\+)', 'w': '(w|vv)' };
         const regexList: RegExp[] = [];

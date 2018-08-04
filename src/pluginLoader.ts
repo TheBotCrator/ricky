@@ -1,5 +1,7 @@
 import { BasePlugin } from './plugins/base';
 
+// Each plugin will be evaluated in this order, most of the time it will be for the onMessage()
+// This is the order that onMessage() will be evaluated in
 const PluginConfig = [
     './plugins/filter',
     './plugins/commandCheck',
@@ -11,6 +13,7 @@ const PluginConfig = [
 
 export const plugins: BasePlugin[] = [];
 PluginConfig.forEach(path => {
+    // Get each class
     let bClass = require(path);
 
     try {

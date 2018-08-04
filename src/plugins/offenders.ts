@@ -7,17 +7,24 @@ export default class Offenders extends BasePlugin {
 
     onMessage(message: Discord.Message, command: string): boolean {
         if (command === 'offender' || command === 'offenders') {
+            // Check if user has permission to use this commadn
             if (message.member.roles.exists('name', 'Admin') || message.member.roles.exists('name', 'Moderator')) {
+
+                // Gets a list of all the users the user tagged
                 const mentionedUsers: Discord.User[] = message.mentions.users.array();
 
+                // If they tagged people for a lookup
                 if (mentionedUsers.length) {
+                    // Delete the message so people don't know they've been audited
                     message.delete();
 
+                    // Look up each user individually
                     mentionedUsers.forEach(user => {
                         this.oneLookUp(message, user);
                     });
                 }
                 else {
+                    // Just send a general list of who's said bad stuff
                     this.allLookUp(message);
                 }
             }
@@ -36,6 +43,7 @@ export default class Offenders extends BasePlugin {
         let count: number = 0;
         let users: string = '';
 
+        // Just loop over everyone in offenders and add them to a list
         for (let user in this.offenders) {
             if (this.offenders.hasOwnProperty(user)) {
                 count++;
@@ -45,6 +53,7 @@ export default class Offenders extends BasePlugin {
 
         let sen: string = '**NUMBER OF OFFENDERS: **' + count + '\n\n';
 
+        // If there are 1 or more people, append a list of who they are
         if (count !== 0) {
             sen += ('**OFFENDERS:**\n' + users);
         }
@@ -56,6 +65,7 @@ export default class Offenders extends BasePlugin {
     }
 
     private oneLookUp(message: Discord.Message, user: Discord.User) {
+        // Check if the user has a record
         if (this.offenders.hasOwnProperty(user.toString())) {
             const userData: { [key: string]: any } = this.offenders[user.toString()];
             let sen: string = '**USER:** ' + user + '\n\n**TOTAL OFFENSES:** ' + userData['offenses'] + '\n\n**MESSAGES:**\n';
