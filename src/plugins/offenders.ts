@@ -7,17 +7,24 @@ export default class Offenders extends BasePlugin {
 
     onMessage(message: Discord.Message, command: string): boolean {
         if (command === 'offender' || command === 'offenders') {
+            // Check if user has permission to use this commadn
             if (message.member.roles.exists('name', 'Admin') || message.member.roles.exists('name', 'Moderator')) {
+
+                // Gets a list of all the users the user tagged
                 const mentionedUsers: Discord.User[] = message.mentions.users.array();
 
+                // If they tagged people for a lookup
                 if (mentionedUsers.length) {
+                    // Delete the message so people don't know they've been audited
                     message.delete();
 
+                    // Look up each user individually
                     mentionedUsers.forEach(user => {
                         this.oneLookUp(message, user);
                     });
                 }
                 else {
+                    // Just send a general list of who's said bad stuff
                     this.allLookUp(message);
                 }
             }
