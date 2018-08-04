@@ -44,7 +44,7 @@ export default class Mute extends BasePlugin {
 
     onChannelUpdate(oldChannel: Discord.Channel, newChannel: Discord.Channel): void {
         if (newChannel.type === 'text') {
-            const textChannel = newChannel as Discord.TextChannel;
+            const textChannel: Discord.TextChannel = newChannel as Discord.TextChannel;
             const MutableChannelID: string = textChannel.guild.roles.find('name', 'MutableChannel').id;
 
             if (textChannel.permissionOverwrites.exists('id', MutableChannelID)) {
@@ -87,12 +87,11 @@ export default class Mute extends BasePlugin {
         message.channel.send(`${user} has been muted.`);
         console.log(`${message.author.tag} muted ${user.tag}`);
 
-        const mutedWriteStream = fs.createWriteStream('./data/muted.txt', { flags: 'a' });
+        const mutedWriteStream: fs.WriteStream = fs.createWriteStream('./data/muted.txt', { flags: 'a' });
         mutedWriteStream.write(`${user.id}\n`, () => {
             this.muted.push(user.id);
             console.log('Muted txt write success');
         });
-
         mutedWriteStream.end();
     }
 
@@ -112,11 +111,12 @@ export default class Mute extends BasePlugin {
 
         this.muted.splice(this.muted.indexOf(user.id), 1);
 
-        const mutedWriteStream = fs.createWriteStream('./data/muted.txt');
-        mutedWriteStream.write(this.muted.join('\n'), () => {
+        const mutedOpen: number = fs.openSync('./data/muted.txt', 'w');
+        if (this.muted.length) {
+            fs.writeSync(mutedOpen, this.muted.join('\n') + '\n');
             console.log('Muted txt write success');
-        });
-        mutedWriteStream.end();
+        }
+        fs.closeSync(mutedOpen);
     }
 
     private addOverwrites(channel: Discord.TextChannel): void {

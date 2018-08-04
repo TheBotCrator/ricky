@@ -4,7 +4,7 @@ import Discord from 'discord.js';
 export default class Roles extends BasePlugin {
     onMessage(message: Discord.Message, command: string): boolean {
         if (command === 'role') {
-            const arg: string = message.content.slice(this.prefix.length + command.length).replace(/\s\s+/g, ' ').trim();
+            const arg: string = message.content.slice(this.prefix.length + command.length).replace(/\s+/g, ' ').trim();
 
             if (arg) {
                 // /<(?:@!?\d+|:.+?:\d+)>/g is the regex to test for all types of discord tags
@@ -26,7 +26,12 @@ export default class Roles extends BasePlugin {
                     });
 
                     if (role) {
-                        this.addRemoveRole(message, role);
+                        if (message.member.roles.exists('id', role.id)) {
+                            this.removeRole(message, role);
+                        }
+                        else {
+                            this.addRole(message, role);
+                        }
                     }
                     else {
                         message.channel.send(`${message.member.user}, \`${arg}\` is not a role`);
@@ -40,7 +45,7 @@ export default class Roles extends BasePlugin {
             return true;
         }
         else if (command === 'roles') {
-            this.getSendAddableRoles(message);
+            this.sendAddableRoles(message);
             return true;
         }
         else {
@@ -48,34 +53,33 @@ export default class Roles extends BasePlugin {
         }
     }
 
-    private addRemoveRole(message: Discord.Message, role: Discord.Role) {
-        if (message.member.roles.exists('id', role.id)) {
-            message.member.removeRole(role)
-                .then(() => {
-                    message.channel.send(`${message.member.user}, \`${role.name}\` role removed.`);
-                    console.log(`'${role.name}' was removed from ${message.author.tag}`);
-                })
-                .catch(() => {
-                    message.channel.send(`${message.member.user}, I cannot remove the \`${role.name}\` role.`);
-                });
-        }
-        else {
-            message.member.addRole(role)
-                .then(() => {
-                    message.channel.send(`${message.member.user}, \`${role.name}\` role added`);
-                    console.log(`'${role.name}' was added to ${message.author.tag}`);
-                })
-                .catch(() => {
-                    message.channel.send(`${message.member.user}, I cannot give you the \`${role.name}\` role.`);
-                });
-        }
+    private addRole(message: Discord.Message, role: Discord.Role): void {
+        message.member.addRole(role)
+            .then(() => {
+                message.channel.send(`${message.member.user}, \`${role.name}\` role added`);
+                console.log(`'${role.name}' was added to ${message.author.tag}`);
+            })
+            .catch(() => {
+                message.channel.send(`${message.member.user}, I cannot give you the \`${role.name}\` role.`);
+            });
     }
 
-    private getSendAddableRoles(message: Discord.Message) {
+    private removeRole(message: Discord.Message, role: Discord.Role): void {
+        message.member.removeRole(role)
+            .then(() => {
+                message.channel.send(`${message.member.user}, \`${role.name}\` role removed.`);
+                console.log(`'${role.name}' was removed from ${message.author.tag}`);
+            })
+            .catch(() => {
+                message.channel.send(`${message.member.user}, I cannot remove the \`${role.name}\` role.`);
+            });
+    }
+
+    private sendAddableRoles(message: Discord.Message) {
         const botName: string = message.client.user.username;
         const botRolePosition: number = message.guild.roles.find('name', botName).position;
 
-        let sen = '';
+        let sen: string = '';
         message.guild.roles.forEach(role => {
             if (0 < role.position && role.position < botRolePosition) {
                 sen += `\n${role.name}:\n\`${this.prefix}role ${role.name}\``;
