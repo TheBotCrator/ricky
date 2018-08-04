@@ -12,11 +12,12 @@ export default class Filter extends BasePlugin {
     onMessage(message: Discord.Message, command: string): boolean {
         const msg: string = message.content.trim().toLowerCase();
 
-        return this.regexWords.some(regex => {
+        return this.regexWords.some((regex, index) => {
             if (regex.test(msg)) {
                 message.delete().then(() => message.channel.send(`${message.member.user}, that kind of language is not tolerated here.`));
 
                 const badWord: string = (msg.match(regex) as string[])[0]; // Cast it as string[] becuase we already know a word is in there, just grab the first one
+                const badWordinCensor: string = this.censorWords[index];
                 const authorAsString: string = message.author.toString();
 
                 // If uer is in offenders JSON their info is updated
@@ -24,11 +25,11 @@ export default class Filter extends BasePlugin {
                 if (this.offenders.hasOwnProperty(authorAsString)) {
                     this.offenders[authorAsString]['offenses']++;
                     this.offenders[authorAsString]['messages'].push(msg);
-                    console.log(`\t${message.author.tag} message contained: ${badWord}, ${this.offenders[authorAsString]['offenses']} offenses`);
+                    console.log(`\t${message.author.tag} message contained: ${badWord} (${badWordinCensor}), ${this.offenders[authorAsString]['offenses']} offenses`);
                 }
                 else {
                     this.offenders[authorAsString] = { 'offenses': 1, 'messages': [msg] };
-                    console.log(`\t${message.author.tag} message contained : ${badWord}, first offence`);
+                    console.log(`\t${message.author.tag} message contained : ${badWord} (${badWordinCensor}), first offence`);
                 }
 
                 // Write to offenders file
@@ -42,7 +43,7 @@ export default class Filter extends BasePlugin {
                 message.guild.fetchMembers().then(pGuild => {
                     pGuild.members.forEach(member => {
                         if (member.roles.exists('name', 'Moderator')) {
-                            member.send(`${message.author}'s message contained "${badWord}" in the ${message.channel} channel, ${this.offenders[authorAsString]['offenses']} offenses`);
+                            member.send(`${message.author}'s message contained "${badWord}" (${badWordinCensor}) in the ${message.channel} channel, ${this.offenders[authorAsString]['offenses']} offenses`);
                         }
                     });
                 });
