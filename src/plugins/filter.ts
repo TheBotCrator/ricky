@@ -18,20 +18,21 @@ export default class Filter extends BasePlugin {
 
                 const badWord: string = (msg.match(regex) as string[])[0]; // Cast it as string[] becuase we already know a word is in there, just grab the first one
                 const badWordinCensor: string = this.censorWords[index];
-                const authorAsString: string = message.author.toString();
+
+                let userData: { [key: string]: any } = this.offenders[message.author.toString()];
 
                 // If uer is in offenders JSON their info is updated
                 // else, their info is added to offenders JSON
-                if (this.offenders.hasOwnProperty(authorAsString)) {
-                    this.offenders[authorAsString]['offenses']++;
-                    this.offenders[authorAsString]['messages'].push(msg);
-                    console.log(`\t${message.author.tag} message contained: ${badWord} (${badWordinCensor}), ${this.offenders[authorAsString]['offenses']} offenses`);
+                if (this.offenders.hasOwnProperty(message.author.toString())) {
+                    userData['offenses']++;
+                    userData['messages'].push(msg);
+                    console.log(`\t${message.author.tag} message contained: ${badWord} (${badWordinCensor}), ${userData['offenses']} offenses`);
                 }
                 else {
-                    this.offenders[authorAsString] = { 'offenses': 1, 'messages': [msg] };
+                    userData = { 'offenses': 1, 'messages': [msg] };
                     console.log(`\t${message.author.tag} message contained : ${badWord} (${badWordinCensor}), first offence`);
                 }
-
+                
                 // Write to offenders file
                 const offendersWriteStream: fs.WriteStream = fs.createWriteStream('./data/offenders.json');
                 offendersWriteStream.write(JSON.stringify(this.offenders, null, 4), () => {
@@ -43,7 +44,7 @@ export default class Filter extends BasePlugin {
                 message.guild.fetchMembers().then(pGuild => {
                     pGuild.members.forEach(member => {
                         if (member.roles.exists('name', 'Moderator')) {
-                            member.send(`${message.author}'s message contained "${badWord}" (${badWordinCensor}) in the ${message.channel} channel, ${this.offenders[authorAsString]['offenses']} offenses`);
+                            member.send(`${message.author}'s message contained "${badWord}" (${badWordinCensor}) in the ${message.channel} channel, ${userData['offenses']} offenses`);
                         }
                     });
                 });
