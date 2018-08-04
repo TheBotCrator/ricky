@@ -43,6 +43,7 @@ export default class Offenders extends BasePlugin {
         let count: number = 0;
         let users: string = '';
 
+        // Just loop over everyone in offenders and add them to a list
         for (let user in this.offenders) {
             if (this.offenders.hasOwnProperty(user)) {
                 count++;
@@ -52,6 +53,7 @@ export default class Offenders extends BasePlugin {
 
         let sen: string = '**NUMBER OF OFFENDERS: **' + count + '\n\n';
 
+        // If there are 1 or more people, append a list of who they are
         if (count !== 0) {
             sen += ('**OFFENDERS:**\n' + users);
         }
@@ -63,6 +65,7 @@ export default class Offenders extends BasePlugin {
     }
 
     private oneLookUp(message: Discord.Message, user: Discord.User) {
+        // Check if the user has a record
         if (this.offenders.hasOwnProperty(user.toString())) {
             const userData: { [key: string]: any } = this.offenders[user.toString()];
             let sen: string = '**USER:** ' + user + '\n\n**TOTAL OFFENSES:** ' + userData['offenses'] + '\n\n**MESSAGES:**\n';
