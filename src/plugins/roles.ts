@@ -17,7 +17,7 @@ export default class Roles extends BasePlugin {
                 const hasTags: boolean = /<(?:@!?\d+|:.+?:\d+)>/g.test(arg);
 
                 if (hasTags) {
-                    message.channel.send(`${message.member.user}, there aren't any roles containing that tag or custom emote.`);
+                    message.channel.send(`${message.author}, there aren't any roles containing that tag or custom emote.`);
                 }
                 else {
                     const argLower: string = arg.toLowerCase();
@@ -38,12 +38,12 @@ export default class Roles extends BasePlugin {
                         }
                     }
                     else {
-                        message.channel.send(`${message.member.user}, \`${arg}\` is not a role`);
+                        message.channel.send(`${message.author}, \`${arg}\` is not a role`);
                     }
                 }
             }
             else {
-                message.channel.send(`${message.member.user}, please put the role you wish to add (ex: \`${this.prefix}role Thing\`).`);
+                message.channel.send(`${message.author}, please put the role you wish to add (ex: \`${this.prefix}role Thing\`).`);
             }
 
             return true;
@@ -62,11 +62,11 @@ export default class Roles extends BasePlugin {
         // Adds the provided role to the user, if it fails, let them know.
         message.member.addRole(role)
             .then(() => {
-                message.channel.send(`${message.member.user}, \`${role.name}\` role added`);
+                message.channel.send(`${message.author}, \`${role.name}\` role added`);
                 console.log(`'${role.name}' was added to ${message.author.tag}`);
             })
             .catch(() => {
-                message.channel.send(`${message.member.user}, I cannot give you the \`${role.name}\` role.`);
+                message.channel.send(`${message.author}, I cannot give you the \`${role.name}\` role.`);
             });
     }
 
@@ -74,11 +74,11 @@ export default class Roles extends BasePlugin {
         // Removes the provided role to the user, if it fails, let them know.
         message.member.removeRole(role)
             .then(() => {
-                message.channel.send(`${message.member.user}, \`${role.name}\` role removed.`);
+                message.channel.send(`${message.author}, \`${role.name}\` role removed.`);
                 console.log(`'${role.name}' was removed from ${message.author.tag}`);
             })
             .catch(() => {
-                message.channel.send(`${message.member.user}, I cannot remove the \`${role.name}\` role.`);
+                message.channel.send(`${message.author}, I cannot remove the \`${role.name}\` role.`);
             });
     }
 
@@ -96,7 +96,7 @@ export default class Roles extends BasePlugin {
         });
 
         message.author.send(sen);
-        message.channel.send(`${message.member.user}, I have sent you a list of roles.`);
+        message.channel.send(`${message.author}, I have sent you a list of roles.`);
         console.log(`Sent ${message.author.tag} a list of roles`);
     }
 }
