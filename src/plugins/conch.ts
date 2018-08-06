@@ -12,7 +12,7 @@ export default class Conch extends BasePlugin {
                 console.log('The Conch has responded');
             }
             else {
-                message.channel.send(`${message.member.user}, you need to actually ask me a question (ex: \`${this.prefix}Conch Thing?\`).`);
+                message.channel.send(`${message.author}, you need to actually ask me a question (ex: \`${this.prefix}Conch Thing?\`).`);
             }
 
             return true;

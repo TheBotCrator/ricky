@@ -20,7 +20,7 @@ export default class Mute extends BasePlugin {
                     mentionedUsers.forEach(user => {
                         // Stupidity check
                         if (user === message.author) {
-                            message.channel.send(`${message.member.user}, you cannot mute yourself.`);
+                            message.channel.send(`${message.author}, you cannot mute yourself.`);
                         }
                         else {
                             // If the user is muted, unmute them. If they are not muted, mute them.
@@ -34,11 +34,11 @@ export default class Mute extends BasePlugin {
                     });
                 }
                 else {
-                    message.channel.send(`${message.member.user}, please put the user(s) you wish to mute (ex: \`${this.prefix}mute @user @user, @user\`).`);
+                    message.channel.send(`${message.author}, please put the user(s) you wish to mute (ex: \`${this.prefix}mute @user @user, @user\`).`);
                 }
             }
             else {
-                message.channel.send(`${message.member.user}, 'you do not have permission to use that command.'`);
+                message.channel.send(`${message.author}, 'you do not have permission to use that command.'`);
             }
             return true;
         }

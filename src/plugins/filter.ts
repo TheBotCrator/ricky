@@ -20,7 +20,7 @@ export default class Filter extends BasePlugin {
             // Checks if the user's message contained any banned words
             if (regex.test(msg)) {
                 // Deleting that user's message is top priority
-                message.delete().then(() => message.channel.send(`${message.member.user}, that kind of language is not tolerated here.`));
+                message.delete().then(() => message.channel.send(`${message.author}, that kind of language is not tolerated here.`));
 
                 // The word that triggered the regex test and it's cooresponding "normal" version 
                 const badWord: string = (msg.match(regex) as string[])[0]; // Cast it as string[] becuase we already know a word is in there, just grab the first one

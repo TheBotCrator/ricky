@@ -29,7 +29,7 @@ export default class Offenders extends BasePlugin {
                 }
             }
             else {
-                message.channel.send(`${message.member.user}, you do not have permission to use that command.`);
+                message.channel.send(`${message.author}, you do not have permission to use that command.`);
             }
 
             return true;
@@ -59,7 +59,7 @@ export default class Offenders extends BasePlugin {
         }
 
         message.author.send(sen);
-        message.channel.send(`${message.member.user}, I have sent you a list of language offenders.`);
+        message.channel.send(`${message.author}, I have sent you a list of language offenders.`);
 
         console.log(`Sent ${message.author.tag} a list of language offenders`);
     }
