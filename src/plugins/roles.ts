@@ -14,7 +14,7 @@ export default class Roles extends BasePlugin {
                 // <:aaa:999>
                 // <:a9a:999>
                 // <:999:999>
-                const hasTags: boolean = /<(?:@!?\d+|:.+?:\d+)>/g.test(message.content);
+                const hasTags: boolean = /<(?:@!?\d+|:.+?:\d+)>/g.test(arg);
 
                 if (hasTags) {
                     message.channel.send(`${message.member.user}, there aren't any roles containing that tag or custom emote.`);

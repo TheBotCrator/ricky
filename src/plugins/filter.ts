@@ -25,22 +25,20 @@ export default class Filter extends BasePlugin {
                 // The word that triggered the regex test and it's cooresponding "normal" version 
                 const badWord: string = (msg.match(regex) as string[])[0]; // Cast it as string[] becuase we already know a word is in there, just grab the first one
                 const badWordinCensor: string = this.censorWords[index];
-
-                // This is just here for readabiluty and to save processing power
-                let userData: { [key: string]: any } = this.offenders[message.author.toString()];
+                const userAsString: string = message.author.toString();
 
                 // If uer is in offenders JSON their info is updated
                 // else, their info is added to offenders JSON
-                if (this.offenders.hasOwnProperty(message.author.toString())) {
-                    userData['offenses']++;
-                    userData['messages'].push(msg);
-                    console.log(`\t${message.author.tag} message contained: ${badWord} (${badWordinCensor}), ${userData['offenses']} offenses`);
+                if (this.offenders.hasOwnProperty(userAsString)) {
+                    this.offenders[userAsString]['offenses']++;
+                    this.offenders[userAsString]['messages'].push(msg);
+                    console.log(`\t${message.author.tag} message contained: ${badWord} (${badWordinCensor}), ${this.offenders[userAsString]['offenses']} offenses`);
                 }
                 else {
-                    userData = { 'offenses': 1, 'messages': [msg] };
+                    this.offenders[userAsString] = { 'offenses': 1, 'messages': [msg] };
                     console.log(`\t${message.author.tag} message contained : ${badWord} (${badWordinCensor}), first offence`);
                 }
-                
+
                 // Write to offenders file
                 const offendersWriteStream: fs.WriteStream = fs.createWriteStream('./data/offenders.json');
                 offendersWriteStream.write(JSON.stringify(this.offenders, null, 4), () => {
@@ -52,7 +50,7 @@ export default class Filter extends BasePlugin {
                 message.guild.fetchMembers().then(pGuild => {
                     pGuild.members.forEach(member => {
                         if (member.roles.exists('name', 'Moderator')) {
-                            member.send(`${message.author}'s message contained "${badWord}" (${badWordinCensor}) in the ${message.channel} channel, ${userData['offenses']} offenses`);
+                            member.send(`${message.author}'s message contained "${badWord}" (${badWordinCensor}) in the ${message.channel} channel, ${this.offenders[userAsString]['offenses']} offenses`);
                         }
                     });
                 });
