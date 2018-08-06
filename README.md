@@ -13,16 +13,10 @@ Ricky is an open source Discord bot for community moderation and management by R
 1. `$ git clone https://github.com/RITesports/ricky/`
 2. `$ cd ricky`
 3. Change the config.json file with the appropriate prefix and bot token
-4. Choose one of the two installation methods below
 
 ## Traditional Installation
 
 1. `$ npm install`
-2. `$ node index.js`
-
-## Docker Installation
-
-1. `$ docker build -t ricky .`
-2. `$ docker run -d ricky`
+2. `$ node start
 
 Readme will be updated with more stuff soon 🔥🔥
