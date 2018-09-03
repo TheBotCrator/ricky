@@ -50,7 +50,7 @@ export default class Mute extends BasePlugin {
     onChannelUpdate(oldChannel: Discord.Channel, newChannel: Discord.Channel): void {
         if (newChannel.type === 'text') {
             const textChannel: Discord.TextChannel = newChannel as Discord.TextChannel;
-            const MutableChannelID: string = textChannel.guild.roles.find('name', 'MutableChannel').id;
+            const MutableChannelID: string = textChannel.guild.roles.find(role => role.name === 'MutableChannel').id;
 
             // If the channel has the MutableChannel overwrite, add permission overwrites for muted users
             // If not, remove the muted overwrites
@@ -81,7 +81,7 @@ export default class Mute extends BasePlugin {
     }
 
     private mute(message: Discord.Message, user: Discord.User): void {
-        const MutableChannelID: string = message.guild.roles.find('name', 'MutableChannel').id;
+        const MutableChannelID: string = message.guild.roles.find(role => role.name === 'MutableChannel').id;
 
         // Check if the channel has the MutableChannel overwrite, if it does, mute the provided user in that channel
         message.guild.channels.forEach(channel => {
@@ -106,13 +106,13 @@ export default class Mute extends BasePlugin {
     }
 
     private unMute(message: Discord.Message, user: Discord.User): void {
-        const MutableChannelID: string = message.guild.roles.find('name', 'MutableChannel').id;
+        const MutableChannelID: string = message.guild.roles.find(role => role.name === 'MutableChannel').id;
 
         // If the channel has the MutableChannel overwrite, and that user is muted, remove the mute
         message.guild.channels.forEach(channel => {
             if (channel.type === 'text' && channel.permissionOverwrites.some(permOver => permOver.id === MutableChannelID)) {
                 if (channel.permissionOverwrites.some(permOver => permOver.id === user.id)) {
-                    channel.permissionOverwrites.find('id', user.id).delete();
+                    channel.permissionOverwrites.find(permOver => permOver.id === user.id).delete();
                 }
             }
         });
@@ -147,7 +147,7 @@ export default class Mute extends BasePlugin {
     private removeOverwrites(channel: Discord.TextChannel): void {
         this.muted.forEach(userID => {
             if (channel.permissionOverwrites.some(permOver => permOver.id === userID)) {
-                channel.permissionOverwrites.find('id', userID).delete();
+                channel.permissionOverwrites.find(permOver => permOver.id === userID).delete();
             }
         });
     }

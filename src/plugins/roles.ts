@@ -23,9 +23,7 @@ export default class Roles extends BasePlugin {
                     const argLower: string = arg.toLowerCase();
 
                     // Get the role that matches what the user wants
-                    const roleWant: Discord.Role = message.guild.roles.find(role => {
-                        return role.name.toLowerCase() === argLower;
-                    });
+                    const roleWant: Discord.Role = message.guild.roles.find(role => role.name.toLowerCase() === argLower);
 
                     // Check if the role they want is real
                     if (roleWant) {
@@ -85,7 +83,7 @@ export default class Roles extends BasePlugin {
     private sendAddableRoles(message: Discord.Message) {
         // Each channel has a special role for the bot, find it's position.
         const botName: string = message.client.user.username;
-        const botRolePosition: number = message.guild.roles.find('name', botName).position;
+        const botRolePosition: number = message.guild.roles.find(role => role.name === botName).position;
 
         let sen: string = '';
         // Get all the roles below the bot's position, but not the bottom one (@everyone) 
