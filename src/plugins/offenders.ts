@@ -8,7 +8,7 @@ export default class Offenders extends BasePlugin {
     onMessage(message: Discord.Message, command: string): boolean {
         if (command === 'offender' || command === 'offenders') {
             // Check if user has permission to use this commadn
-            if (message.member.roles.exists('name', 'Admin') || message.member.roles.exists('name', 'Moderator')) {
+            if (message.member.roles.some(role => role.name === 'Admin') || message.member.roles.some(role => role.name === 'Moderator')) {
 
                 // Gets a list of all the users the user tagged
                 const mentionedUsers: Discord.User[] = message.mentions.users.array();

@@ -4,15 +4,15 @@
     "description": "",
     "main": "index.js",
     "dependencies": {
-        "discord.js": "^11.3.2",
+        "discord.js": "^11.4.2",
         "pluralize": "^7.0.0",
         "typescript": "^2.9.2"
     },
     "devDependencies": {
-        "@types/node": "^10.5.1",
+        "@types/node": "^10.9.4",
         "@types/pluralize": "0.0.28",
-        "tslint": "^5.10.0",
-        "tslint-eslint-rules": "^5.3.1"
+        "tslint": "^5.11.0",
+        "tslint-eslint-rules": "^5.4.0"
     },
     "scripts": {
         "start": "tsc && node ./build/index.js",
