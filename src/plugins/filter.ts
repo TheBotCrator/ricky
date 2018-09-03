@@ -49,7 +49,7 @@ export default class Filter extends BasePlugin {
                 // Gets all memebers of the server, if member has "Moderator" role a private message is sent informing them about the infraction
                 message.guild.fetchMembers().then(pGuild => {
                     pGuild.members.forEach(member => {
-                        if (member.roles.exists('name', 'Moderator')) {
+                        if (member.roles.some(role => role.name === 'Moderator')) {
                             member.send(`${message.author}'s message contained "${badWord}" (${badWordinCensor}) in the ${message.channel} channel, ${this.offenders[userAsString]['offenses']} offenses`);
                         }
                     });
