@@ -17,6 +17,6 @@ Ricky is an open source Discord bot for community moderation and management by R
 ## Traditional Installation
 
 1. `$ npm install`
-2. `$ node start
+2. `$ node start`
 
 Readme will be updated with more stuff soon 🔥🔥
